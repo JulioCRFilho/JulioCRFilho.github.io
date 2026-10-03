@@ -1,16 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { EXPERIENCES, SKILL_CATEGORIES } from '../data/portfolio-data';
+import { getExperiences, getSkillCategories } from '../data/portfolio-data';
 import {
-  Briefcase,
   GraduationCap,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Cpu,
   Layers,
   Code2,
   Search,
-  Sparkles,
   Award,
 } from 'lucide-react';
 
@@ -21,50 +18,62 @@ interface ExperienceTimelineProps {
 export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = 'en' }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [skillSearch, setSkillSearch] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
+
+  const experiences = getExperiences(lang);
+  const skillCategories = getSkillCategories(lang);
 
   const toggleExpand = (idx: number) => {
     setExpandedIndex(expandedIndex === idx ? null : idx);
   };
 
-  const categoryIcons: Record<string, React.ReactNode> = {
-    'Machine Learning & AI': <Cpu className="w-4 h-4 text-[#adff2f]" />,
-    'Software Architecture & Systems': <Layers className="w-4 h-4 text-[#38bdf8]" />,
-    'Languages & Core Tech': <Code2 className="w-4 h-4 text-[#c4b5fd]" />,
-    'Education & Honors': <Award className="w-4 h-4 text-[#fb923c]" />,
+  const getCategoryIcon = (index: number) => {
+    switch (index) {
+      case 0:
+        return <Cpu className="w-4 h-4 text-[#adff2f]" />;
+      case 1:
+        return <Layers className="w-4 h-4 text-[#38bdf8]" />;
+      case 2:
+        return <Code2 className="w-4 h-4 text-[#c4b5fd]" />;
+      default:
+        return <Award className="w-4 h-4 text-[#fb923c]" />;
+    }
   };
 
   // Filter skills based on search query and category
   const filteredCategories = useMemo(() => {
-    return SKILL_CATEGORIES.map((cat) => {
-      const isCatSelected = selectedCategory === 'all' || selectedCategory === cat.title;
-      if (!isCatSelected) return null;
+    return skillCategories
+      .map((cat, idx) => {
+        const isCatSelected = selectedCategory === 'all' || selectedCategory === idx;
+        if (!isCatSelected) return null;
 
-      const matchingSkills = cat.skills.filter((skill) => {
-        if (!skillSearch.trim()) return true;
-        const q = skillSearch.toLowerCase();
-        return (
-          skill.name.toLowerCase().includes(q) ||
-          (skill.level && skill.level.toLowerCase().includes(q))
-        );
-      });
+        const matchingSkills = cat.skills.filter((skill) => {
+          if (!skillSearch.trim()) return true;
+          const q = skillSearch.toLowerCase();
+          return (
+            skill.name.toLowerCase().includes(q) ||
+            (skill.level && skill.level.toLowerCase().includes(q))
+          );
+        });
 
-      return {
-        ...cat,
-        skills: matchingSkills,
-      };
-    }).filter(Boolean) as typeof SKILL_CATEGORIES;
-  }, [skillSearch, selectedCategory]);
+        return {
+          ...cat,
+          categoryIndex: idx,
+          skills: matchingSkills,
+        };
+      })
+      .filter(Boolean) as (typeof skillCategories[0] & { categoryIndex: number })[];
+  }, [skillSearch, selectedCategory, skillCategories]);
 
   const totalSkillCount = useMemo(() => {
-    return SKILL_CATEGORIES.reduce((acc, cat) => acc + cat.skills.length, 0);
-  }, []);
+    return skillCategories.reduce((acc, cat) => acc + cat.skills.length, 0);
+  }, [skillCategories]);
 
   return (
     <div className="space-y-12">
       {/* Experience Timeline */}
       <div className="space-y-4">
-        {EXPERIENCES.map((exp, idx) => {
+        {experiences.map((exp, idx) => {
           const isExpanded = expandedIndex === idx;
 
           return (
@@ -98,34 +107,43 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
                   <span className="text-xs font-mono text-zinc-500 hidden sm:inline">
                     {isExpanded ? (lang === 'pt' ? 'Ocultar' : 'Collapse') : (lang === 'pt' ? 'Detalhes' : 'Expand')}
                   </span>
-                  <div className="p-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
+                  <div className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-colors">
                     {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
                 </div>
               </div>
 
-              {/* Highlights & Tech Stack */}
+              {/* Collapsible Content */}
               {isExpanded && (
-                <div className="mt-4 pt-4 border-t border-zinc-850 space-y-4 animate-in fade-in duration-200">
-                  <ul className="space-y-2">
-                    {exp.highlights.map((item, hIdx) => (
-                      <li key={hIdx} className="text-xs text-zinc-300 flex items-start gap-2.5 leading-relaxed">
-                        <span className="text-[#adff2f] font-mono mt-0.5">▹</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="mt-6 pt-6 border-t border-zinc-800 space-y-4 animate-in fade-in duration-150">
+                  <div>
+                    <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-3">
+                      {lang === 'pt' ? 'Destaques & Entregas Principais' : 'Highlights & Architecture Achievements'}
+                    </h5>
+                    <ul className="space-y-2">
+                      {exp.highlights.map((item, hIdx) => (
+                        <li key={hIdx} className="text-xs text-zinc-300 flex items-start gap-2.5 leading-relaxed">
+                          <span className="text-[#adff2f] font-mono mt-0.5">▹</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  {/* Technologies */}
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {exp.technologies.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[11px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2.5 py-0.5 rounded"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div>
+                    <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">
+                      {lang === 'pt' ? 'Tecnologias Centrais' : 'Core Technologies'}
+                    </h5>
+                    <div className="flex flex-wrap gap-1.5">
+                      {exp.technologies.map((tech) => (
+                        <span
+                          key={tech}
+                          className="text-xs font-mono text-zinc-300 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -134,9 +152,9 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
         })}
       </div>
 
-      {/* Skills Matrix & Competencies */}
-      <div className="bg-zinc-950/80 border border-zinc-800 rounded-2xl p-6 lg:p-8 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-850">
+      {/* Skills & Academic Formation Section */}
+      <div className="p-6 lg:p-8 bg-zinc-950/80 border border-zinc-800 rounded-2xl shadow-xl space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
           <div>
             <h4 className="text-xl font-bold text-white flex items-center gap-2">
               <GraduationCap className="w-5 h-5 text-[#adff2f]" />
@@ -168,6 +186,7 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
         {/* Category Filters */}
         <div className="flex flex-wrap items-center gap-1.5">
           <button
+            type="button"
             onClick={() => setSelectedCategory('all')}
             className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer ${
               selectedCategory === 'all'
@@ -177,17 +196,18 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
           >
             {lang === 'pt' ? 'Todas' : 'All'} ({totalSkillCount})
           </button>
-          {SKILL_CATEGORIES.map((cat) => (
+          {skillCategories.map((cat, idx) => (
             <button
-              key={cat.title}
-              onClick={() => setSelectedCategory(cat.title)}
+              type="button"
+              key={idx}
+              onClick={() => setSelectedCategory(idx)}
               className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
-                selectedCategory === cat.title
+                selectedCategory === idx
                   ? 'bg-zinc-800 text-white border border-zinc-700 font-semibold'
                   : 'bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800/80'
               }`}
             >
-              <span>{categoryIcons[cat.title]}</span>
+              <span>{getCategoryIcon(idx)}</span>
               <span>{cat.title}</span>
               <span className="text-[10px] opacity-60">({cat.skills.length})</span>
             </button>
@@ -196,11 +216,11 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
 
         {/* Grid of Competencies */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
-          {filteredCategories.map((cat, cIdx) => (
-            <div key={cIdx} className="space-y-3">
+          {filteredCategories.map((cat) => (
+            <div key={cat.title} className="space-y-3">
               <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850">
                 <h5 className="text-xs font-mono uppercase text-zinc-300 font-bold tracking-wider flex items-center gap-1.5">
-                  {categoryIcons[cat.title]}
+                  {getCategoryIcon(cat.categoryIndex)}
                   <span>{cat.title}</span>
                 </h5>
                 <span className="text-[10px] font-mono text-zinc-500">{cat.skills.length}</span>

@@ -58,7 +58,8 @@ const ScrollAssemblyHeading: React.FC<{
   globalProgress: number;
   as?: 'h2' | 'h3' | 'span';
   className?: string;
-}> = ({ text, stage, globalProgress, as = 'h2', className = '' }) => {
+  lang?: 'en' | 'pt';
+}> = ({ text, stage, globalProgress, as = 'h2', className = '', lang = 'en' }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [localProgress, setLocalProgress] = useState<number>(0.10);
   const hasAnimatedRef = useRef<boolean>(false);
@@ -126,6 +127,7 @@ const ScrollAssemblyHeading: React.FC<{
         as={as}
         size="lg"
         className={className}
+        lang={lang}
       />
     </div>
   );
@@ -240,11 +242,15 @@ export default function App() {
         <section id="overview" className="pt-6 pb-12">
           {/* Unboxed Metadata Header (frontend-design skill compliant) */}
           <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-6 flex-wrap">
-            <span className="text-[#adff2f]">STATUS: DECODING_LATENT_SPACE</span>
+            <span className="text-[#adff2f]">
+              {lang === 'pt' ? 'STATUS: DECODIFICANDO_ESPAÇO_LATENTE' : 'STATUS: DECODING_LATENT_SPACE'}
+            </span>
             <span aria-hidden="true">·</span>
-            <span>SYSTEMS ARCHITECT & LLM ENGINEER</span>
+            <span>
+              {lang === 'pt' ? 'ARQUITETO DE SISTEMAS & ENGENHEIRO DE LLMs' : 'SYSTEMS ARCHITECT & LLM ENGINEER'}
+            </span>
             <span aria-hidden="true">·</span>
-            <span>CURITIBA, BRAZIL</span>
+            <span>{lang === 'pt' ? 'CURITIBA, BRASIL' : 'CURITIBA, BRAZIL'}</span>
           </div>
 
           {/* Hero Main Headline with 3-Stage Progressive Token Assembly */}
@@ -256,6 +262,7 @@ export default function App() {
                 stage={assemblyStage}
                 size="hero"
                 as="span"
+                lang={lang}
               />
             </div>
           </div>
@@ -273,6 +280,7 @@ export default function App() {
                 stage={assemblyStage}
                 size="sm"
                 as="span"
+                lang={lang}
               />
             </div>
           </div>
@@ -297,10 +305,10 @@ export default function App() {
                   onClick={triggerReplayAnimation}
                   disabled={isReplaying}
                   className="flex items-center gap-1.5 text-xs font-mono px-2.5 py-1 rounded bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 transition-colors disabled:opacity-50 cursor-pointer"
-                  title="Watch the 3-stage assembly animation"
+                  title={lang === 'pt' ? 'Assistir animação de montagem em 3 estágios' : 'Watch the 3-stage assembly animation'}
                 >
                   <RotateCcw className={`w-3 h-3 text-[#adff2f] ${isReplaying ? 'animate-spin' : ''}`} />
-                  <span>{isReplaying ? 'Assembling...' : 'Replay'}</span>
+                  <span>{isReplaying ? (lang === 'pt' ? 'Montando...' : 'Assembling...') : (lang === 'pt' ? 'Repetir' : 'Replay')}</span>
                 </button>
               </div>
             </div>
@@ -323,7 +331,9 @@ export default function App() {
                 <div className="text-[11px] text-zinc-400 mt-1 truncate">
                   0x4A 0x75 0x6C 0x69 0x6F
                 </div>
-                <div className="text-[9px] text-zinc-500 mt-0.5">Stream UTF-8 em Memória</div>
+                <div className="text-[9px] text-zinc-500 mt-0.5">
+                  {lang === 'pt' ? 'Stream UTF-8 em Memória' : 'UTF-8 Memory Stream'}
+                </div>
               </button>
 
               {/* Step 2: Semi-words */}
@@ -336,13 +346,17 @@ export default function App() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#38bdf8]">2. SEMI-WORDS</span>
+                  <span className="font-bold text-[#38bdf8]">
+                    {lang === 'pt' ? '2. SUB-PALAVRAS' : '2. SEMI-WORDS'}
+                  </span>
                   {currentStageNum === 2 && <span className="w-2 h-2 rounded-full bg-[#38bdf8] animate-ping" />}
                 </div>
                 <div className="text-[11px] text-zinc-400 mt-1 truncate">
                   [JUL#102] [IO#982]
                 </div>
-                <div className="text-[9px] text-zinc-500 mt-0.5">BPE Subword Tokens</div>
+                <div className="text-[9px] text-zinc-500 mt-0.5">
+                  {lang === 'pt' ? 'Tokens de Subpalavras BPE' : 'BPE Subword Tokens'}
+                </div>
               </button>
 
               {/* Step 3: Full Words */}
@@ -355,13 +369,17 @@ export default function App() {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-white">3. PALAVRAS</span>
+                  <span className="font-bold text-white">
+                    {lang === 'pt' ? '3. PALAVRAS' : '3. WORDS'}
+                  </span>
                   {currentStageNum === 3 && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                 </div>
                 <div className="text-[11px] text-zinc-300 mt-1 truncate font-sans">
                   "JULIO CESAR"
                 </div>
-                <div className="text-[9px] text-zinc-500 mt-0.5 font-mono">Texto Montado Final</div>
+                <div className="text-[9px] text-zinc-500 mt-0.5 font-mono">
+                  {lang === 'pt' ? 'Texto Montado Final' : 'Final Assembled Text'}
+                </div>
               </button>
             </div>
 
@@ -371,10 +389,10 @@ export default function App() {
                 <span>{lang === 'pt' ? 'Role a página ou deslize:' : 'Scroll page or drag to scrub assembly:'}</span>
                 <span className="text-[#adff2f]">
                   {currentStageNum === 1
-                    ? 'Estágio 1 (Bytes)'
+                    ? (lang === 'pt' ? 'Estágio 1 (Bytes)' : 'Stage 1 (Bytes)')
                     : currentStageNum === 2
-                    ? 'Estágio 2 (Semi-words)'
-                    : 'Estágio 3 (Palavras Completas)'}
+                    ? (lang === 'pt' ? 'Estágio 2 (Sub-palavras)' : 'Stage 2 (Semi-words)')
+                    : (lang === 'pt' ? 'Estágio 3 (Palavras Completas)' : 'Stage 3 (Full Words)')}
                 </span>
               </div>
               <input
@@ -396,19 +414,29 @@ export default function App() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 py-6 border-y border-zinc-800/80 my-8">
             <div>
               <div className="text-3xl font-bold font-mono text-[#adff2f] tabular-nums">503M</div>
-              <div className="text-xs text-zinc-400 mt-1">Causal Transformer Parameters</div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {lang === 'pt' ? 'Parâmetros Transformer Causal' : 'Causal Transformer Parameters'}
+              </div>
             </div>
             <div>
-              <div className="text-3xl font-bold font-mono text-[#38bdf8] tabular-nums">~6,200</div>
-              <div className="text-xs text-zinc-400 mt-1">Tokens/sec DDP Throughput</div>
+              <div className="text-3xl font-bold font-mono text-[#38bdf8] tabular-nums">~6.200</div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {lang === 'pt' ? 'Tokens/seg Throughput DDP' : 'Tokens/sec DDP Throughput'}
+              </div>
             </div>
             <div>
-              <div className="text-3xl font-bold font-mono text-[#c4b5fd] tabular-nums">8+ Years</div>
-              <div className="text-xs text-zinc-400 mt-1">Full-Stack & Systems Architecture</div>
+              <div className="text-3xl font-bold font-mono text-[#c4b5fd] tabular-nums">
+                {lang === 'pt' ? '8+ Anos' : '8+ Years'}
+              </div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {lang === 'pt' ? 'Arquitetura de Sistemas & Full-Stack' : 'Full-Stack & Systems Architecture'}
+              </div>
             </div>
             <div>
               <div className="text-3xl font-bold font-mono text-emerald-400 tabular-nums">1M+</div>
-              <div className="text-xs text-zinc-400 mt-1">Users Served in FinTech Mobile</div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {lang === 'pt' ? 'Usuários em FinTech Mobile' : 'Users Served in FinTech Mobile'}
+              </div>
             </div>
           </div>
 
@@ -433,6 +461,7 @@ export default function App() {
             <button
               onClick={() => setIsTerminalOpen(true)}
               className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white text-xs font-mono rounded-lg border border-zinc-800 transition-all flex items-center gap-2 cursor-pointer"
+              title={lang === 'pt' ? 'Abrir terminal para executar predict_contact_method()' : 'Launch terminal to run predict_contact_method()'}
             >
               <Terminal className="w-4 h-4 text-[#adff2f]" />
               <span>predict_contact_method()</span>
@@ -443,7 +472,7 @@ export default function App() {
               target="_blank"
               rel="noopener noreferrer"
               className="p-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg border border-zinc-800 transition-colors"
-              title="GitHub Profile (juliocrfilho)"
+              title={lang === 'pt' ? 'Perfil no GitHub (juliocrfilho)' : 'GitHub Profile (juliocrfilho)'}
             >
               <Github className="w-4 h-4" />
             </a>
@@ -451,7 +480,7 @@ export default function App() {
             <a
               href="mailto:reisfilho1116@gmail.com"
               className="p-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-[#adff2f] rounded-lg border border-zinc-800 transition-colors"
-              title="Send Direct Email"
+              title={lang === 'pt' ? 'Enviar E-mail Direto' : 'Send Direct Email'}
             >
               <Mail className="w-4 h-4" />
             </a>
@@ -463,14 +492,15 @@ export default function App() {
           <div className="flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <span className="text-xs font-mono text-[#adff2f] uppercase tracking-wider">
-                01. Causal Intelligence Kernel
+                {lang === 'pt' ? '01. Kernel de Inteligência Causal' : '01. Causal Intelligence Kernel'}
               </span>
               <div className="mt-1">
                 <ScrollAssemblyHeading
-                  text="CIR-Engine & Cir-Jev Architecture"
+                  text={lang === 'pt' ? 'Arquitetura CIR-Engine & Cir-Jev' : 'CIR-Engine & Cir-Jev Architecture'}
                   stage={assemblyStage}
                   globalProgress={scrollProgress}
                   className="text-3xl sm:text-4xl font-black text-white tracking-tight"
+                  lang={lang}
                 />
               </div>
             </div>
@@ -480,7 +510,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1"
             >
-              <span>GitHub Repo</span>
+              <span>{lang === 'pt' ? 'Repositório GitHub' : 'GitHub Repo'}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -493,19 +523,22 @@ export default function App() {
           <div className="flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <span className="text-xs font-mono text-[#38bdf8] uppercase tracking-wider">
-                02. Byte-Level BPE & Attention Mechanics
+                {lang === 'pt' ? '02. Mecânica de Atenção & BPE em Nível de Byte' : '02. Byte-Level BPE & Attention Mechanics'}
               </span>
               <div className="mt-1">
                 <ScrollAssemblyHeading
-                  text="Live Tokenizer & Causal Attention Matrix"
+                  text={lang === 'pt' ? 'Tokenizador Interativo & Matriz de Atenção Causal' : 'Live Tokenizer & Causal Attention Matrix'}
                   stage={assemblyStage}
                   globalProgress={scrollProgress}
                   className="text-3xl sm:text-4xl font-black text-white tracking-tight"
+                  lang={lang}
                 />
               </div>
             </div>
             <span className="text-xs font-mono text-zinc-500 hidden sm:inline">
-              UTF-8 · Subword Vocabulary · Causal Softmax
+              {lang === 'pt'
+                ? 'UTF-8 · Vocabulário de Subpalavras · Softmax Causal'
+                : 'UTF-8 · Subword Vocabulary · Causal Softmax'}
             </span>
           </div>
 
@@ -517,14 +550,15 @@ export default function App() {
           <div className="flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <span className="text-xs font-mono text-[#c4b5fd] uppercase tracking-wider">
-                03. Open-Source Ecosystem & Tooling
+                {lang === 'pt' ? '03. Ecossistema Open-Source & Ferramental' : '03. Open-Source Ecosystem & Tooling'}
               </span>
               <div className="mt-1">
                 <ScrollAssemblyHeading
-                  text="Latent Repositories & Developer Tools"
+                  text={lang === 'pt' ? 'Repositórios Latentes & Ferramentas Dev' : 'Latent Repositories & Developer Tools'}
                   stage={assemblyStage}
                   globalProgress={scrollProgress}
                   className="text-3xl sm:text-4xl font-black text-white tracking-tight"
+                  lang={lang}
                 />
               </div>
             </div>
@@ -552,19 +586,20 @@ export default function App() {
           <div className="flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider">
-                04. Engineering Trajectory
+                {lang === 'pt' ? '04. Trajetória de Engenharia' : '04. Engineering Trajectory'}
               </span>
               <div className="mt-1">
                 <ScrollAssemblyHeading
-                  text="System Logs & Career Experience"
+                  text={lang === 'pt' ? 'Logs de Sistema & Experiência Profissional' : 'System Logs & Career Experience'}
                   stage={assemblyStage}
                   globalProgress={scrollProgress}
                   className="text-3xl sm:text-4xl font-black text-white tracking-tight"
+                  lang={lang}
                 />
               </div>
             </div>
             <span className="text-xs font-mono text-zinc-500">
-              8+ Years Experience · 2019 – Present
+              {lang === 'pt' ? '8+ Anos de Experiência · 2019 – Presente' : '8+ Years Experience · 2019 – Present'}
             </span>
           </div>
 
@@ -575,14 +610,19 @@ export default function App() {
         <section className="p-8 sm:p-12 bg-zinc-950/80 border border-zinc-800 rounded-3xl relative overflow-hidden">
           <div className="relative z-10 max-w-3xl space-y-6">
             <span className="text-xs font-mono text-[#adff2f] uppercase tracking-wider">
-              [INITIATE_CONTACT_SEQUENCE]
+              {lang === 'pt' ? '[INICIAR_SEQUÊNCIA_DE_CONTATO]' : '[INITIATE_CONTACT_SEQUENCE]'}
             </span>
             <div className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
               <ScrollAssemblyHeading
-                text="Ready to architect scalable LLM inference and distributed systems."
+                text={
+                  lang === 'pt'
+                    ? 'Pronto para arquitetar inferência escalável de LLMs e sistemas distribuídos.'
+                    : 'Ready to architect scalable LLM inference and distributed systems.'
+                }
                 stage={assemblyStage}
                 globalProgress={scrollProgress}
                 className="font-black text-white tracking-tight"
+                lang={lang}
               />
             </div>
             <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
@@ -597,12 +637,12 @@ export default function App() {
                 className="px-6 py-3 bg-[#adff2f] text-black font-mono text-xs font-bold rounded-xl hover:bg-lime-300 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-lime-400/10"
               >
                 <Terminal className="w-4 h-4" />
-                <span>Launch Interactive Terminal</span>
+                <span>{lang === 'pt' ? 'Abrir Terminal Interativo' : 'Launch Interactive Terminal'}</span>
               </button>
 
               <a
                 href="mailto:reisfilho1116@gmail.com"
-                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-850 text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2"
               >
                 <Mail className="w-4 h-4 text-[#38bdf8]" />
                 <span>reisfilho1116@gmail.com</span>
@@ -612,7 +652,7 @@ export default function App() {
                 href="https://linkedin.com/in/juliocrfilho"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 hover:text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-[#0a66c2]/50 transition-all flex items-center gap-2 group"
+                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-850 text-zinc-200 hover:text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-[#0a66c2]/50 transition-all flex items-center gap-2 group"
               >
                 <Linkedin className="w-4 h-4 text-[#0a66c2] group-hover:text-[#38bdf8] transition-colors" />
                 <span>LinkedIn /in/juliocrfilho</span>
@@ -622,7 +662,7 @@ export default function App() {
                 href="https://github.com/juliocrfilho"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2"
               >
                 <Github className="w-4 h-4" />
                 <span>GitHub @juliocrfilho</span>
@@ -638,7 +678,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <span>© 2026 Julio Cesar da Costa Reis Filho</span>
             <span aria-hidden="true">·</span>
-            <span>The Latent Architect</span>
+            <span>{lang === 'pt' ? 'O Arquiteto Latente' : 'The Latent Architect'}</span>
           </div>
           <div className="flex items-center gap-4">
             <a href="https://linkedin.com/in/juliocrfilho" target="_blank" rel="noopener noreferrer" className="hover:text-[#38bdf8] transition-colors flex items-center gap-1">
@@ -649,7 +689,7 @@ export default function App() {
               GitHub
             </a>
             <a href="mailto:reisfilho1116@gmail.com" className="hover:text-[#adff2f] transition-colors">
-              Email
+              {lang === 'pt' ? 'E-mail' : 'Email'}
             </a>
             <button onClick={() => setIsTerminalOpen(true)} className="hover:text-white transition-colors cursor-pointer">
               Terminal

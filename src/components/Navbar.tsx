@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Globe, Sliders } from 'lucide-react';
+import { Terminal, Globe } from 'lucide-react';
 import { TokenAssemblyStage } from './TokenInteractiveText';
 
 interface NavbarProps {
@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="text-[#adff2f] animate-pulse">_</span>
         </a>
 
-        {/* Zone 2: 4-6 clean text navigation links */}
+        {/* Zone 2: Clean text navigation links */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-mono font-medium text-zinc-400">
           <a href="#overview" className="hover:text-white transition-colors">
             {lang === 'pt' ? 'Visão Geral' : 'Overview'}
@@ -53,57 +53,63 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* 3-Stage Token Assembly Segmented Control */}
           <div className="hidden sm:flex items-center p-0.5 bg-zinc-900 border border-zinc-800 rounded-lg text-[11px] font-mono">
             <button
+              type="button"
               onClick={() => setAssemblyStage('auto')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
                 assemblyStage === 'auto' ? 'bg-zinc-800 text-[#adff2f] font-semibold' : 'text-zinc-400 hover:text-white'
               }`}
-              title="Auto Assembly via Scroll"
+              title={lang === 'pt' ? 'Montagem Automática por Rolagem' : 'Auto Assembly via Scroll'}
             >
-              Scroll Auto
+              {lang === 'pt' ? 'Auto Scroll' : 'Scroll Auto'}
             </button>
             <button
+              type="button"
               onClick={() => setAssemblyStage('bytes')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
                 assemblyStage === 'bytes' ? 'bg-zinc-800 text-[#adff2f] font-semibold' : 'text-zinc-400 hover:text-white'
               }`}
-              title="Stage 1: Raw Bytes"
+              title={lang === 'pt' ? 'Estágio 1: Bytes Brutos' : 'Stage 1: Raw Bytes'}
             >
               1. Bytes
             </button>
             <button
+              type="button"
               onClick={() => setAssemblyStage('semiwords')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
                 assemblyStage === 'semiwords' ? 'bg-zinc-800 text-[#38bdf8] font-semibold' : 'text-zinc-400 hover:text-white'
               }`}
-              title="Stage 2: BPE Semi-words / Subwords"
+              title={lang === 'pt' ? 'Estágio 2: Sub-palavras / Tokens BPE' : 'Stage 2: BPE Semi-words / Subwords'}
             >
-              2. Semi-words
+              {lang === 'pt' ? '2. Sub-palavras' : '2. Semi-words'}
             </button>
             <button
+              type="button"
               onClick={() => setAssemblyStage('words')}
-              className={`px-2 py-1 rounded transition-colors ${
+              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
                 assemblyStage === 'words' ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:text-white'
               }`}
-              title="Stage 3: Full Assembled Words"
+              title={lang === 'pt' ? 'Estágio 3: Palavras Completas' : 'Stage 3: Full Assembled Words'}
             >
-              3. Words
+              {lang === 'pt' ? '3. Palavras' : '3. Words'}
             </button>
           </div>
 
           {/* Language Toggle */}
           <button
+            type="button"
             onClick={() => setLang(lang === 'en' ? 'pt' : 'en')}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-300 transition-colors cursor-pointer"
-            title="Switch Language (PT / EN)"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-300 transition-colors cursor-pointer"
+            title={lang === 'pt' ? 'Alternar Idioma (EN / PT)' : 'Switch Language (PT / EN)'}
           >
-            <Globe className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="font-semibold">{lang.toUpperCase()}</span>
+            <Globe className="w-3.5 h-3.5 text-[#adff2f]" />
+            <span className="font-bold text-[#adff2f]">{lang.toUpperCase()}</span>
           </button>
 
           {/* Contact / Terminal Action */}
           <button
+            type="button"
             onClick={onOpenTerminal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#adff2f] text-black font-mono text-xs font-bold hover:bg-lime-300 transition-all cursor-pointer whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#adff2f] text-black font-mono text-xs font-bold hover:bg-lime-300 transition-all cursor-pointer whitespace-nowrap shadow-sm shadow-lime-400/20"
           >
             <Terminal className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Terminal</span>

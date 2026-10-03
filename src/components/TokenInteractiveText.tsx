@@ -15,6 +15,7 @@ interface TokenInteractiveTextProps {
   size?: 'sm' | 'md' | 'lg' | 'hero';
   className?: string;
   enableHoverInspection?: boolean;
+  lang?: 'en' | 'pt';
 }
 
 export const TokenInteractiveText: React.FC<TokenInteractiveTextProps> = ({
@@ -25,6 +26,7 @@ export const TokenInteractiveText: React.FC<TokenInteractiveTextProps> = ({
   size = 'md',
   className = '',
   enableHoverInspection = true,
+  lang = 'en',
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const words = decomposeIntoAssemblyWords(text);
@@ -153,37 +155,37 @@ export const TokenInteractiveText: React.FC<TokenInteractiveTextProps> = ({
               >
                 <span className="flex items-center justify-between border-b border-zinc-800 pb-1.5 mb-1.5">
                   <span className="text-[10px] font-mono text-[#adff2f] uppercase tracking-wider font-bold">
-                    Assembly Anatomy
+                    {lang === 'pt' ? 'Anatomia de Montagem' : 'Assembly Anatomy'}
                   </span>
                   <span className="text-[10px] font-mono text-zinc-400">
                     {activeStage === 'bytes'
-                      ? 'Stage 1: Bytes'
+                      ? (lang === 'pt' ? 'Estágio 1: Bytes' : 'Stage 1: Bytes')
                       : activeStage === 'semiwords'
-                      ? 'Stage 2: Semi-words'
-                      : 'Stage 3: Assembled'}
+                      ? (lang === 'pt' ? 'Estágio 2: Sub-palavras' : 'Stage 2: Semi-words')
+                      : (lang === 'pt' ? 'Estágio 3: Montado' : 'Stage 3: Assembled')}
                   </span>
                 </span>
                 <span className="block space-y-1.5 font-mono text-[11px]">
                   <span className="flex justify-between">
-                    <span className="text-zinc-500">Assembled Word:</span>
+                    <span className="text-zinc-500">{lang === 'pt' ? 'Palavra Montada:' : 'Assembled Word:'}</span>
                     <span className="text-white font-bold font-sans text-xs">"{item.word}"</span>
                   </span>
                   <span className="flex justify-between">
-                    <span className="text-zinc-500">Semi-words:</span>
+                    <span className="text-zinc-500">{lang === 'pt' ? 'Sub-palavras:' : 'Semi-words:'}</span>
                     <span className="text-purple-300 font-semibold">
                       {item.subwords.map((s) => `[${s.text}]`).join(' ')}
                     </span>
                   </span>
                   <span className="flex justify-between">
-                    <span className="text-zinc-500">Bytes Count:</span>
+                    <span className="text-zinc-500">{lang === 'pt' ? 'Contagem de Bytes:' : 'Bytes Count:'}</span>
                     <span className="text-zinc-300">{item.bytes.length} B</span>
                   </span>
                   <span className="flex justify-between">
-                    <span className="text-zinc-500">Hex Stream:</span>
+                    <span className="text-zinc-500">{lang === 'pt' ? 'Fluxo Hexadecimal:' : 'Hex Stream:'}</span>
                     <span className="text-[#38bdf8] font-bold">{item.hexList.join(' ')}</span>
                   </span>
                   <span className="flex justify-between pt-1 border-t border-zinc-800 text-[10px]">
-                    <span className="text-zinc-500">Tokens IDs:</span>
+                    <span className="text-zinc-500">{lang === 'pt' ? 'IDs dos Tokens:' : 'Tokens IDs:'}</span>
                     <span className="text-emerald-400">
                       {item.subwords.map((s) => `#${s.id}`).join(', ')}
                     </span>

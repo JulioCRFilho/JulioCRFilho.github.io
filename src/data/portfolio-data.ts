@@ -45,6 +45,23 @@ export const PORTFOLIO_INFO = {
   bio: 'Systems Architect and Machine Learning Engineer with 8+ years of engineering experience spanning custom Causal Transformers (CIR-Engine 503M) trained from scratch, distributed DDP clusters, autonomous tool-use orchestration, and high-concurrency microservices in Go, Next.js, and Flutter.',
 };
 
+export function getPortfolioInfo(lang: 'en' | 'pt' = 'en') {
+  if (lang === 'pt') {
+    return {
+      ...PORTFOLIO_INFO,
+      title: 'Arquiteto de Sistemas Sênior & Engenheiro de LLMs',
+      location: 'Curitiba, Paraná, Brasil (Aberto para Remoto & Relocalização)',
+      languages: [
+        { name: 'Inglês', level: 'Proficiente C2 (EF SET 75/100)' },
+        { name: 'Português', level: 'Nativo' },
+        { name: 'Espanhol', level: 'Intermediário' },
+      ],
+      bio: 'Arquiteto de Sistemas e Engenheiro de Machine Learning com 8+ anos de experiência cobrindo Transformers Causais proprietários (CIR-Engine 503M) treinados do zero, clusters distribuídos DDP em PyTorch, orquestração autônoma de ferramentas e microsserviços de alta concorrência em Go, Next.js e Flutter.',
+    };
+  }
+  return PORTFOLIO_INFO;
+}
+
 export const PROJECTS: ProjectData[] = [
   {
     id: 'cir-engine',
@@ -174,6 +191,139 @@ export const PROJECTS: ProjectData[] = [
   },
 ];
 
+export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
+  if (lang !== 'pt') return PROJECTS;
+
+  return [
+    {
+      id: 'cir-engine',
+      title: 'CIR-Engine & Cir-Jev',
+      badge: 'Arquitetura ML Central',
+      category: 'ml_ai',
+      specs: '503M Parâmetros · 16 Camadas · 1536 Dim · 12 Cabeças (4 KV)',
+      summary: 'Transformer causal autorregressivo proprietário de 503M parâmetros projetado, treinado e avaliado do zero em PyTorch sem wrappers de alto nível pré-fabricados.',
+      details: [
+        'Implementação de técnicas modernas de atenção e normalização, incluindo Rotary Position Embeddings (RoPE), RMSNorm e Scaled Dot-Product Attention (SDPA/FlashAttention).',
+        'Arquitetura de pipeline de treinamento distribuído via torchrun & PyTorch DistributedDataParallel (DDP) em clusters NVIDIA Tesla T4 e L4 com precisão mista (FP16/AMP).',
+        'Alcançou throughput de ~6.200 tokens/s e redução de 66% no tempo de época (de 180 min para 61 min).',
+        'Formulou gramática estrita canônica de comunicação ([OP:QUERY], [OP:SOLVE], [OP:RESULT] [VAL: ...]) com 98–100% de conformidade de formato e zero desvio antropomórfico.',
+        'Interceptor autônomo de uso de ferramentas em tempo de execução: emite chamadas estruturadas de sub-rotina ([OP:CALC]) acionando execução determinística em Python com retorno verificado em O(1) e 100% de precisão de cálculo.',
+        'SFT Prompt Loss Masking (labels = -100) prevenindo sobreajuste (overfitting) nos templates de raciocínio.',
+        'MLOps headless conectando VS Code, Git e Kaggle API para despachar jobs de treinamento autonomamente e validar inferência local via Apple Silicon Metal (MPS) com latência de ~0,19s.'
+      ],
+      techStack: ['PyTorch', 'DistributedDataParallel (DDP)', 'CUDA', 'RoPE', 'FlashAttention', 'Kaggle API', 'Apple Metal (MPS)'],
+      githubUrl: 'https://github.com/juliocrfilho/cir-engine',
+      interactiveType: 'transformer_sim',
+      metrics: [
+        { label: 'Parâmetros', value: '503M' },
+        { label: 'Throughput DDP', value: '~6.200 t/s' },
+        { label: 'Redução de Época', value: '-66%' },
+        { label: 'Precisão Ferramentas', value: '100% O(1)' },
+      ],
+    },
+    {
+      id: 'mddd-cli',
+      title: 'mddd-cli (Desenvolvimento Dirigido a Diagramas Mermaid)',
+      badge: 'Ferramenta Dev & Pacote NPM',
+      category: 'developer_tooling',
+      specs: 'Arquitetura como Código · Ferramenta Publicada no NPM',
+      summary: 'Ferramenta CLI e framework que converte diagramas Mermaid de sequência, classes e fluxo diretamente em arquiteturas de software concretas, árvores de diretórios e contratos de API.',
+      details: [
+        'Conecta o abismo entre diagramas conceituais de lousa branca e código de produção em escala industrial.',
+        'Automatiza a geração de entidades de domínio de Clean Architecture, casos de uso e definições de interface HTTP/gRPC.',
+        'Publicado no npm para consumo global por desenvolvedores; elimina o descompasso arquitetural entre equipes multi-repositório.'
+      ],
+      techStack: ['TypeScript', 'Node.js', 'Mermaid.js', 'Parsing AST', 'CLI', 'Clean Architecture'],
+      githubUrl: 'https://github.com/juliocrfilho/mddd-cli',
+      packageUrl: 'https://www.npmjs.com/package/mddd-cli',
+      interactiveType: 'mermaid_demo',
+      metrics: [
+        { label: 'Distribuição', value: 'NPM Global' },
+        { label: 'Fluxo', value: 'Diagrama-para-Código' },
+        { label: 'Padrão', value: 'Clean Architecture' },
+      ],
+    },
+    {
+      id: 'mad-cli',
+      title: 'MAD-cli (Mermaid Auto-Doccing)',
+      badge: 'Documentação Viva & CLI de Arquitetura',
+      category: 'developer_tooling',
+      specs: 'Código-para-Mermaid Vivo · Parser de Tags MAD',
+      summary: 'Ferramenta CLI e automação que analisa tags de comentário especiais MAD (<!-- MAD:... -->, @mad) em bases de código e as transforma em diagramas de arquitetura Mermaid vivos e auto-atualizáveis diretamente na documentação Markdown.',
+      details: [
+        'Projetado para eliminar a obsolescência de documentação ao extrair diagramas Mermaid de sequência, classes e fluxogramas diretamente da AST e tags em Go, Dart, TypeScript e Python.',
+        'Verifica e sincroniza blocos <!-- MAD:SEQUENCE -->, <!-- MAD:FLOWCHART --> e <!-- MAD:ARCHITECTURE --> a cada commit ou execução de pipeline CI.',
+        'Forma um ciclo bidirecional contínuo de arquitetura com o mddd-cli: mddd-cli compila diagramas para código, enquanto MAD-cli extrai a realidade viva do código de volta para diagramas verificáveis.',
+        'Ferramenta open-source para visibilidade arquitetural transparente entre equipes de engenharia distribuídas.'
+      ],
+      techStack: ['Go', 'TypeScript', 'Parsing AST', 'Mermaid.js', 'Documentação Viva', 'Git Hooks', 'CLI'],
+      githubUrl: 'https://github.com/juliocrfilho/mad-cli',
+      metrics: [
+        { label: 'Motor de Sintaxe', value: 'Tags MAD' },
+        { label: 'Ciclo de Sincronia', value: 'Código-para-Diagrama' },
+      ],
+    },
+    {
+      id: 'system_one',
+      title: 'system_one',
+      badge: 'Motor Heurístico Fast-Path & IA de Processo Duplo',
+      category: 'ml_ai',
+      specs: 'Inferência Sub-10ms · Camada Cognitiva Dupla · Roteamento Fast-Path',
+      summary: 'Kernel de inferência heurística ultra-rápida e camada cognitiva reativa (Sistema 1) projetado como companheiro de baixíssima latência do CIR-Engine 503M. Executa classificações intuitivas sub-10ms antes de acionar o raciocínio causal deliberado.',
+      details: [
+        'Implementa arquitetura cognitiva de processo duplo (despacho heurístico rápido Sistema 1 vs deliberação causal profunda Sistema 2).',
+        'Loop de avaliação local sub-10ms aproveitando quantização de pesos INT8/FP8, embeddings vetoriais otimizados e buffers de memória com zero-alocação.',
+        'Roteia consultas dinamicamente: resolve caminhos heurísticos de alta probabilidade instantaneamente, despachando grafos de raciocínio de alta complexidade para o CIR-Engine 503M.',
+        'Integração direta com o KV-cache do CIR-Engine e loops de gramática canônica para repasse contínuo de tokens.'
+      ],
+      techStack: ['Python', 'PyTorch', 'Quantização (INT8/FP8)', 'Embeddings Vetoriais', 'Apple MPS / CUDA', 'Otimização de Inferência'],
+      githubUrl: 'https://github.com/juliocrfilho/system_one',
+      metrics: [
+        { label: 'Latência', value: '<10ms Local' },
+        { label: 'Arquitetura', value: 'Sistema 1 Fast-Path' },
+      ],
+    },
+    {
+      id: 'flutter-scene-fork',
+      title: 'flutter_scene (Fork 3D de Alta Performance)',
+      badge: 'Computação Gráfica & Renderização de Baixa Latência',
+      category: 'mobile_graphics',
+      specs: 'Grafo de Cena 3D · Pipeline de Shaders Customizados',
+      summary: 'Fork customizado e otimização de performance do motor gráfico 3D do Flutter, focando em framebuffers de baixa latência, shaders personalizados em Metal/Vulkan e interação espacial.',
+      details: [
+        'Engenharia de pipelines customizados de shaders e otimizações de buffer de memória para renderização de ativos 3D em tempo real.',
+        'Demonstra fluência profunda em renderização de baixo nível (C++, shaders) unificada de forma transparente a aplicações mobile de alto nível (Dart/Flutter).'
+      ],
+      techStack: ['Dart', 'C++', 'Flutter Scene', 'Metal/Vulkan', 'Shaders GLSL/MSL'],
+      githubUrl: 'https://github.com/juliocrfilho/flutter_scene',
+      interactiveType: 'graphics_demo',
+      metrics: [
+        { label: 'Alvo', value: '60-120 FPS' },
+        { label: 'Substrato', value: 'Metal / Vulkan' },
+      ],
+    },
+    {
+      id: 'gittrack',
+      title: 'GitTrack',
+      badge: 'Observabilidade & Velocidade de Engenharia',
+      category: 'developer_tooling',
+      specs: 'Telemetria Granular Git · Análise de Fluxo de Commits',
+      summary: 'Ferramenta de telemetria e observabilidade de atividade de desenvolvimento rastreando velocidade de engenharia, ciclos de iteração arquitetural e métricas de qualidade de commits.',
+      details: [
+        'Extrai métricas de rotatividade de código (churn), alterações em grafos de dependência e carga cognitiva diretamente dos logs do repositório.',
+        'Integração com pipelines de CI headless para diagnósticos de saúde da equipe.'
+      ],
+      techStack: ['Go', 'APIs Git Plumbing', 'CLI', 'SQLite', 'Analytics'],
+      githubUrl: 'https://github.com/juliocrfilho/gittrack',
+      interactiveType: 'git_telemetry',
+      metrics: [
+        { label: 'Telemetria', value: 'Git Plumbing Direto' },
+        { label: 'Motor', value: 'Núcleo em Golang' },
+      ],
+    },
+  ];
+}
+
 export const EXPERIENCES: ExperienceData[] = [
   {
     company: 'Asapp Desenvolvimento',
@@ -267,6 +417,103 @@ export const EXPERIENCES: ExperienceData[] = [
   },
 ];
 
+export function getExperiences(lang: 'en' | 'pt' = 'en'): ExperienceData[] {
+  if (lang !== 'pt') return EXPERIENCES;
+
+  return [
+    {
+      company: 'Asapp Desenvolvimento',
+      role: 'Arquiteto Principal & Fundador',
+      period: '2026 – Presente',
+      location: 'Curitiba & Pontal do Paraná, Brasil',
+      type: 'Tempo Integral / Liderança',
+      highlights: [
+        'Liderança técnica em arquitetura de software e estratégia tecnológica, entregando microsserviços, plataformas nativas em nuvem e aplicações multiplataforma de alta performance com Go, Next.js e Flutter.',
+        'Arquitetou a Appfy, uma plataforma e marketplace modular de micro-apps aproveitando serviços distribuídos no Google Cloud Platform (GCP).',
+        'Criou e mantém ferramentas open-source para desenvolvedores, incluindo o mddd-cli (CLI de desenvolvimento dirigido a diagramas Mermaid) no npm.',
+        'Integração de fluxos de trabalho com IA multi-agente (Cursor, Cline, Roo Code, LiteLLM) acelerando pipelines de geração de código, testes e revisão automatizada.'
+      ],
+      technologies: ['Go (Golang)', 'Next.js', 'Flutter', 'Google Cloud Platform (GCP)', 'mddd-cli', 'LLMs Multi-Agente'],
+    },
+    {
+      company: 'Opah IT',
+      role: 'Engenheiro de Software Sênior / Especialista Mobile',
+      period: '2026 – Presente',
+      location: 'Remoto',
+      type: 'Consultoria',
+      highlights: [
+        'Consultoria e engenharia de soluções críticas de alta performance em Flutter/Android para clientes corporativos de grande porte.',
+        'Aplicação de padrões rigorosos de Clean Architecture, diretrizes de qualidade de código e melhores práticas de CI/CD entre equipes distribuídas.',
+        'Garantia de segurança de bibliotecas de terceiros para aplicações mobile com Dex-guard, ofuscação avançada e criptografia de ponta a ponta.'
+      ],
+      technologies: ['Flutter', 'Android', 'Clean Architecture', 'CI/CD', 'Dex-guard', 'Blindagem de Segurança'],
+    },
+    {
+      company: 'Arlequim Technologies',
+      role: 'Especialista Flutter & Líder Multiplataforma',
+      period: '07/2025 – Presente',
+      location: 'Curitiba, Brasil',
+      type: 'Tempo Integral',
+      highlights: [
+        'Liderança técnica no desenvolvimento de soluções multiplataforma com front-ends Flutter de alto rendimento.',
+        'Implementação de estratégias de SEO Técnico e AEO (Answer Engine Optimization) para otimização de descoberta de conteúdo por buscadores e motores de resposta de IA.',
+        'Migração de arquiteturas de gerenciamento de estado e injeção de dependência, aumentando estabilidade e eliminando débitos técnicos críticos.',
+        'Configuração de pipelines de CI/CD focados em testes automatizados de Golden Image para assegurar integridade visual em escala.'
+      ],
+      technologies: ['Flutter', 'SEO Técnico', 'AEO', 'Testes Golden Image', 'Pipelines CI/CD', 'GCP'],
+    },
+    {
+      company: 'Asapp Desenvolvimento (Fase de Consultoria)',
+      role: 'Fundador / Desenvolvedor Líder',
+      period: '10/2023 – 03/2024',
+      location: 'Curitiba, Brasil',
+      type: 'Liderança',
+      highlights: [
+        'Fundação e liderança de consultoria focada em aplicações corporativas de alta complexidade para Desktop, Mobile e Web.',
+        'Desenvolvimento de aplicações web com foco em renderização híbrida, garantindo máxima performance e indexação superior para clientes corporativos.',
+        'Liderança na refatoração de MVP para V2 em projetos estratégicos, elevando a avaliação na App Store de 4.2 para 4.87.'
+      ],
+      technologies: ['Next.js', 'Flutter', 'Renderização Híbrida', 'SSR/ISR', 'Core Web Vitals'],
+    },
+    {
+      company: 'Grupo Data',
+      role: 'Arquiteto Flutter & Líder Técnico',
+      period: '11/2021 – 10/2022',
+      location: 'Curitiba, Brasil',
+      type: 'Contrato',
+      highlights: [
+        'Responsável pela manutenção e evolução da aplicação móvel "Tim Beta", atendendo mais de 1 milhão de usuários ativos.',
+        'Orquestrou a refatoração completa da aplicação mobile para alinhamento com a migração crítica do backend corporativo de .NET para Java.'
+      ],
+      technologies: ['Flutter', '1M+ Usuários Ativos', 'Java', 'Migração .NET', 'Clean Architecture'],
+    },
+    {
+      company: 'Grupo GFT',
+      role: 'Desenvolvedor Mobile & Líder Técnico',
+      period: '07/2020 – 11/2021',
+      location: 'Curitiba, Brasil',
+      type: 'Tempo Integral',
+      highlights: [
+        'Desenvolvimento de funcionalidades críticas para instituições financeiras tier-1 (Banco Original e Banco Votorantim) usando Java, Kotlin e Flutter.',
+        'Pioneirismo na implementação de SDKs nativos customizados de teclado com comunicação IPC segura para aplicações bancárias em Flutter.'
+      ],
+      technologies: ['Flutter', 'Kotlin', 'Java', 'FinTech Bancária', 'Teclados Nativos IPC'],
+    },
+    {
+      company: 'DevMaker Mobile Apps',
+      role: 'Desenvolvedor Mobile',
+      period: '04/2019 – 07/2020',
+      location: 'Curitiba, Brasil',
+      type: 'Tempo Integral',
+      highlights: [
+        'Engenharia mobile em Android (Java/Kotlin), iOS (Swift) e React Native.',
+        'Atuou como o primeiro desenvolvedor React Native da empresa, liderando novos projetos de clientes e capacitando as equipes internas.'
+      ],
+      technologies: ['React Native', 'Swift', 'Kotlin', 'iOS', 'Android'],
+    },
+  ];
+}
+
 export const SKILL_CATEGORIES: SkillCategory[] = [
   {
     title: 'Machine Learning & AI',
@@ -322,3 +569,63 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     ],
   },
 ];
+
+export function getSkillCategories(lang: 'en' | 'pt' = 'en'): SkillCategory[] {
+  if (lang !== 'pt') return SKILL_CATEGORIES;
+
+  return [
+    {
+      title: 'Machine Learning & IA',
+      skills: [
+        { name: 'LLMs Causais & Transformers', level: 'Arquiteto Central', highlight: true },
+        { name: 'PyTorch & torchrun (DDP)', level: 'Escala em Cluster', highlight: true },
+        { name: 'CUDA & Apple Metal (MPS)', level: 'Aceleração de Hardware', highlight: true },
+        { name: 'Rotary Position Embeddings (RoPE)', level: 'Lógica Posicional', highlight: true },
+        { name: 'RMSNorm & SDPA / FlashAttention', level: 'Otimização de Kernel', highlight: true },
+        { name: 'DistributedDataParallel (DDP)', level: 'Cluster Multi-GPU', highlight: true },
+        { name: 'Grouped-Query Attention (GQA)', level: 'Eficiência de Memória', highlight: true },
+        { name: 'Tokenização BPE em Nível de Byte', level: 'Tokenizador Próprio', highlight: true },
+        { name: 'SFT Prompt Loss Masking', level: 'Ajuste Fino (SFT)', highlight: true },
+        { name: 'Interceptação Autônoma de Ferramentas', level: 'Tooling Agêntico', highlight: true },
+        { name: 'Automação Kaggle API', level: 'Pipelines MLOps', highlight: true },
+      ],
+    },
+    {
+      title: 'Arquitetura de Software & Sistemas',
+      skills: [
+        { name: 'Microsserviços Distribuídos', level: 'Go Corporativo', highlight: true },
+        { name: 'Clean Architecture & SOLID', level: 'Orientado a Domínio', highlight: true },
+        { name: 'Pipelines de IA Multi-Agente', level: 'Workflows Agênticos', highlight: true },
+        { name: 'Mermaid Diagram-Driven Dev (mddd)', level: 'Autor & Mantenedor', highlight: true },
+        { name: 'Arquitetura de Micro-aplicações', level: 'Escala Modular', highlight: true },
+        { name: 'CI/CD & Testes Golden Image', level: 'QA Automatizado', highlight: true },
+        { name: 'SEO Técnico & AEO (Answer Engine)', level: 'Otimização p/ IA', highlight: true },
+      ],
+    },
+    {
+      title: 'Linguagens & Tecnologias Centrais',
+      skills: [
+        { name: 'Python (PyTorch / Ciência de Dados)', level: 'ML Sênior', highlight: true },
+        { name: 'Go (Golang)', level: 'Serviços Principais', highlight: true },
+        { name: 'Dart / Flutter (Mobile, Desktop, Web)', level: 'Líder / 8+ Anos', highlight: true },
+        { name: 'TypeScript / JavaScript', level: 'Full-Stack Moderno', highlight: true },
+        { name: 'Next.js (App Router, SSR, ISR)', level: 'Arquiteto Web', highlight: true },
+        { name: 'Java & Kotlin', level: 'Android & Corporativo', highlight: true },
+        { name: 'Swift (iOS Nativo)', level: 'iOS Nativo', highlight: true },
+        { name: 'SQL & PostgreSQL', level: 'Escala Relacional', highlight: true },
+        { name: 'Firestore / Redis / MongoDB', level: 'Cache Distribuído', highlight: true },
+        { name: 'C++ & Shaders Metal/Vulkan', level: 'Gráficos Baixo Nível', highlight: true },
+      ],
+    },
+    {
+      title: 'Formação & Certificações',
+      skills: [
+        { name: 'Bacharelado em Ciência de Dados', level: 'Ensino Superior', highlight: true },
+        { name: 'Pós-Graduação: Machine Learning & Deep Learning', level: 'Especialização', highlight: true },
+        { name: 'Certificado de Inglês EF SET C2 Proficiente (75/100)', level: 'Equivalente Nativo', highlight: true },
+        { name: 'Programação Go: Bootcamp Completo', level: 'Certificado', highlight: true },
+        { name: 'Especialista Next.js (SSR, ISR, Core Web Vitals)', level: 'Especialista Certificado', highlight: true },
+      ],
+    },
+  ];
+}

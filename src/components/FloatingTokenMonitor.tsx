@@ -128,7 +128,7 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
                 : 'text-zinc-500 bg-zinc-900 border-zinc-800'
             }`}
           >
-            {warmupState === 'warmed' ? 'KV-WARMED (1.8ms)' : 'KV-CACHE'}
+            {warmupState === 'warmed' ? (lang === 'pt' ? 'KV-AQUECIDO (1.8ms)' : 'KV-WARMED (1.8ms)') : 'KV-CACHE'}
           </span>
 
           <ChevronUp className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-transform ml-0.5" />
@@ -152,7 +152,9 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
                         : 'text-[#adff2f] bg-[#adff2f]/10 border border-[#adff2f]/30'
                     }`}
                   >
-                    {warmupState === 'warmed' ? 'WARMED (1.8ms)' : 'ACTIVE'}
+                    {warmupState === 'warmed'
+                      ? (lang === 'pt' ? 'AQUECIDO (1.8ms)' : 'WARMED (1.8ms)')
+                      : (lang === 'pt' ? 'ATIVO' : 'ACTIVE')}
                   </span>
                 </div>
                 <div className="text-[10px] text-zinc-400">
@@ -248,7 +250,9 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
                 {lang === 'pt' ? 'Prefixos Fixados no Cache' : 'Pinned Cache Prefixes'}
               </span>
               <span className="text-zinc-500 font-mono">
-                {warmupState === 'warmed' ? 'VRAM PINNED · 100%' : `${stats.cachedTokenRegistry.length} cached`}
+                {warmupState === 'warmed'
+                  ? (lang === 'pt' ? 'VRAM FIXADO · 100%' : 'VRAM PINNED · 100%')
+                  : (lang === 'pt' ? `${stats.cachedTokenRegistry.length} em cache` : `${stats.cachedTokenRegistry.length} cached`)}
               </span>
             </div>
 
@@ -304,10 +308,10 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
                 <button
                   onClick={handleResetCache}
                   className="flex items-center gap-1 text-zinc-500 hover:text-rose-400 transition-colors cursor-pointer"
-                  title={lang === 'pt' ? 'Limpar cache para cold-start' : 'Reset to cold-start'}
+                  title={lang === 'pt' ? 'Limpar cache para início a frio' : 'Reset to cold-start'}
                 >
                   <Trash2 className="w-2.5 h-2.5" />
-                  <span>{lang === 'pt' ? 'Cold' : 'Cold'}</span>
+                  <span>{lang === 'pt' ? 'Frio' : 'Cold'}</span>
                 </button>
               )}
 
@@ -329,12 +333,12 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
                 ) : warmupState === 'warmed' ? (
                   <>
                     <CheckCircle2 className="w-3 h-3 text-[#adff2f]" />
-                    <span>{lang === 'pt' ? 'Re-Warmup' : 'Re-Warmup'}</span>
+                    <span>{lang === 'pt' ? 'Reaquecer' : 'Re-Warmup'}</span>
                   </>
                 ) : (
                   <>
                     <Flame className="w-3 h-3 text-black" />
-                    <span>{lang === 'pt' ? 'Warmup KV-Cache' : 'Warmup KV-Cache'}</span>
+                    <span>{lang === 'pt' ? 'Aquecer KV-Cache' : 'Warmup KV-Cache'}</span>
                   </>
                 )}
               </button>

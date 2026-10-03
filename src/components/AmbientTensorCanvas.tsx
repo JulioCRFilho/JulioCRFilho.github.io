@@ -133,7 +133,7 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
     return () => clearInterval(timer);
   }, []);
 
-  // Simulated VRAM KV-Cache page tables (PagedAttention memory architecture)
+  // Simulated VRAM KV-Cache page tables (PagedAttention memory architecture) - Stable memory pages
   const kvPages: KvPage[] = useMemo(() => {
     const statuses: ('pinned' | 'active' | 'cached' | 'free')[] = [
       'pinned', 'pinned', 'active', 'active', 'active',
@@ -150,7 +150,7 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
       keysCount: status === 'free' ? 0 : 64,
       heat: status === 'pinned' ? 0.95 : status === 'active' ? 0.75 : status === 'cached' ? 0.45 : 0.05,
     }));
-  }, [clock]);
+  }, []);
 
   const activeHoveredPage = useMemo(() => {
     return hoveredPageId !== null ? kvPages.find((p) => p.id === hoveredPageId) || null : null;
@@ -218,16 +218,19 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
             >
               <div className="text-[#adff2f] font-bold tracking-wider mb-1 flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5" />
-                <span>CIR-503M TENSOR ARCHITECTURE</span>
+                <span>{lang === 'pt' ? 'ARQUITETURA TENSORIAL CIR-503M' : 'CIR-503M TENSOR ARCHITECTURE'}</span>
               </div>
               <div className="text-zinc-200 font-semibold">
                 Attention(Q,K,V) = softmax(QKᵀ / √dₖ + M) · V
               </div>
               <div className="text-zinc-400 mt-1">
-                RoPE Frequency Base: <strong className="text-white">Θ = 10,000</strong> · dₖ = 64
+                {lang === 'pt' ? 'Frequência Base RoPE:' : 'RoPE Frequency Base:'}{' '}
+                <strong className="text-white">Θ = 10.000</strong> · dₖ = 64
               </div>
               <div className="text-[#38bdf8] text-[9px] sm:text-[10px] mt-0.5">
-                RadixAttention Prefix Caching · BlockSize: 16 tok/p
+                {lang === 'pt'
+                  ? 'RadixAttention Caching de Prefixos · TamBloco: 16 tok/p'
+                  : 'RadixAttention Prefix Caching · BlockSize: 16 tok/p'}
               </div>
             </div>
 
@@ -237,14 +240,14 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
               className="absolute top-36 right-3 sm:right-8 z-0 max-w-[260px] sm:max-w-xs p-3 rounded-xl bg-zinc-950/70 border border-zinc-800/80 shadow-2xl backdrop-blur-md select-none text-[10px] sm:text-xs text-right leading-relaxed transition-all duration-300 pointer-events-auto hover:opacity-100 hover:border-[#38bdf8]/50"
             >
               <div className="text-[#38bdf8] font-bold tracking-wider mb-1 flex items-center justify-end gap-1.5">
-                <span>VRAM ALLOCATION: 128 MB</span>
+                <span>{lang === 'pt' ? 'ALOCAÇÃO VRAM: 128 MB' : 'VRAM ALLOCATION: 128 MB'}</span>
                 <Database className="w-3.5 h-3.5" />
               </div>
               <div className="text-zinc-200 font-semibold">
-                DDP Ring-AllReduce: <span className="text-[#adff2f]">~6,200 tok/s</span>
+                DDP Ring-AllReduce: <span className="text-[#adff2f]">~6.200 tok/s</span>
               </div>
               <div className="text-zinc-400 mt-1">
-                Target: CUDA 12.4 + Apple Metal MPS
+                {lang === 'pt' ? 'Alvo: CUDA 12.4 + Apple Metal MPS' : 'Target: CUDA 12.4 + Apple Metal MPS'}
               </div>
               <div className="text-purple-300 text-[9px] sm:text-[10px] mt-0.5">
                 FlashAttention-2 Kernel: Online Softmax Tiling
@@ -260,7 +263,102 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
                 e^(i·mθ) ⊗ softmax(QKᵀ/√d)
               </div>
               <div className="text-xs font-mono text-zinc-500 tracking-widest mt-2 uppercase">
-                CIR-503M Causal Autoregressive Tensor Substrate · PyTorch DDP
+                {lang === 'pt'
+                  ? 'Substrato Tensorial Autorregressivo Causal CIR-503M · PyTorch DDP'
+                  : 'CIR-503M Causal Autoregressive Tensor Substrate · PyTorch DDP'}
+              </div>
+            </div>
+
+            {/* Background Substrate Left Margin: KV-Cache VRAM Page Table Watermark (Visible on Laptops >= 1024px) */}
+            <div
+              aria-hidden="true"
+              className="absolute left-3 xl:left-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2 p-2.5 rounded-xl bg-zinc-950/30 border border-zinc-800/40 opacity-30 pointer-events-none select-none w-[200px]"
+            >
+              <div className="flex items-center justify-between pb-1 border-b border-zinc-850/60 text-[9px]">
+                <div className="flex items-center gap-1.5 text-zinc-400 font-bold">
+                  <Database className="w-3 h-3 text-[#38bdf8]" />
+                  <span>{lang === 'pt' ? 'SUBSTRATO KV-CACHE' : 'KV-CACHE SUBSTRATE'}</span>
+                </div>
+                <span className="text-[8px] text-[#adff2f] bg-[#adff2f]/10 px-1 rounded font-bold">128MB</span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-1 py-0.5">
+                {kvPages.map((page) => {
+                  const isPinned = page.status === 'pinned';
+                  const isActive = page.status === 'active';
+                  const isCached = page.status === 'cached';
+
+                  return (
+                    <div
+                      key={page.id}
+                      className={`h-6 rounded border flex flex-col items-center justify-center text-[8px] ${
+                        isPinned
+                          ? 'bg-[#adff2f]/10 border-[#adff2f]/30 text-[#adff2f]'
+                          : isActive
+                          ? 'bg-sky-500/10 border-sky-500/30 text-[#38bdf8]'
+                          : isCached
+                          ? 'bg-purple-500/10 border-purple-500/20 text-purple-300'
+                          : 'bg-zinc-900/30 border-zinc-850/40 text-zinc-600'
+                      }`}
+                    >
+                      <span className="font-bold">P{page.id}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-[8px] pt-1 border-t border-zinc-850/60 leading-tight text-zinc-500 space-y-0.5">
+                <div className="flex justify-between text-zinc-400 font-semibold">
+                  <span>{lang === 'pt' ? 'Alocação PagedAttn' : 'PagedAttn Alloc'}</span>
+                  <span className="text-[#adff2f]">{lang === 'pt' ? '10/16 Págs' : '10/16 Pgs'}</span>
+                </div>
+                <div className="text-zinc-600 truncate font-mono">
+                  {lang === 'pt' ? 'Bloco: 16 tok/p · Radix Caching' : 'Block: 16 tok/p · Radix Caching'}
+                </div>
+              </div>
+            </div>
+
+            {/* Background Substrate Right Margin: Causal Attention Matrix Watermark (Visible on Laptops >= 1024px) */}
+            <div
+              aria-hidden="true"
+              className="absolute right-3 xl:right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2 p-2.5 rounded-xl bg-zinc-950/30 border border-zinc-800/40 opacity-30 pointer-events-none select-none max-w-[200px]"
+            >
+              <div className="flex items-center justify-between pb-1 border-b border-zinc-850/60 text-[9px]">
+                <div className="flex items-center gap-1.5 text-zinc-400 font-bold">
+                  <Layers className="w-3 h-3 text-[#adff2f]" />
+                  <span>{lang === 'pt' ? 'CABEÇA ATENÇÃO H#0' : 'CAUSAL ATTN HEAD H#0'}</span>
+                </div>
+                <span className="text-[8px] text-[#38bdf8] bg-sky-950/30 px-1 rounded font-bold">8x8</span>
+              </div>
+
+              <div className="grid grid-cols-8 gap-0.5 py-0.5">
+                {attentionMatrix.map((row, rIdx) =>
+                  row.map((cell, cIdx) => (
+                    <div
+                      key={`${rIdx}-${cIdx}`}
+                      style={{
+                        backgroundColor: cell.masked
+                          ? 'transparent'
+                          : `rgba(173, 255, 47, ${Math.max(0.1, cell.val * 0.7)})`,
+                        borderColor: cell.masked
+                          ? 'rgba(39, 39, 42, 0.4)'
+                          : `rgba(173, 255, 47, ${Math.max(0.15, cell.val * 0.5)})`,
+                      }}
+                      className={`w-3.5 h-3.5 rounded-xs border text-[6px] flex items-center justify-center ${
+                        cell.masked ? 'opacity-20' : 'text-lime-300 font-bold'
+                      }`}
+                    >
+                      {!cell.masked && cell.val > 0.35 ? (
+                        <span className="scale-75">{(cell.val * 10).toFixed(0)}</span>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-[8px] text-zinc-600 pt-1 border-t border-zinc-850/60">
+                <span>Softmax(QKᵀ/√d)</span>
+                <span className="text-[#38bdf8]/70">{lang === 'pt' ? 'Causal Msk' : 'Causal Msk'}</span>
               </div>
             </div>
           </>
@@ -268,133 +366,6 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
 
         {/* 60FPS High-Performance RoPE Phase Canvas */}
         <RopePhaseCanvas opacityLevel={ropeOpacity} />
-
-        {/* Left Margin Negative Space: KV-Cache VRAM Page Table (Visible on Laptops >= 1024px) */}
-        <div
-          onMouseLeave={() => setHoveredPageId(null)}
-          className="absolute left-3 xl:left-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2.5 p-3 rounded-2xl bg-zinc-950/85 border border-zinc-800/90 backdrop-blur-md opacity-85 hover:opacity-100 transition-opacity pointer-events-auto w-[215px] shadow-2xl select-none"
-        >
-          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850 text-[10px]">
-            <div className="flex items-center gap-1.5 text-zinc-300 font-bold">
-              <Database className="w-3.5 h-3.5 text-[#38bdf8]" />
-              <span>KV-CACHE PAGES</span>
-            </div>
-            <span className="text-[9px] text-[#adff2f] bg-[#adff2f]/10 px-1 rounded font-bold">VRAM</span>
-          </div>
-
-          <div className="grid grid-cols-4 gap-1.5 py-1">
-            {kvPages.map((page) => {
-              const isPinned = page.status === 'pinned';
-              const isActive = page.status === 'active';
-              const isCached = page.status === 'cached';
-              const isSelected = hoveredPageId === page.id;
-
-              return (
-                <div
-                  key={page.id}
-                  onMouseEnter={() => setHoveredPageId(page.id)}
-                  className={`h-7 rounded border flex flex-col items-center justify-center text-[9px] cursor-pointer transition-all duration-150 ${
-                    isSelected
-                      ? 'ring-2 ring-white scale-105 z-10 font-black ' +
-                        (isPinned
-                          ? 'bg-[#adff2f]/30 border-[#adff2f] text-white'
-                          : isActive
-                          ? 'bg-sky-500/30 border-sky-400 text-white'
-                          : isCached
-                          ? 'bg-purple-500/30 border-purple-400 text-white'
-                          : 'bg-zinc-800 border-zinc-500 text-white')
-                      : isPinned
-                      ? 'bg-[#adff2f]/15 border-[#adff2f]/50 text-[#adff2f] shadow-xs shadow-lime-400/20'
-                      : isActive
-                      ? 'bg-sky-500/15 border-sky-500/40 text-[#38bdf8]'
-                      : isCached
-                      ? 'bg-purple-500/10 border-purple-500/30 text-purple-300'
-                      : 'bg-zinc-900/40 border-zinc-850 text-zinc-600'
-                  }`}
-                  title={`Page ${page.id} · ${page.address} · ${page.status.toUpperCase()}`}
-                >
-                  <span className="font-bold">P{page.id}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Fixed-height detail container: 46px prevents container resizing and layout thrashing */}
-          <div className="h-[46px] flex flex-col justify-center text-[9px] pt-1 border-t border-zinc-850 leading-tight">
-            {activeHoveredPage ? (
-              <div className="text-zinc-300 space-y-0.5 animate-in fade-in duration-100">
-                <div className="text-[#adff2f] font-bold flex justify-between">
-                  <span>PAGE #{activeHoveredPage.id}</span>
-                  <span className="text-white">{activeHoveredPage.status.toUpperCase()}</span>
-                </div>
-                <div className="text-zinc-400 truncate">{activeHoveredPage.address} · 64 Keys/Val</div>
-                <div className="text-zinc-500 truncate">
-                  Tokens: {activeHoveredPage.tokens.length > 0 ? activeHoveredPage.tokens.join(' ') : (lang === 'pt' ? 'Vazio' : 'Empty')}
-                </div>
-              </div>
-            ) : (
-              <div className="text-zinc-400 space-y-0.5">
-                <div className="flex justify-between text-zinc-300 font-bold">
-                  <span>Allocated: 10/16</span>
-                  <span className="text-[#adff2f]">Radix: Active</span>
-                </div>
-                <div className="text-zinc-500">128 MB VRAM PagedAttention</div>
-                <div className="text-zinc-600 italic">
-                  {lang === 'pt' ? 'Passe o mouse p/ inspecionar' : 'Hover a page to inspect'}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Margin Negative Space: Causal Attention Matrix (Visible on Laptops >= 1024px) */}
-        <div className="absolute right-3 xl:right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2.5 p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800/90 backdrop-blur-md opacity-85 hover:opacity-100 transition-opacity pointer-events-auto max-w-[210px] shadow-2xl">
-          <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850 text-[10px]">
-            <div className="flex items-center gap-1.5 text-zinc-300 font-bold">
-              <Layers className="w-3.5 h-3.5 text-[#adff2f]" />
-              <span>CAUSAL ATTN HEAD</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveHead((prev) => (prev + 1) % 16)}
-              className="text-[9px] text-[#38bdf8] hover:text-white bg-sky-950/40 border border-sky-800/40 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
-              title="Cycle Attention Head (0-15)"
-            >
-              H#{activeHead}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-8 gap-0.5 py-1">
-            {attentionMatrix.map((row, rIdx) =>
-              row.map((cell, cIdx) => (
-                <div
-                  key={`${rIdx}-${cIdx}`}
-                  style={{
-                    backgroundColor: cell.masked
-                      ? 'rgba(24, 24, 27, 0.4)'
-                      : `rgba(173, 255, 47, ${Math.max(0.12, cell.val * 0.9)})`,
-                    borderColor: cell.masked
-                      ? 'transparent'
-                      : `rgba(173, 255, 47, ${Math.max(0.2, cell.val * 0.7)})`,
-                  }}
-                  className={`w-4 h-4 rounded-xs border text-[7px] flex items-center justify-center transition-all ${
-                    cell.masked ? 'opacity-30' : 'text-black font-bold'
-                  }`}
-                  title={cell.masked ? `T${rIdx} -> T${cIdx}: CAUSAL MASKED (-inf)` : `T${rIdx} -> T${cIdx}: ${cell.val}`}
-                >
-                  {!cell.masked && cell.val > 0.3 ? (
-                    <span className="scale-75">{(cell.val * 10).toFixed(0)}</span>
-                  ) : null}
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="flex items-center justify-between text-[9px] text-zinc-500 pt-1 border-t border-zinc-850">
-            <span>Softmax(QKᵀ/√dₖ)</span>
-            <span className="text-[#38bdf8]">Lower-Triangular</span>
-          </div>
-        </div>
       </div>
 
       {/* 2. FOREGROUND TOP-LEVEL CONTROLLER (Z-50, FULL POINTER DRAG & CLICK ACCESS) */}
@@ -509,10 +480,10 @@ export const AmbientTensorCanvas: React.FC<AmbientTensorCanvasProps> = ({ lang =
               {/* Instant One-Click Preset Chips */}
               <div className="grid grid-cols-4 gap-1.5 pt-1 text-[9px] font-mono">
                 {[
-                  { label: '0%', val: 0, title: 'Off' },
-                  { label: '12%', val: 0.12, title: 'Faint' },
-                  { label: '22%', val: 0.22, title: 'Ideal' },
-                  { label: '45%', val: 0.45, title: 'Média' },
+                  { label: '0%', val: 0, title: lang === 'pt' ? 'Deslig' : 'Off' },
+                  { label: '12%', val: 0.12, title: lang === 'pt' ? 'Suave' : 'Faint' },
+                  { label: '22%', val: 0.22, title: lang === 'pt' ? 'Ideal' : 'Ideal' },
+                  { label: '45%', val: 0.45, title: lang === 'pt' ? 'Média' : 'Medium' },
                 ].map((preset) => (
                   <button
                     key={preset.label}

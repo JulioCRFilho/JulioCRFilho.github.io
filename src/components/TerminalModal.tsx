@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { PORTFOLIO_INFO, PROJECTS } from '../data/portfolio-data';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { getPortfolioInfo, getProjects, getSkillCategories } from '../data/portfolio-data';
 import { tokenizeText } from '../lib/tokenizer';
-import { Terminal, Send, X, Copy, Check } from 'lucide-react';
+import { Send, X, Copy, Check } from 'lucide-react';
 
 interface TerminalModalProps {
   isOpen: boolean;
@@ -17,19 +17,39 @@ interface CommandLog {
 export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, lang = 'en' }) => {
   const [inputVal, setInputVal] = useState('');
   const [copied, setCopied] = useState(false);
-  const [logs, setLogs] = useState<CommandLog[]>([
-    {
-      type: 'system',
-      text: 'Julio Cesar Reis Filho — Causal Reasoning & Systems Kernel v2.4 initialized.',
-    },
-    {
-      type: 'system',
-      text: "Type 'help' to view available operations, or 'contact' to initiate contact sequence.",
-    },
-  ]);
 
+  const portfolioInfo = getPortfolioInfo(lang);
+  const projects = getProjects(lang);
+  const skillCategories = getSkillCategories(lang);
+
+  const initialLogs: CommandLog[] = useMemo(
+    () => [
+      {
+        type: 'system',
+        text:
+          lang === 'pt'
+            ? 'Julio Cesar Reis Filho — Kernel de Raciocínio Causal & Sistemas v2.4 inicializado.'
+            : 'Julio Cesar Reis Filho — Causal Reasoning & Systems Kernel v2.4 initialized.',
+      },
+      {
+        type: 'system',
+        text:
+          lang === 'pt'
+            ? "Digite 'help' para comandos disponíveis, ou 'contact' para iniciar sequência de contato."
+            : "Type 'help' to view available operations, or 'contact' to initiate contact sequence.",
+      },
+    ],
+    [lang]
+  );
+
+  const [logs, setLogs] = useState<CommandLog[]>(initialLogs);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Sync initial logs if lang changes
+  useEffect(() => {
+    setLogs(initialLogs);
+  }, [initialLogs]);
 
   useEffect(() => {
     if (isOpen) {
@@ -53,10 +73,22 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
     const newLogs: CommandLog[] = [...logs, { type: 'input', text: `$ ${cmd}` }];
     const lower = cmd.toLowerCase();
 
-    if (lower === 'help') {
+    if (lower === 'help' || lower === 'ajuda') {
       newLogs.push({
         type: 'output',
-        text: `Available Kernel Commands:
+        text:
+          lang === 'pt'
+            ? `Comandos Disponíveis no Kernel:
+  contact            - Exibir coordenadas oficiais de contato e e-mail
+  cir-engine         - Exibir especificações da arquitetura Transformer 503M
+  system_one         - Exibir especificações do motor heurístico fast-path
+  mad-cli            - Exibir documentação de tags vivas do Mermaid Auto-Doccing
+  projects           - Listar todos os repositórios (mddd-cli, MAD-cli, system_one...)
+  tokenize <texto>   - Decompor qualquer string em tokens Byte-BPE
+  skills             - Exibir competências técnicas em ML e engenharia de sistemas
+  clear              - Limpar o buffer de saída do terminal
+  exit               - Encerrar sessão do terminal`
+            : `Available Kernel Commands:
   contact            - Print official contact coordinates & email
   cir-engine         - Print 503M Causal Transformer architecture specs
   system_one         - Print fast-path heuristic inference engine specs
@@ -70,7 +102,15 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
     } else if (lower === 'system_one') {
       newLogs.push({
         type: 'output',
-        text: `[SYSTEM_ONE HEURISTIC INFERENCE KERNEL]
+        text:
+          lang === 'pt'
+            ? `[KERNEL DE INFERÊNCIA HEURÍSTICA SYSTEM_ONE]
+  Função:         Motor Heurístico Fast-Path (Camada Cognitiva de Processo Duplo)
+  Latência:       Loop de avaliação local < 10ms
+  Quantização:    Execução tensorial otimizada INT8 / FP8
+  Roteamento:     Classificador dinâmico entre heurísticas rápidas (Sistema 1) e CIR-Engine (Sistema 2)
+  Arquitetura:    Integração direta com o KV-cache do CIR-Engine e loops de gramática canônica`
+            : `[SYSTEM_ONE HEURISTIC INFERENCE KERNEL]
   Role:           Fast-Path Heuristic Engine (Dual-Process Cognitive Layer)
   Latency:        < 10ms local evaluation loop
   Quantization:   INT8 / FP8 optimized tensor execution
@@ -80,27 +120,54 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
     } else if (lower === 'mad-cli') {
       newLogs.push({
         type: 'output',
-        text: `[MAD-CLI: MERMAID AUTO-DOCCING]
+        text:
+          lang === 'pt'
+            ? `[MAD-CLI: MERMAID AUTO-DOCCING]
+  Função:         Extrai diagramas Mermaid vivos a partir de tags em comentários de código
+  Tags Suportadas: <!-- MAD:SEQUENCE -->, <!-- MAD:FLOWCHART -->, @mad:class
+  Ecossistema:    Ciclo bidirecional com mddd-cli (Diagrama-para-Código + Código-para-Diagrama)
+  Linguagens:     Go, Dart, TypeScript, Python`
+            : `[MAD-CLI: MERMAID AUTO-DOCCING]
   Function:       Extracts living Mermaid diagrams from codebase comment tags
   Supported Tags: <!-- MAD:SEQUENCE -->, <!-- MAD:FLOWCHART -->, @mad:class
   Ecosystem:      Bidirectional loop with mddd-cli (Diagram-to-Code + Code-to-Diagram)
   Languages:      Go, Dart, TypeScript, Python`,
       });
-    } else if (lower === 'contact' || lower === 'predict_contact_method()') {
+    } else if (lower === 'contact' || lower === 'contato' || lower === 'predict_contact_method()') {
       newLogs.push({
         type: 'output',
-        text: `[PREDICT_CONTACT_METHOD() RESULT]
-  Candidate:  ${PORTFOLIO_INFO.name}
-  Email:      ${PORTFOLIO_INFO.email}
-  Phone:      ${PORTFOLIO_INFO.phone}
-  Location:   ${PORTFOLIO_INFO.location}
-  GitHub:     ${PORTFOLIO_INFO.github}
+        text:
+          lang === 'pt'
+            ? `[RESULTADO PREDICT_CONTACT_METHOD()]
+  Candidato:   ${portfolioInfo.name}
+  Título:      ${portfolioInfo.title}
+  Email:       ${portfolioInfo.email}
+  Telefone:    ${portfolioInfo.phone}
+  Localização: ${portfolioInfo.location}
+  GitHub:      ${portfolioInfo.github}
+  Status:      Disponível para Posições Remotas e Relocalização Internacional`
+            : `[PREDICT_CONTACT_METHOD() RESULT]
+  Candidate:  ${portfolioInfo.name}
+  Title:      ${portfolioInfo.title}
+  Email:      ${portfolioInfo.email}
+  Phone:      ${portfolioInfo.phone}
+  Location:   ${portfolioInfo.location}
+  GitHub:     ${portfolioInfo.github}
   Status:     Open to Remote & International Relocation`,
       });
     } else if (lower === 'cir-engine') {
       newLogs.push({
         type: 'output',
-        text: `[CIR-ENGINE-503M ARCHITECTURE SPECIFICATIONS]
+        text:
+          lang === 'pt'
+            ? `[ESPECIFICAÇÕES DE ARQUITETURA CIR-ENGINE-503M]
+  Parâmetros:     503.316.480 (16 camadas, 1536 dim, 12 cabeças Q, 4 cabeças KV)
+  Atenção:        Grouped-Query Attention (GQA) + RoPE + SDPA FlashAttention
+  Distribuído:    torchrun DDP em NVIDIA Tesla T4/L4 (~6.200 tokens/seg)
+  Otimização:     Precisão Mista FP16/AMP, -66% no tempo de treinamento/época
+  Gramática:      [OP:QUERY] -> [OP:SOLVE] -> [OP:CALC] -> [OP:RESULT]
+  Ferramentas:    Executor determinístico O(1) de sub-rotinas em Python (100% exatidão)`
+            : `[CIR-ENGINE-503M ARCHITECTURE SPECIFICATIONS]
   Parameters:     503,316,480 (16 layers, 1536 dim, 12 Q heads, 4 KV heads)
   Attention:      Grouped-Query Attention (GQA) + RoPE + SDPA FlashAttention
   Distributed:    torchrun DDP on NVIDIA Tesla T4/L4 (~6,200 tokens/sec)
@@ -108,42 +175,57 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   Grammar:        [OP:QUERY] -> [OP:SOLVE] -> [OP:CALC] -> [OP:RESULT]
   Tool Intercept: Deterministic O(1) Python subroutine executor (100% precision)`,
       });
-    } else if (lower === 'projects') {
-      const projList = PROJECTS.map((p) => `  - ${p.title} (${p.category}): ${p.summary}`).join('\n');
+    } else if (lower === 'projects' || lower === 'projetos') {
+      const projList = projects.map((p) => `  - ${p.title} (${p.category}): ${p.summary}`).join('\n');
       newLogs.push({
         type: 'output',
-        text: `[ACTIVE OPEN-SOURCE & RESEARCH REPOSITORIES]\n${projList}`,
+        text:
+          lang === 'pt'
+            ? `[REPOSITÓRIOS OPEN-SOURCE & PESQUISA ATIVOS]\n${projList}`
+            : `[ACTIVE OPEN-SOURCE & RESEARCH REPOSITORIES]\n${projList}`,
       });
     } else if (lower.startsWith('tokenize ')) {
       const query = cmd.slice(9);
       const tokens = tokenizeText(query);
       const summary = tokens
-        .map((t) => `[Token ID: #${t.id} | Text: "${t.text}" | Hex: ${t.hexList.join(' ')}]`)
+        .map((t) => `[Token ID: #${t.id} | ${lang === 'pt' ? 'Texto' : 'Text'}: "${t.text}" | Hex: ${t.hexList.join(' ')}]`)
         .join('\n');
       newLogs.push({
         type: 'output',
-        text: `[TOKENIZER DECONSTRUCTION]\nInput: "${query}"\nToken count: ${tokens.length}\n${summary}`,
+        text:
+          lang === 'pt'
+            ? `[DECOMPOSIÇÃO EM NÍVEL DE BYTE]\nEntrada: "${query}"\nContagem de tokens: ${tokens.length}\n${summary}`
+            : `[TOKENIZER DECONSTRUCTION]\nInput: "${query}"\nToken count: ${tokens.length}\n${summary}`,
       });
-    } else if (lower === 'skills') {
+    } else if (lower === 'skills' || lower === 'competencias') {
+      const skillsFormatted = skillCategories
+        .map(
+          (cat) =>
+            `  ${cat.title}:\n    ${cat.skills.map((s) => `${s.name}${s.level ? ` (${s.level})` : ''}`).join(', ')}`
+        )
+        .join('\n\n');
+
       newLogs.push({
         type: 'output',
-        text: `[CORE PROFICIENCIES]
-  Machine Learning:  Transformers, RoPE, RMSNorm, GQA, PyTorch, DDP, SFT Masking
-  Languages:         Python, Go, Dart/Flutter, TypeScript, C++, Java/Kotlin, SQL
-  Systems & Cloud:   GCP, Docker, Multi-Agent AI (Cursor/Cline/LiteLLM), Microservices
-  Mobile & Web:      Flutter (Mobile/Desktop/Web), Next.js (SSR/ISR), Technical SEO/AEO`,
+        text:
+          lang === 'pt'
+            ? `[COMPETÊNCIAS TÉCNICAS CENTRAIS]\n${skillsFormatted}`
+            : `[CORE PROFICIENCIES]\n${skillsFormatted}`,
       });
-    } else if (lower === 'clear') {
+    } else if (lower === 'clear' || lower === 'limpar') {
       setLogs([]);
       setInputVal('');
       return;
-    } else if (lower === 'exit' || lower === 'quit') {
+    } else if (lower === 'exit' || lower === 'quit' || lower === 'sair') {
       onClose();
       return;
     } else {
       newLogs.push({
         type: 'error',
-        text: `Unrecognized command: '${cmd}'. Type 'help' for instructions.`,
+        text:
+          lang === 'pt'
+            ? `Comando não reconhecido: '${cmd}'. Digite 'help' para ver a lista de instruções.`
+            : `Unrecognized command: '${cmd}'. Type 'help' for instructions.`,
       });
     }
 
@@ -152,7 +234,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   };
 
   const copyEmail = () => {
-    navigator.clipboard.writeText(PORTFOLIO_INFO.email);
+    navigator.clipboard.writeText(portfolioInfo.email);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -165,9 +247,10 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
           <div className="flex items-center gap-2">
             <div className="flex gap-1.5">
               <button
+                type="button"
                 onClick={onClose}
-                className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-400 transition-colors"
-                title="Close"
+                className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-400 transition-colors cursor-pointer"
+                title={lang === 'pt' ? 'Fechar' : 'Close'}
               />
               <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
               <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
@@ -179,15 +262,18 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
 
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={copyEmail}
               className="text-[11px] font-mono text-zinc-400 hover:text-[#adff2f] flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700 transition-colors cursor-pointer"
             >
               {copied ? <Check className="w-3 h-3 text-[#adff2f]" /> : <Copy className="w-3 h-3" />}
-              <span>{copied ? 'Copied' : 'Copy Email'}</span>
+              <span>{copied ? (lang === 'pt' ? 'Copiado' : 'Copied') : (lang === 'pt' ? 'Copiar E-mail' : 'Copy Email')}</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
               className="text-zinc-400 hover:text-white p-1 rounded hover:bg-zinc-800 transition-colors cursor-pointer"
+              title={lang === 'pt' ? 'Fechar' : 'Close'}
             >
               <X className="w-4 h-4" />
             </button>
@@ -222,7 +308,11 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
             type="text"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder="Type 'contact', 'cir-engine', 'tokenize <text>', or 'help'..."
+            placeholder={
+              lang === 'pt'
+                ? "Digite 'contact', 'cir-engine', 'tokenize <texto>', ou 'help'..."
+                : "Type 'contact', 'cir-engine', 'tokenize <text>', or 'help'..."
+            }
             className="flex-1 bg-transparent font-mono text-xs text-white placeholder-zinc-600 focus:outline-hidden"
           />
           <button

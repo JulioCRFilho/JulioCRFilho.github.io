@@ -6,41 +6,56 @@ import {
   TokenItem,
   byteToHex,
 } from '../lib/tokenizer';
-import { Sparkles, Terminal, Cpu, Layers, RefreshCw, Eye, Hash, Binary } from 'lucide-react';
+import { Sparkles, Cpu } from 'lucide-react';
 
 interface TokenizerPlaygroundProps {
   initialPrompt?: string;
   lang?: 'en' | 'pt';
 }
 
-const PRESET_PROMPTS = [
-  {
-    label: 'CIR-Engine Query',
-    text: '[OP:QUERY] Optimize RoPE attention head projection across multi-GPU DDP cluster.',
-  },
-  {
-    label: 'Subroutine Calcs',
-    text: '[OP:SOLVE] Calculate throughput: [OP:CALC] 503000000 / 6200 [VAL: 81129.03]',
-  },
-  {
-    label: 'mddd-cli Architecture',
-    text: 'classDiagram DomainModel <|-- RepositoryInterface : implements Clean Architecture',
-  },
-  {
-    label: 'Flutter Scene 3D',
-    text: 'FragmentShader sceneShader = loadShader("shaders/spatial_viewport.frag");',
-  },
-  {
-    label: 'Julio Cesar Profile',
-    text: 'Julio Cesar da Costa Reis Filho · Senior Systems Architect & LLM Engineer',
-  },
-];
-
 export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
-  initialPrompt = '[OP:QUERY] Causal Transformer 503M parameters with RoPE and FlashAttention.',
+  initialPrompt,
   lang = 'en',
 }) => {
-  const [inputText, setInputText] = useState(initialPrompt);
+  const presetPrompts = useMemo(
+    () => [
+      {
+        label: lang === 'pt' ? 'Consulta CIR-Engine' : 'CIR-Engine Query',
+        text:
+          lang === 'pt'
+            ? '[OP:QUERY] Otimizar projeção de cabeças de atenção RoPE em cluster DDP multi-GPU.'
+            : '[OP:QUERY] Optimize RoPE attention head projection across multi-GPU DDP cluster.',
+      },
+      {
+        label: lang === 'pt' ? 'Cálculo de Sub-rotina' : 'Subroutine Calcs',
+        text: '[OP:SOLVE] Calculate throughput: [OP:CALC] 503000000 / 6200 [VAL: 81129.03]',
+      },
+      {
+        label: 'mddd-cli Architecture',
+        text: 'classDiagram DomainModel <|-- RepositoryInterface : implements Clean Architecture',
+      },
+      {
+        label: 'Flutter Scene 3D',
+        text: 'FragmentShader sceneShader = loadShader("shaders/spatial_viewport.frag");',
+      },
+      {
+        label: lang === 'pt' ? 'Perfil Julio Cesar' : 'Julio Cesar Profile',
+        text:
+          lang === 'pt'
+            ? 'Julio Cesar da Costa Reis Filho · Arquiteto de Sistemas Sênior & Engenheiro de LLMs'
+            : 'Julio Cesar da Costa Reis Filho · Senior Systems Architect & LLM Engineer',
+      },
+    ],
+    [lang]
+  );
+
+  const defaultPrompt =
+    initialPrompt ||
+    (lang === 'pt'
+      ? '[OP:QUERY] Transformer Causal 503M parâmetros com RoPE e FlashAttention.'
+      : '[OP:QUERY] Causal Transformer 503M parameters with RoPE and FlashAttention.');
+
+  const [inputText, setInputText] = useState(defaultPrompt);
   const [selectedToken, setSelectedToken] = useState<TokenItem | null>(null);
   const [activeAttentionHead, setActiveAttentionHead] = useState<'causal_recency' | 'positional_rope' | 'semantic'>('causal_recency');
   const [activeTab, setActiveTab] = useState<'tokens' | 'bytes' | 'attention'>('tokens');
@@ -73,46 +88,50 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
         {/* View mode segmented tabs */}
         <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-zinc-800 rounded-lg self-start md:self-auto">
           <button
+            type="button"
             onClick={() => setActiveTab('tokens')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               activeTab === 'tokens' ? 'bg-zinc-800 text-[#adff2f] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Tokens ({tokens.length})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('bytes')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               activeTab === 'bytes' ? 'bg-zinc-800 text-[#38bdf8] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Bytes ({stats.byteCount})
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('attention')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               activeTab === 'attention' ? 'bg-zinc-800 text-[#c4b5fd] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Attention Heatmap
+            {lang === 'pt' ? 'Mapa de Atenção' : 'Attention Heatmap'}
           </button>
         </div>
       </div>
 
-      {/* Preset Prompts Pills (Interactive buttons with click handlers) */}
+      {/* Preset Prompts Pills */}
       <div className="pt-4 pb-3 flex flex-wrap items-center gap-2">
         <span className="text-xs text-zinc-500 font-mono flex items-center gap-1 mr-1">
           <Sparkles className="w-3 h-3 text-[#adff2f]" />
           {lang === 'pt' ? 'Exemplos:' : 'Presets:'}
         </span>
-        {PRESET_PROMPTS.map((preset, idx) => (
+        {presetPrompts.map((preset, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={() => {
               setInputText(preset.text);
               setSelectedToken(null);
             }}
-            className="text-xs font-mono px-2.5 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 transition-colors"
+            className="text-xs font-mono px-2.5 py-1 rounded bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 transition-colors cursor-pointer"
           >
             {preset.label}
           </button>
@@ -128,18 +147,23 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
             setSelectedToken(null);
           }}
           rows={3}
-          placeholder="Type or paste any text to inspect real-time byte tokenization..."
+          placeholder={
+            lang === 'pt'
+              ? 'Digite ou cole qualquer texto para inspecionar a tokenização em bytes em tempo real...'
+              : 'Type or paste any text to inspect real-time byte tokenization...'
+          }
           className="w-full bg-zinc-900/60 border border-zinc-800 focus:border-[#adff2f]/50 rounded-xl p-3.5 text-sm font-mono text-zinc-100 placeholder-zinc-600 focus:outline-hidden focus:ring-1 focus:ring-[#adff2f]/30 transition-all resize-none"
         />
         {inputText && (
           <button
+            type="button"
             onClick={() => {
               setInputText('');
               setSelectedToken(null);
             }}
-            className="absolute top-3 right-3 text-xs text-zinc-500 hover:text-zinc-300 font-mono px-2 py-0.5 rounded bg-zinc-850 border border-zinc-800"
+            className="absolute top-3 right-3 text-xs text-zinc-500 hover:text-zinc-300 font-mono px-2 py-0.5 rounded bg-zinc-850 border border-zinc-800 cursor-pointer"
           >
-            Clear
+            {lang === 'pt' ? 'Limpar' : 'Clear'}
           </button>
         )}
       </div>
@@ -151,15 +175,23 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
           <span className="text-lg font-bold font-mono text-[#adff2f] tabular-nums">{stats.tokenCount}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">UTF-8 Bytes</span>
+          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+            {lang === 'pt' ? 'Bytes UTF-8' : 'UTF-8 Bytes'}
+          </span>
           <span className="text-lg font-bold font-mono text-[#38bdf8] tabular-nums">{stats.byteCount} B</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">Compression</span>
-          <span className="text-lg font-bold font-mono text-[#c4b5fd] tabular-nums">{stats.compressionRatio} chars/tok</span>
+          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+            {lang === 'pt' ? 'Compressão' : 'Compression'}
+          </span>
+          <span className="text-lg font-bold font-mono text-[#c4b5fd] tabular-nums">
+            {stats.compressionRatio} {lang === 'pt' ? 'carac/tok' : 'chars/tok'}
+          </span>
         </div>
         <div className="flex flex-col">
-          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">Density</span>
+          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+            {lang === 'pt' ? 'Densidade' : 'Density'}
+          </span>
           <span className="text-lg font-bold font-mono text-emerald-400 tabular-nums">{stats.bytesPerToken} B/tok</span>
         </div>
       </div>
@@ -168,26 +200,36 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
       {activeTab === 'tokens' && (
         <div className="mt-4">
           <div className="text-xs font-mono text-zinc-500 mb-2 flex items-center justify-between">
-            <span>Click any token to inspect its low-level representation:</span>
-            <span className="text-zinc-600">Vocabulary Size: ~48,256</span>
+            <span>
+              {lang === 'pt'
+                ? 'Clique em qualquer token para inspecionar sua representação de baixo nível:'
+                : 'Click any token to inspect its low-level representation:'}
+            </span>
+            <span className="text-zinc-600">
+              {lang === 'pt' ? 'Tamanho do Vocabulário: ~48.256' : 'Vocabulary Size: ~48,256'}
+            </span>
           </div>
 
           <div className="min-h-[140px] p-4 bg-zinc-950 border border-zinc-850 rounded-xl flex flex-wrap gap-1.5 items-center content-start">
             {tokens.length === 0 ? (
-              <span className="text-zinc-600 font-mono text-sm italic">Type something in the box above...</span>
+              <span className="text-zinc-600 font-mono text-sm italic">
+                {lang === 'pt' ? 'Digite algo na caixa de texto acima...' : 'Type something in the box above...'}
+              </span>
             ) : (
               tokens.map((token, i) => {
                 const isSelected = selectedToken?.id === token.id && selectedToken.text === token.text;
+
                 return (
                   <button
+                    type="button"
                     key={`${token.id}-${i}`}
                     onClick={() => setSelectedToken(token)}
                     style={{
                       backgroundColor: token.color.bg,
-                      borderColor: isSelected ? '#adff2f' : token.color.border,
+                      borderColor: token.color.border,
                       color: token.color.text,
                     }}
-                    className={`group/tok relative px-2 py-1 rounded text-xs font-mono border transition-all hover:scale-105 active:scale-95 ${
+                    className={`group/tok relative px-2 py-1 rounded text-xs font-mono border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                       isSelected ? 'ring-2 ring-[#adff2f]/50 shadow-md shadow-[#adff2f]/10' : ''
                     }`}
                   >
@@ -205,8 +247,14 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
       {activeTab === 'bytes' && (
         <div className="mt-4">
           <div className="text-xs font-mono text-zinc-500 mb-2 flex items-center justify-between">
-            <span>Continuous UTF-8 Byte Stream Matrix (0x00 - 0xFF):</span>
-            <span className="text-zinc-600">Direct Memory Representation</span>
+            <span>
+              {lang === 'pt'
+                ? 'Matriz Contínua de Fluxo de Bytes UTF-8 (0x00 - 0xFF):'
+                : 'Continuous UTF-8 Byte Stream Matrix (0x00 - 0xFF):'}
+            </span>
+            <span className="text-zinc-600">
+              {lang === 'pt' ? 'Representação Direta em Memória' : 'Direct Memory Representation'}
+            </span>
           </div>
 
           <div className="p-4 bg-zinc-950 border border-zinc-850 rounded-xl max-h-[220px] overflow-y-auto font-mono text-xs">
@@ -235,34 +283,41 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
         <div className="mt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div className="text-xs font-mono text-zinc-400">
-              Causal Attention Weight Matrix (A[i, j] = softmax(Q·Kᵀ / √d))
+              {lang === 'pt'
+                ? 'Matriz de Pesos de Atenção Causal (A[i, j] = softmax(Q·Kᵀ / √d))'
+                : 'Causal Attention Weight Matrix (A[i, j] = softmax(Q·Kᵀ / √d))'}
             </div>
             {/* Attention Head Selector */}
             <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
-              <span className="text-[10px] font-mono text-zinc-500 px-1">Head:</span>
+              <span className="text-[10px] font-mono text-zinc-500 px-1">
+                {lang === 'pt' ? 'Cabeça:' : 'Head:'}
+              </span>
               <button
+                type="button"
                 onClick={() => setActiveAttentionHead('causal_recency')}
-                className={`px-2 py-0.5 text-[11px] font-mono rounded ${
+                className={`px-2 py-0.5 text-[11px] font-mono rounded cursor-pointer ${
                   activeAttentionHead === 'causal_recency' ? 'bg-zinc-800 text-[#adff2f]' : 'text-zinc-400'
                 }`}
               >
-                0: Recency
+                {lang === 'pt' ? '0: Recência' : '0: Recency'}
               </button>
               <button
+                type="button"
                 onClick={() => setActiveAttentionHead('positional_rope')}
-                className={`px-2 py-0.5 text-[11px] font-mono rounded ${
+                className={`px-2 py-0.5 text-[11px] font-mono rounded cursor-pointer ${
                   activeAttentionHead === 'positional_rope' ? 'bg-zinc-800 text-[#38bdf8]' : 'text-zinc-400'
                 }`}
               >
-                1: RoPE Decay
+                {lang === 'pt' ? '1: Decaimento RoPE' : '1: RoPE Decay'}
               </button>
               <button
+                type="button"
                 onClick={() => setActiveAttentionHead('semantic')}
-                className={`px-2 py-0.5 text-[11px] font-mono rounded ${
+                className={`px-2 py-0.5 text-[11px] font-mono rounded cursor-pointer ${
                   activeAttentionHead === 'semantic' ? 'bg-zinc-800 text-[#c4b5fd]' : 'text-zinc-400'
                 }`}
               >
-                2: Semantic
+                {lang === 'pt' ? '2: Semântica' : '2: Semantic'}
               </button>
             </div>
           </div>
@@ -270,10 +325,14 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
           {/* Attention Grid */}
           <div className="p-4 bg-zinc-950 border border-zinc-850 rounded-xl overflow-x-auto">
             {tokens.length === 0 ? (
-              <span className="text-zinc-600 font-mono text-xs">Enter text to compute attention...</span>
+              <span className="text-zinc-600 font-mono text-xs">
+                {lang === 'pt' ? 'Digite um texto para calcular a atenção...' : 'Enter text to compute attention...'}
+              </span>
             ) : tokens.length > 20 ? (
               <div className="text-zinc-400 text-xs font-mono py-4 text-center">
-                Attention heatmap displayed for the first 20 tokens to maintain visual clarity. (Total tokens: {tokens.length})
+                {lang === 'pt'
+                  ? `Mapa de calor de atenção exibido para os primeiros 20 tokens para manter a clareza visual. (Total: ${tokens.length})`
+                  : `Attention heatmap displayed for the first 20 tokens to maintain visual clarity. (Total tokens: ${tokens.length})`}
               </div>
             ) : (
               <div className="min-w-fit">
@@ -332,7 +391,9 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
         <div className="mt-4 p-4 bg-zinc-900/80 border border-zinc-800 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in duration-200">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-zinc-500 uppercase">Selected Token:</span>
+              <span className="text-xs font-mono text-zinc-500 uppercase">
+                {lang === 'pt' ? 'Token Selecionado:' : 'Selected Token:'}
+              </span>
               <span className="font-mono text-sm font-bold text-white bg-zinc-800 px-2 py-0.5 rounded">
                 "{selectedToken.text}"
               </span>
@@ -346,10 +407,11 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
             </div>
           </div>
           <button
+            type="button"
             onClick={() => setSelectedToken(null)}
-            className="self-start md:self-auto text-xs font-mono text-zinc-400 hover:text-white px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors"
+            className="self-start md:self-auto text-xs font-mono text-zinc-400 hover:text-white px-3 py-1.5 rounded bg-zinc-800 hover:bg-zinc-700 transition-colors cursor-pointer"
           >
-            Dismiss
+            {lang === 'pt' ? 'Fechar' : 'Dismiss'}
           </button>
         </div>
       )}

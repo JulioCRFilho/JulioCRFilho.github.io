@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { ProjectData, PROJECTS } from '../data/portfolio-data';
+import { ProjectData, getProjects } from '../data/portfolio-data';
 import {
   ExternalLink,
   Github,
   Package,
-  Layers,
-  Terminal,
-  Activity,
-  Box,
-  Code2,
   Check,
   Copy,
-  Sparkles,
 } from 'lucide-react';
 
 interface ProjectShowcaseProps {
@@ -23,7 +17,8 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
   const [activeProjectModal, setActiveProjectModal] = useState<ProjectData | null>(null);
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null);
 
-  const filteredProjects = PROJECTS.filter((p) => filter === 'all' || p.category === filter);
+  const projects = getProjects(lang);
+  const filteredProjects = projects.filter((p) => filter === 'all' || p.category === filter);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -37,36 +32,40 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
           <button
+            type="button"
             onClick={() => setFilter('all')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               filter === 'all' ? 'bg-zinc-800 text-white shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            {lang === 'pt' ? 'Todos os Projetos' : 'All Systems'} ({PROJECTS.length})
+            {lang === 'pt' ? 'Todos os Projetos' : 'All Systems'} ({projects.length})
           </button>
           <button
+            type="button"
             onClick={() => setFilter('ml_ai')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               filter === 'ml_ai' ? 'bg-zinc-800 text-[#adff2f] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            ML & LLMs
+            {lang === 'pt' ? 'ML & LLMs' : 'ML & LLMs'}
           </button>
           <button
+            type="button"
             onClick={() => setFilter('developer_tooling')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               filter === 'developer_tooling' ? 'bg-zinc-800 text-[#38bdf8] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Developer Tooling & CLIs
+            {lang === 'pt' ? 'Ferramentas Dev & CLIs' : 'Developer Tooling & CLIs'}
           </button>
           <button
+            type="button"
             onClick={() => setFilter('mobile_graphics')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
               filter === 'mobile_graphics' ? 'bg-zinc-800 text-[#c4b5fd] shadow-xs' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            Graphics & Mobile
+            {lang === 'pt' ? 'Gráficos & Mobile' : 'Graphics & Mobile'}
           </button>
         </div>
 
@@ -75,9 +74,10 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
           <span className="text-zinc-500">$</span>
           <span>npx mddd-cli --init</span>
           <button
+            type="button"
             onClick={() => copyToClipboard('npx mddd-cli --init')}
             className="text-zinc-400 hover:text-[#adff2f] transition-colors ml-1 cursor-pointer"
-            title="Copy command"
+            title={lang === 'pt' ? 'Copiar comando' : 'Copy command'}
           >
             {copiedCmd === 'npx mddd-cli --init' ? <Check className="w-3.5 h-3.5 text-[#adff2f]" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
@@ -104,7 +104,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-zinc-500 hover:text-[#adff2f] transition-colors p-1"
-                      title="NPM Package"
+                      title={lang === 'pt' ? 'Pacote NPM' : 'NPM Package'}
                     >
                       <Package className="w-4 h-4" />
                     </a>
@@ -114,7 +114,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-zinc-500 hover:text-white transition-colors p-1"
-                    title="GitHub Repository"
+                    title={lang === 'pt' ? 'Repositório no GitHub' : 'GitHub Repository'}
                   >
                     <Github className="w-4 h-4" />
                   </a>
@@ -170,6 +170,7 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
               </div>
 
               <button
+                type="button"
                 onClick={() => setActiveProjectModal(project)}
                 className="w-full text-xs font-mono py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
@@ -195,8 +196,10 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
                 )}
               </div>
               <button
+                type="button"
                 onClick={() => setActiveProjectModal(null)}
                 className="text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-900 transition-colors cursor-pointer"
+                title={lang === 'pt' ? 'Fechar' : 'Close'}
               >
                 ✕
               </button>
@@ -205,14 +208,16 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
             {/* Modal Body */}
             <div className="py-6 space-y-6">
               <div>
-                <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">Overview</h5>
+                <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">
+                  {lang === 'pt' ? 'Visão Geral' : 'Overview'}
+                </h5>
                 <p className="text-sm text-zinc-300 leading-relaxed">{activeProjectModal.summary}</p>
               </div>
 
               {/* Architectural Highlights */}
               <div>
                 <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">
-                  Technical Architecture & Achievements
+                  {lang === 'pt' ? 'Arquitetura Técnica & Conquistas' : 'Technical Architecture & Achievements'}
                 </h5>
                 <ul className="space-y-2">
                   {activeProjectModal.details.map((detail, idx) => (
@@ -226,7 +231,9 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
 
               {/* Tech Stack Chips */}
               <div>
-                <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">Tech Stack</h5>
+                <h5 className="text-xs font-mono uppercase text-zinc-500 tracking-wider mb-2">
+                  {lang === 'pt' ? 'Stack Tecnológica' : 'Tech Stack'}
+                </h5>
                 <div className="flex flex-wrap gap-1.5">
                   {activeProjectModal.techStack.map((tech) => (
                     <span
@@ -249,14 +256,15 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
                 className="flex items-center gap-2 px-4 py-2 bg-white text-black font-mono text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors"
               >
                 <Github className="w-4 h-4" />
-                <span>View on GitHub</span>
+                <span>{lang === 'pt' ? 'Ver no GitHub' : 'View on GitHub'}</span>
               </a>
 
               <button
+                type="button"
                 onClick={() => setActiveProjectModal(null)}
                 className="text-xs font-mono text-zinc-400 hover:text-white px-4 py-2 rounded-lg border border-zinc-800 hover:bg-zinc-900 transition-colors cursor-pointer"
               >
-                Close
+                {lang === 'pt' ? 'Fechar' : 'Close'}
               </button>
             </div>
           </div>
