@@ -8,6 +8,7 @@ import { InteractiveToolDemos } from './components/InteractiveToolDemos';
 import { ExperienceTimeline } from './components/ExperienceTimeline';
 import { TerminalModal } from './components/TerminalModal';
 import { FloatingTokenMonitor } from './components/FloatingTokenMonitor';
+import { AmbientTensorCanvas } from './components/AmbientTensorCanvas';
 import {
   Github,
   Mail,
@@ -217,6 +218,9 @@ export default function App() {
     <div className="min-h-screen bg-[#07080a] text-zinc-100 selection:bg-[#adff2f] selection:text-black">
       {/* Background Subtle Grid Texture */}
       <div className="fixed inset-0 pointer-events-none bg-grid-pattern opacity-40 z-0" />
+
+      {/* Ambient Negative-Space Tensor & KV-Cache Substrate */}
+      <AmbientTensorCanvas lang={lang} />
 
       {/* Floating ML Token Telemetry Monitor */}
       <FloatingTokenMonitor textSources={textSamplesForMonitor} lang={lang} />
