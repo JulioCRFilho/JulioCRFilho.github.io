@@ -6,6 +6,7 @@ import { CirEngineArchitecture } from './components/CirEngineArchitecture';
 import { ProjectShowcase } from './components/ProjectShowcase';
 import { InteractiveToolDemos } from './components/InteractiveToolDemos';
 import { ExperienceTimeline } from './components/ExperienceTimeline';
+import { ContactPromptConsole } from './components/ContactPromptConsole';
 import { TerminalModal } from './components/TerminalModal';
 import { AgentViewModal } from './components/AgentViewModal';
 import { VisitorTelemetryBadge } from './components/VisitorTelemetryBadge';
@@ -598,7 +599,7 @@ export default function App() {
           <ProjectShowcase lang={lang} />
 
           {/* Interactive Tool Workbenches */}
-          <div className="pt-8">
+          <div id="live-lab" className="pt-8 scroll-mt-24">
             <InteractiveToolDemos lang={lang} />
           </div>
         </section>
@@ -630,7 +631,7 @@ export default function App() {
 
         {/* SECTION 5: CONTACT / CTA */}
         <section className="p-8 sm:p-12 bg-zinc-950/80 border border-zinc-800 rounded-3xl relative overflow-hidden">
-          <div className="relative z-10 max-w-3xl space-y-6">
+          <div className="relative z-10 max-w-4xl space-y-6">
             <span className="text-xs font-mono text-[#adff2f] uppercase tracking-wider">
               {lang === 'pt' ? '[INICIAR_SEQUÊNCIA_DE_CONTATO]' : '[INITIATE_CONTACT_SEQUENCE]'}
             </span>
@@ -653,7 +654,14 @@ export default function App() {
                 : 'Available for Technical Leadership, Distributed Systems Architecture, and LLM/Transformer Engineering. Open to remote roles and international relocation.'}
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            {/* Interactive Contact Prompt Console */}
+            <ContactPromptConsole
+              lang={lang}
+              onOpenTerminal={() => setIsTerminalOpen(true)}
+            />
+
+            {/* Direct Channel Coordinates */}
+            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-zinc-800/80">
               <button
                 onClick={() => setIsTerminalOpen(true)}
                 className="px-6 py-3 bg-[#adff2f] text-black font-mono text-xs font-bold rounded-xl hover:bg-lime-300 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-lime-400/10"

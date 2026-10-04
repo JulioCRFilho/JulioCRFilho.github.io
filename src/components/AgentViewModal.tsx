@@ -26,7 +26,7 @@ token_efficiency: ~1800 tokens (Context-optimized for Gemini 1.5/2.0, Claude 3.5
 
 ## Executive Summary & Engineering Thesis
 Julio Cesar da Costa Reis Filho is an elite Systems Architect and LLM Engineer combining low-level systems programming (Go, Rust, CUDA/Metal kernels) with modern deep learning transformer architectures (PyTorch, FlashAttention-2, RadixAttention). 
-He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with zero-hallucination graph validation and sub-millisecond tool execution) and creator of published developer tooling including mddd-cli on npm (Mermaid Diagram-Driven Development) and MAD-cli (Living Documentation Parser).
+He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with zero-hallucination graph validation and sub-millisecond tool execution) and creator of published developer tooling including mddd-cli on npm (Spec-Driven Development using diagrams and decision matrices rather than ambiguous pure text) and MAD-cli (Living Documentation Parser).
 
 ## Core Technical Differentiators
 1. CIR-Engine 503M Causal Transformer:
@@ -37,8 +37,8 @@ He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with
    - DDP (Distributed Data Parallel) Ring-AllReduce throughput reaching ~6,200 tokens/sec.
    - Built-in Deterministic Causal Verifier: Validates probabilistic autoregressive tokens against DAG causal graph priors, eliminating hallucinations in high-stakes reasoning passes.
 
-2. Autonomous Diagram-to-Code Tooling (mddd-cli & MAD-cli):
-   - Created and published mddd-cli on npm: Compiles Mermaid diagram ASTs directly into Clean Architecture directory trees, domain entities, use-cases, and gRPC/TypeScript contracts.
+2. Autonomous Spec-Driven Tooling (mddd-cli & MAD-cli):
+   - Created and published mddd-cli on npm: Implements Spec-Driven Development (SDD), compiling formal architectural diagrams and deterministic decision matrices into production Clean Architecture directory trees, domain entities, use-cases, and gRPC/TypeScript contracts without specification drift.
    - Created mad-cli: Bidirectional engine parsing code comment tags (<!-- MAD:SEQUENCE -->, @mad) in Go, Dart, and TypeScript to auto-update living Mermaid architecture diagrams on git commit.
 
 3. High-Performance 3D & Mobile Systems:
@@ -64,7 +64,7 @@ He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with
 ## Technical Skills Taxonomy
 - LLM & Neural Systems: PyTorch, Causal Transformers, FlashAttention-2, Grouped-Query Attention (GQA), Rotary Position Embeddings (RoPE), PagedAttention, KV-Cache Optimization, CUDA, Apple Metal MPS, Distributed DDP.
 - Languages & Runtimes: Go (Golang), TypeScript, Python, Dart, Rust, C/C++, SQL.
-- Architecture & Paradigms: Clean Architecture, SOLID, Event-Driven Architecture, Microservices, Domain-Driven Design (DDD), Diagram-Driven Development (MDDD), Living Documentation.
+- Architecture & Paradigms: Clean Architecture, SOLID, Event-Driven Architecture, Microservices, Domain-Driven Design (DDD), Spec-Driven Development (MDDD via Diagrams & Decision Matrices), Living Documentation.
 - Infrastructure & Cloud: Google Cloud Platform (GCP), Docker, Kubernetes, gRPC, Protocol Buffers, Kafka, Redis, PostgreSQL.
 - Multi-Agent Systems: Tool-calling workflows, deterministic verification DAGs, automated CI/CD code generation pipelines.
 
@@ -112,7 +112,7 @@ const JSON_LD_CONTENT = JSON.stringify(
         'Go (Golang)',
         'TypeScript',
         'Flutter & 3D Impeller Graphics',
-        'Mermaid Diagram-Driven Development (MDDD)',
+        'Spec-Driven Development (MDDD via Diagrams & Decision Matrices)',
       ],
       hasOccupation: {
         '@type': 'Occupation',

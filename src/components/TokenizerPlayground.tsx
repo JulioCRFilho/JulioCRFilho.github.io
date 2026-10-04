@@ -142,6 +142,7 @@ export const TokenizerPlayground: React.FC<TokenizerPlaygroundProps> = ({
       <div className="relative mt-2">
         <textarea
           value={inputText}
+          maxLength={2000}
           onChange={(e) => {
             setInputText(e.target.value);
             setSelectedToken(null);

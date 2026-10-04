@@ -79,12 +79,15 @@ function hashString(str: string): number {
 export function tokenizeText(input: string): TokenItem[] {
   if (!input) return [];
 
+  // Defense: Limit maximum processing length to 4,000 characters to prevent thread stall / DoS
+  const safeInput = typeof input === 'string' ? input.slice(0, 4000) : '';
+
   // Match special canonical grammar tokens first (e.g., [OP:QUERY], [OP:SOLVE], [VAL: ...])
   // Then match words with leading spaces, subwords, numbers, punctuation, or individual bytes
   const specialTokens = ['[OP:QUERY]', '[OP:SOLVE]', '[OP:RESULT]', '[OP:CALC]', '[VAL:'];
   const tokenRegex = /(\[OP:[A-Z]+\]|\[VAL:[^\]]*\]|\s+[a-zA-Z0-9]+|[a-zA-Z0-9]+|\s+|[^\s\w])/g;
 
-  const rawMatches = input.match(tokenRegex) || [input];
+  const rawMatches = safeInput.match(tokenRegex) || [safeInput];
   const tokens: TokenItem[] = [];
 
   let tokenCounter = 1000;
@@ -359,7 +362,9 @@ export function computeAttentionMatrix(
   tokens: TokenItem[],
   headType: 'causal_recency' | 'semantic' | 'positional_rope' = 'causal_recency'
 ): number[][] {
-  const n = tokens.length;
+  // Defense: Cap matrix dimension to 64 items to strictly limit memory and compute (O(N^2) guard)
+  const safeTokens = tokens.slice(0, 64);
+  const n = safeTokens.length;
   if (n === 0) return [];
   const matrix: number[][] = [];
 

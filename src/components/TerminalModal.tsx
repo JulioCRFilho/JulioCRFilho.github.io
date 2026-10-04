@@ -99,6 +99,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   projects           - List all repositories (mddd-cli, MAD-cli, system_one...)
   tokenize <text>    - Deconstruct arbitrary string into Byte-BPE tokens
   skills             - Display core ML and fullstack engineering proficiencies
+  tensor             - Print 3D Knowledge Tensor & semantic proximity metrics
   clear              - Purge terminal output buffer
   exit               - Terminate terminal session`,
       });
@@ -239,8 +240,34 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
         type: 'output',
         text:
           lang === 'pt'
-            ? `[COMPETÊNCIAS TÉCNICAS CENTRAIS]\n${skillsFormatted}`
-            : `[CORE PROFICIENCIES]\n${skillsFormatted}`,
+            ? `[COMPETÊNCIAS TÉCNICAS CENTRAIS]\n${skillsFormatted}\n\n* Dica: Explore o 'Tensor 3D' na seção de timeline para navegar espacialmente pelas conexões tensoriais.`
+            : `[CORE PROFICIENCIES]\n${skillsFormatted}\n\n* Tip: Explore the '3D Tensor' in the timeline section to navigate through knowledge manifolds spatially.`,
+      });
+    } else if (lower === 'tensor' || lower === 'manifold' || lower === '3d') {
+      newLogs.push({
+        type: 'output',
+        text:
+          lang === 'pt'
+            ? `[SUBSTRATO TENSORIAL 3D DE COMPETÊNCIAS & FORMAÇÃO]
+  Dimensões:         3D Latent Coordinate Manifold (Projeções Latente, RoPE e Hipercubo)
+  Nós Mapeados:      32 competências em engenharia e formação acadêmica
+  Sinapses:          58 arestas direcionadas com afinidade semântica
+  Clusters Centrais:
+    - [Lime #adff2f]:   Machine Learning & IA (CIR-503M, PyTorch DDP, FlashAttn, RoPE)
+    - [Sky #38bdf8]:    Arquitetura de Sistemas & Microsserviços Distribuídos (Go, Clean Arch, mddd)
+    - [Violet #c084fc]: Linguagens & Engenharia de Baixo Nível (Python, Go, Flutter, Swift, C++)
+    - [Gold #fbbf24]:   Formação Acadêmica & Rigor (B.Sc. Ciência de Dados, Pós ML, EF SET C2)
+  Modo de Exibição:  Disponível no portfólio via WebGL interativo 360°.`
+            : `[3D KNOWLEDGE TENSOR SUBSTRATE & ACADEMIC FORMATION]
+  Dimensions:        3D Latent Coordinate Manifold (Latent, RoPE, and Hypercube projections)
+  Mapped Nodes:      32 engineering & academic competencies
+  Synapses:          58 semantic affinity directed edges
+  Centroid Clusters:
+    - [Lime #adff2f]:   Machine Learning & AI (CIR-503M, PyTorch DDP, FlashAttn, RoPE)
+    - [Sky #38bdf8]:    Systems Architecture & Distributed Microservices (Go, Clean Arch, mddd)
+    - [Violet #c084fc]: Core Languages & Low-Level Tech (Python, Go, Flutter, Swift, C++)
+    - [Gold #fbbf24]:   Academic Formation & Rigor (B.Sc. Data Science, Postgrad ML, EF SET C2)
+  Display Mode:      Available in the timeline section via interactive 360° WebGL.`,
       });
     } else if (lower === 'clear' || lower === 'limpar') {
       setLogs([]);
@@ -259,7 +286,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
       });
     }
 
-    setLogs(newLogs);
+    setLogs(newLogs.slice(-200));
     setInputVal('');
   };
 
@@ -336,6 +363,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
           <input
             ref={inputRef}
             type="text"
+            maxLength={600}
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             placeholder={

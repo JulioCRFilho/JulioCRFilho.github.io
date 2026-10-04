@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { getExperiences, getSkillCategories } from '../data/portfolio-data';
+import { KnowledgeTensor3D } from './KnowledgeTensor3D';
 import {
   GraduationCap,
   ChevronDown,
@@ -9,6 +10,9 @@ import {
   Code2,
   Search,
   Award,
+  Box,
+  LayoutGrid,
+  Sparkles,
 } from 'lucide-react';
 
 interface ExperienceTimelineProps {
@@ -19,6 +23,7 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
   const [skillSearch, setSkillSearch] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<number | 'all'>('all');
+  const [skillsViewMode, setSkillsViewMode] = useState<'3d' | '2d'>('3d');
 
   const experiences = getExperiences(lang);
   const skillCategories = getSkillCategories(lang);
@@ -153,103 +158,146 @@ export const ExperienceTimeline: React.FC<ExperienceTimelineProps> = ({ lang = '
       </div>
 
       {/* Skills & Academic Formation Section */}
-      <div className="p-6 lg:p-8 bg-zinc-950/80 border border-zinc-800 rounded-2xl shadow-xl space-y-6">
+      <div id="core-competencies" className="p-6 lg:p-8 bg-zinc-950/80 border border-zinc-800 rounded-2xl shadow-xl space-y-6 scroll-mt-24">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
           <div>
-            <h4 className="text-xl font-bold text-white flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-[#adff2f]" />
-              <span>{lang === 'pt' ? 'Competências Técnicas & Formação' : 'Core Competencies & Academic Formation'}</span>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h4 className="text-xl font-bold text-white flex items-center gap-2">
+                <GraduationCap className="w-5 h-5 text-[#adff2f]" />
+                <span>{lang === 'pt' ? 'Competências Técnicas & Formação' : 'Core Competencies & Academic Formation'}</span>
+              </h4>
               <span className="text-xs font-mono font-normal text-[#adff2f] bg-[#adff2f]/10 border border-[#adff2f]/30 px-2 py-0.5 rounded-full">
                 {totalSkillCount} {lang === 'pt' ? 'Especialidades' : 'Specialties'}
               </span>
-            </h4>
+            </div>
             <p className="text-xs text-zinc-400 font-mono mt-1">
               {lang === 'pt'
-                ? 'Todas as competências destacadas com níveis de proficiência em produção, LLMs e arquitetura.'
-                : 'All engineering competencies highlighted with production, LLM, and architecture proficiency tiers.'}
+                ? 'Conhecimentos projetados como manifold tensorial 3D agrupados por afinidade e proximidade semântica.'
+                : 'Knowledge manifold projected as a 3D tensor clustered by semantic proximity and structural affinity.'}
             </p>
           </div>
 
-          {/* Quick Search */}
-          <div className="relative min-w-[240px]">
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={skillSearch}
-              onChange={(e) => setSkillSearch(e.target.value)}
-              placeholder={lang === 'pt' ? 'Filtrar (ex: PyTorch, Go, CUDA)...' : 'Filter (e.g. PyTorch, Go, CUDA)...'}
-              className="w-full pl-9 pr-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-mono text-white placeholder-zinc-500 focus:outline-none focus:border-[#adff2f]/60 transition-colors"
-            />
+          {/* View Mode Switcher: 3D Tensor vs 2D Grid */}
+          <div className="flex items-center gap-1 p-1 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-mono self-start sm:self-auto shrink-0">
+            <button
+              type="button"
+              onClick={() => setSkillsViewMode('3d')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                skillsViewMode === '3d'
+                  ? 'bg-zinc-800 text-[#adff2f] font-bold shadow-xs border border-zinc-700'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+              title={lang === 'pt' ? 'Visualizar como Tensor 3D navegável em tempo real' : 'View as interactive real-time 3D Tensor'}
+            >
+              <Box className="w-3.5 h-3.5 text-[#adff2f]" />
+              <span>{lang === 'pt' ? 'Tensor 3D' : '3D Tensor'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSkillsViewMode('2d')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                skillsViewMode === '2d'
+                  ? 'bg-zinc-800 text-white font-bold shadow-xs border border-zinc-700'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+              title={lang === 'pt' ? 'Visualizar como lista tabular 2D filtrável' : 'View as filterable 2D tabular grid'}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>{lang === 'pt' ? 'Grade 2D' : '2D Grid'}</span>
+            </button>
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('all')}
-            className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'bg-[#adff2f] text-black font-bold'
-                : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
-            }`}
-          >
-            {lang === 'pt' ? 'Todas' : 'All'} ({totalSkillCount})
-          </button>
-          {skillCategories.map((cat, idx) => (
-            <button
-              type="button"
-              key={idx}
-              onClick={() => setSelectedCategory(idx)}
-              className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
-                selectedCategory === idx
-                  ? 'bg-zinc-800 text-white border border-zinc-700 font-semibold'
-                  : 'bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800/80'
-              }`}
-            >
-              <span>{getCategoryIcon(idx)}</span>
-              <span>{cat.title}</span>
-              <span className="text-[10px] opacity-60">({cat.skills.length})</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Grid of Competencies */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
-          {filteredCategories.map((cat) => (
-            <div key={cat.title} className="space-y-3">
-              <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850">
-                <h5 className="text-xs font-mono uppercase text-zinc-300 font-bold tracking-wider flex items-center gap-1.5">
-                  {getCategoryIcon(cat.categoryIndex)}
-                  <span>{cat.title}</span>
-                </h5>
-                <span className="text-[10px] font-mono text-zinc-500">{cat.skills.length}</span>
+        {skillsViewMode === '3d' ? (
+          <div className="space-y-3">
+            <KnowledgeTensor3D lang={lang} />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Quick Search */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Category Filters */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('all')}
+                  className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer ${
+                    selectedCategory === 'all'
+                      ? 'bg-[#adff2f] text-black font-bold'
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800'
+                  }`}
+                >
+                  {lang === 'pt' ? 'Todas' : 'All'} ({totalSkillCount})
+                </button>
+                {skillCategories.map((cat, idx) => (
+                  <button
+                    type="button"
+                    key={idx}
+                    onClick={() => setSelectedCategory(idx)}
+                    className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 ${
+                      selectedCategory === idx
+                        ? 'bg-zinc-800 text-white border border-zinc-700 font-semibold'
+                        : 'bg-zinc-900/80 text-zinc-400 hover:text-white border border-zinc-800/80'
+                    }`}
+                  >
+                    <span>{getCategoryIcon(idx)}</span>
+                    <span>{cat.title}</span>
+                    <span className="text-[10px] opacity-60">({cat.skills.length})</span>
+                  </button>
+                ))}
               </div>
 
-              <ul className="space-y-1.5">
-                {cat.skills.map((skill, sIdx) => (
-                  <li
-                    key={sIdx}
-                    className="text-xs font-mono flex items-center justify-between p-2 rounded-xl bg-zinc-900/70 border border-zinc-850 hover:border-zinc-700/90 text-zinc-100 transition-all hover:bg-zinc-900/95 group shadow-2xs"
-                  >
-                    <div className="flex items-center gap-2 min-w-0 pr-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#adff2f] shrink-0 shadow-xs shadow-lime-400/50" />
-                      <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
-                        {skill.name}
-                      </span>
-                    </div>
-
-                    {skill.level && (
-                      <span className="text-[10px] font-mono text-[#38bdf8] bg-sky-950/40 border border-sky-800/40 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
-                        {skill.level}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <div className="relative min-w-[220px]">
+                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  maxLength={60}
+                  value={skillSearch}
+                  onChange={(e) => setSkillSearch(e.target.value)}
+                  placeholder={lang === 'pt' ? 'Filtrar (ex: PyTorch, Go)...' : 'Filter (e.g. PyTorch, Go)...'}
+                  className="w-full pl-9 pr-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-mono text-white placeholder-zinc-500 focus:outline-hidden focus:border-[#adff2f]/60 transition-colors"
+                />
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Grid of Competencies */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+              {filteredCategories.map((cat) => (
+                <div key={cat.title} className="space-y-3">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-zinc-850">
+                    <h5 className="text-xs font-mono uppercase text-zinc-300 font-bold tracking-wider flex items-center gap-1.5">
+                      {getCategoryIcon(cat.categoryIndex)}
+                      <span>{cat.title}</span>
+                    </h5>
+                    <span className="text-[10px] font-mono text-zinc-500">{cat.skills.length}</span>
+                  </div>
+
+                  <ul className="space-y-1.5">
+                    {cat.skills.map((skill, sIdx) => (
+                      <li
+                        key={sIdx}
+                        className="text-xs font-mono flex items-center justify-between p-2 rounded-xl bg-zinc-900/70 border border-zinc-850 hover:border-zinc-700/90 text-zinc-100 transition-all hover:bg-zinc-900/95 group shadow-2xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0 pr-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#adff2f] shrink-0 shadow-xs shadow-lime-400/50" />
+                          <span className="font-medium text-zinc-200 group-hover:text-white transition-colors truncate">
+                            {skill.name}
+                          </span>
+                        </div>
+
+                        {skill.level && (
+                          <span className="text-[10px] font-mono text-[#38bdf8] bg-sky-950/40 border border-sky-800/40 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
+                            {skill.level}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
