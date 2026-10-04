@@ -51,6 +51,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const agentRef = useRef<System1AgentWeb | null>(null);
   const animRef = useRef<number | null>(null);
   const lastStepTimeRef = useRef<number>(0);
+  const lastUiUpdateTimeRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   const lastFpsTimeRef = useRef<number>(performance.now());
   const isRunningRef = useRef<boolean>(false);
@@ -197,7 +198,6 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               : (sim as CartPoleSim).getState();
 
           const dec = await agent.actWithConfidence(obs);
-          setDecision(dec);
 
           let currentActionName = '';
 
@@ -212,28 +212,49 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             } else {
               setStatusDesc(`${lang === 'pt' ? 'Ação' : 'Action'}: ${currentActionName}`);
             }
+
+            setDecision(dec);
+            setActionLog((prev) => [
+              {
+                id: Date.now() + Math.random(),
+                name: currentActionName,
+                confidence: dec.confidence,
+                uncertainty: dec.uncertainty,
+                latencyMs: dec.latencyMs,
+                isUncertain: dec.isUncertain,
+              },
+              ...prev.slice(0, 4),
+            ]);
           } else {
             const cp = sim as CartPoleSim;
             currentActionName = dec.action === 1 ? 'PUSH_RIGHT' : 'PUSH_LEFT';
             const res = cp.step(dec.action);
-            setStatusDesc(`${lang === 'pt' ? 'Passos' : 'Steps'}: ${res.steps}`);
+
             if (res.done) {
               cp.reset();
               agent.resetMemory();
             }
-          }
 
-          setActionLog((prev) => [
-            {
-              id: Date.now() + Math.random(),
-              name: currentActionName,
-              confidence: dec.confidence,
-              uncertainty: dec.uncertainty,
-              latencyMs: dec.latencyMs,
-              isUncertain: dec.isUncertain,
-            },
-            ...prev.slice(0, 4),
-          ]);
+            // Atualização de telemetria estabilizada a ~10 Hz (a cada 100ms) para evitar trepidação visual na UI
+            const now = performance.now();
+            if (now - lastUiUpdateTimeRef.current >= 100) {
+              lastUiUpdateTimeRef.current = now;
+              setDecision(dec);
+              setStatusDesc(`${lang === 'pt' ? 'Passos' : 'Steps'}: ${res.steps}`);
+
+              setActionLog((prev) => [
+                {
+                  id: Date.now() + Math.random(),
+                  name: currentActionName,
+                  confidence: dec.confidence,
+                  uncertainty: dec.uncertainty,
+                  latencyMs: dec.latencyMs,
+                  isUncertain: dec.isUncertain,
+                },
+                ...prev.slice(0, 4),
+              ]);
+            }
+          }
 
           sim.render(canvas);
         } catch (e) {
@@ -334,7 +355,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/70 px-2 py-0.5 rounded border border-cyan-800">
+                <span className="text-[10px] font-mono tabular-nums text-cyan-400 bg-cyan-950/70 px-2 py-0.5 rounded border border-cyan-800 min-w-[54px] text-center inline-block">
                   {fps} FPS
                 </span>
                 <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
@@ -419,7 +440,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </button>
               </div>
 
-              <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800 truncate max-w-[240px]">
+              <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800 truncate min-w-[130px] text-right inline-block">
                 {statusDesc}
               </span>
             </div>
@@ -428,56 +449,64 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
           {/* Real Telemetry Cards (3-Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Latência de Inferência */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
-                <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">
-                  {lang === 'pt' ? 'LATÊNCIA INFERÊNCIA' : 'INFERENCE LATENCY'}
-                </span>
-                <div className="text-xl font-bold font-mono text-cyan-400 mt-1 flex items-baseline gap-1">
-                  <span>{decision.latencyMs > 0 ? decision.latencyMs.toFixed(2) : '0.18'}</span>
+                <div className="h-5 flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
+                    {lang === 'pt' ? 'LATÊNCIA INFERÊNCIA' : 'INFERENCE LATENCY'}
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono tabular-nums text-cyan-400 mt-1 flex items-baseline gap-1">
+                  <span className="w-16 inline-block">{decision.latencyMs > 0 ? decision.latencyMs.toFixed(2) : '0.18'}</span>
                   <span className="text-xs text-cyan-500 font-normal">ms</span>
                 </div>
               </div>
-              <span className="text-[9px] text-zinc-500 font-mono mt-1">
+              <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
                 {lang === 'pt' ? 'Sub-milissegundo CPU (≤ 800µs budget)' : 'Sub-millisecond CPU (≤ 800µs budget)'}
               </span>
             </div>
 
             {/* Confiança Top-1 */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
-                <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">
-                  {lang === 'pt' ? 'CONFIANÇA (TOP-1)' : 'CONFIDENCE (TOP-1)'}
-                </span>
-                <div className="text-xl font-bold font-mono text-emerald-400 mt-1 flex items-baseline gap-1">
-                  <span>{decision.confidence > 0 ? (decision.confidence * 100).toFixed(1) : '--'}</span>
+                <div className="h-5 flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
+                    {lang === 'pt' ? 'CONFIANÇA (TOP-1)' : 'CONFIDENCE (TOP-1)'}
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono tabular-nums text-emerald-400 mt-1 flex items-baseline gap-1">
+                  <span className="w-16 inline-block">{decision.confidence > 0 ? (decision.confidence * 100).toFixed(1) : '--'}</span>
                   <span className="text-xs text-emerald-500 font-normal">%</span>
                 </div>
               </div>
-              <span className="text-[9px] text-zinc-500 font-mono mt-1">
+              <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
                 {lang === 'pt' ? 'Certeza do reflexo amortizado' : 'Amortized reflex policy certainty'}
               </span>
             </div>
 
             {/* Incerteza / Gating System 2 */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between">
+            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider block">
+                <div className="h-5 flex items-center justify-between gap-1">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
                     {lang === 'pt' ? 'INCERTEZA (GATING)' : 'UNCERTAINTY (GATING)'}
                   </span>
-                  {decision.isUncertain && (
-                    <span className="text-[8px] font-mono px-1 py-0.2 rounded bg-red-950 text-red-300 border border-red-800 font-bold">
-                      S2 TRIGGER
-                    </span>
-                  )}
+                  <span
+                    className={`text-[8px] font-mono px-1.5 py-0.5 rounded border font-bold transition-opacity duration-150 shrink-0 ${
+                      decision.isUncertain
+                        ? 'bg-red-950/80 text-red-300 border-red-800 opacity-100'
+                        : 'opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    S2 TRIGGER
+                  </span>
                 </div>
-                <div className="text-xl font-bold font-mono text-amber-400 mt-1 flex items-baseline gap-1">
-                  <span>{decision.uncertainty > 0 ? (decision.uncertainty * 100).toFixed(1) : '--'}</span>
+                <div className="text-xl font-bold font-mono tabular-nums text-amber-400 mt-1 flex items-baseline gap-1">
+                  <span className="w-16 inline-block">{decision.uncertainty > 0 ? (decision.uncertainty * 100).toFixed(1) : '--'}</span>
                   <span className="text-xs text-amber-500 font-normal">%</span>
                 </div>
               </div>
-              <span className="text-[9px] text-zinc-500 font-mono mt-1">
+              <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
                 {lang === 'pt' ? 'Entropia normalizada (Disparo System 2)' : 'Shannon entropy (System 2 trigger)'}
               </span>
             </div>
