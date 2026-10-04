@@ -8,6 +8,7 @@ import { InteractiveToolDemos } from './components/InteractiveToolDemos';
 import { ExperienceTimeline } from './components/ExperienceTimeline';
 import { TerminalModal } from './components/TerminalModal';
 import { AgentViewModal } from './components/AgentViewModal';
+import { VisitorTelemetryBadge } from './components/VisitorTelemetryBadge';
 import { FloatingTokenMonitor } from './components/FloatingTokenMonitor';
 import { AmbientTensorCanvas } from './components/AmbientTensorCanvas';
 import {
@@ -257,7 +258,7 @@ export default function App() {
         {/* HERO SECTION */}
         <section id="overview" className="pt-6 pb-12">
           {/* Unboxed Metadata Header (frontend-design skill compliant) */}
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-6 flex-wrap">
+          <div className="flex items-center gap-2.5 text-xs font-mono text-zinc-400 mb-6 flex-wrap">
             <span className="text-[#adff2f]">
               {lang === 'pt' ? 'STATUS: DECODIFICANDO_ESPAÇO_LATENTE' : 'STATUS: DECODING_LATENT_SPACE'}
             </span>
@@ -268,18 +269,10 @@ export default function App() {
             <span aria-hidden="true">·</span>
             <span>{lang === 'pt' ? 'CURITIBA, BRASIL' : 'CURITIBA, BRAZIL'}</span>
             <span aria-hidden="true">·</span>
-            <button
-              type="button"
-              onClick={() => setIsAgentModalOpen(true)}
-              aria-haspopup="dialog"
-              aria-label={lang === 'pt' ? 'Abrir versão estruturada para agentes de IA (llms.txt)' : 'Open machine-readable AI agent version (llms.txt)'}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-700/80 hover:border-[#adff2f] text-zinc-300 hover:text-white transition-all cursor-pointer focus:ring-2 focus:ring-[#adff2f] focus:outline-hidden"
-              title={lang === 'pt' ? 'Ver dossiê para agentes de IA e answer engines (llms.txt)' : 'View AI agent & answer engine dossier (llms.txt)'}
-            >
-              <Bot className="w-3.5 h-3.5 text-[#adff2f]" />
-              <span className="font-semibold text-white">{lang === 'pt' ? 'Versão p/ Agentes' : 'Agent Dossier'}</span>
-              <span className="text-[10px] text-[#adff2f] font-mono">llms.txt</span>
-            </button>
+            <VisitorTelemetryBadge
+              lang={lang}
+              onOpenAgentModal={() => setIsAgentModalOpen(true)}
+            />
           </div>
 
           {/* Hero Main Headline with 3-Stage Progressive Token Assembly */}
@@ -708,6 +701,10 @@ export default function App() {
             <span>© 2026 Julio Cesar da Costa Reis Filho</span>
             <span aria-hidden="true">·</span>
             <span>{lang === 'pt' ? 'O Arquiteto Latente' : 'The Latent Architect'}</span>
+            <span aria-hidden="true" className="hidden lg:inline">·</span>
+            <span className="hidden lg:inline text-zinc-500 font-mono text-[11px]">
+              {lang === 'pt' ? 'Telemetria: Humanos & Agentes Ativos' : 'Telemetry: Active Humans & Agents'}
+            </span>
           </div>
           <div className="flex items-center gap-4 flex-wrap">
             <button

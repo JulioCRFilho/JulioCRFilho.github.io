@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Cpu,
   Database,
@@ -12,8 +12,11 @@ import {
   Flame,
   CheckCircle2,
   Trash2,
+  Bot,
+  Users,
 } from 'lucide-react';
 import { analyzeTokenCacheUsage, TokenCacheStats } from '../lib/tokenizer';
+import { visitorTelemetry, TelemetryData } from '../lib/visitorTelemetry';
 
 interface FloatingTokenMonitorProps {
   textSources: string[];
@@ -28,6 +31,12 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
   const [warmupState, setWarmupState] = useState<'idle' | 'warming' | 'warmed'>('idle');
   const [warmupStep, setWarmupStep] = useState<string>('');
   const [latencyMs, setLatencyMs] = useState<number>(18.4);
+  const [telemetryData, setTelemetryData] = useState<TelemetryData>(visitorTelemetry.getData());
+
+  useEffect(() => {
+    const unsub = visitorTelemetry.subscribe((d) => setTelemetryData(d));
+    return () => unsub();
+  }, []);
 
   // Compute live token cache and memory analytics
   const stats: TokenCacheStats = useMemo(() => {
@@ -129,6 +138,15 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
             }`}
           >
             {warmupState === 'warmed' ? (lang === 'pt' ? 'KV-AQUECIDO (1.8ms)' : 'KV-WARMED (1.8ms)') : 'KV-CACHE'}
+          </span>
+
+          <span className="hidden md:inline text-zinc-600">|</span>
+          <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] text-zinc-300">
+            <Users className="w-3 h-3 text-[#38bdf8]" />
+            <span className="tabular-nums font-bold">{telemetryData.humanViews.toLocaleString()}</span>
+            <span className="text-zinc-600">·</span>
+            <Bot className="w-3 h-3 text-[#adff2f]" />
+            <span className="tabular-nums font-bold text-[#adff2f]">{telemetryData.agentViews.toLocaleString()}</span>
           </span>
 
           <ChevronUp className="w-3.5 h-3.5 text-zinc-400 group-hover:text-white transition-transform ml-0.5" />
@@ -291,6 +309,26 @@ export const FloatingTokenMonitor: React.FC<FloatingTokenMonitorProps> = ({
               <span className="font-mono truncate">{warmupStep}</span>
             </div>
           )}
+
+          {/* Dual Ingestion Telemetry: Humans & Agents */}
+          <div className="p-2 rounded-xl bg-zinc-900/60 border border-zinc-850 flex items-center justify-between text-[10px] font-mono">
+            <span className="text-zinc-400 flex items-center gap-1.5">
+              <Activity className="w-3 h-3 text-[#adff2f]" />
+              <span>{lang === 'pt' ? 'Tráfego Auditado:' : 'Audited Traffic:'}</span>
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-zinc-300">
+                <Users className="w-3 h-3 text-[#38bdf8]" />
+                <span className="font-bold text-white tabular-nums">{telemetryData.humanViews.toLocaleString()}</span>
+                <span className="text-zinc-500 text-[9px]">{lang === 'pt' ? 'Hum' : 'Hum'}</span>
+              </span>
+              <span className="flex items-center gap-1 text-zinc-300">
+                <Bot className="w-3 h-3 text-[#adff2f]" />
+                <span className="font-bold text-[#adff2f] tabular-nums">{telemetryData.agentViews.toLocaleString()}</span>
+                <span className="text-zinc-500 text-[9px]">{lang === 'pt' ? 'Age' : 'Age'}</span>
+              </span>
+            </div>
+          </div>
 
           {/* Footer Action Bar */}
           <div className="pt-2 border-t border-zinc-850 flex items-center justify-between text-[10px] text-zinc-400">

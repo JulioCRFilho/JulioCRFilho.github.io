@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Copy, Check, Download, ExternalLink, FileText, Code, Sparkles, X, Terminal, Cpu } from 'lucide-react';
+import { Bot, Copy, Check, Download, ExternalLink, FileText, Code, Sparkles, X, Terminal, Cpu, Users, Activity } from 'lucide-react';
+import { visitorTelemetry } from '../lib/visitorTelemetry';
 
 interface AgentViewModalProps {
   isOpen: boolean;
@@ -176,7 +177,9 @@ export const AgentViewModal: React.FC<AgentViewModalProps> = ({ isOpen, onClose,
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Close on Escape key & handle focus
+  const [telemetry, setTelemetry] = useState(visitorTelemetry.getData());
+
+  // Close on Escape key & handle focus & record telemetry
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -188,6 +191,8 @@ export const AgentViewModal: React.FC<AgentViewModalProps> = ({ isOpen, onClose,
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
       setTimeout(() => closeButtonRef.current?.focus(), 50);
+      visitorTelemetry.recordAgentAction('open_modal');
+      setTelemetry(visitorTelemetry.getData());
     } else {
       document.body.style.overflow = '';
     }
@@ -211,15 +216,21 @@ export const AgentViewModal: React.FC<AgentViewModalProps> = ({ isOpen, onClose,
     try {
       await navigator.clipboard.writeText(currentContent);
       setCopied(true);
+      visitorTelemetry.recordAgentAction('copy_llmstxt');
+      setTelemetry(visitorTelemetry.getData());
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback
       setCopied(true);
+      visitorTelemetry.recordAgentAction('copy_llmstxt');
+      setTelemetry(visitorTelemetry.getData());
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleDownload = () => {
+    visitorTelemetry.recordAgentAction('download_llmstxt');
+    setTelemetry(visitorTelemetry.getData());
     const filename =
       activeTab === 'llmstxt'
         ? 'llms.txt'
@@ -259,12 +270,17 @@ export const AgentViewModal: React.FC<AgentViewModalProps> = ({ isOpen, onClose,
               <Bot className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h2 id="agent-modal-title" className="text-sm sm:text-base font-bold text-white tracking-tight">
                   {lang === 'pt' ? 'Versão para Agentes de IA' : 'AI Agent & LLM Ingestion View'}
                 </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#adff2f]/10 border border-[#adff2f]/30 text-[#adff2f] font-semibold">
                   llms.txt standard
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono hidden sm:inline-flex items-center gap-1.5">
+                  <Bot className="w-3 h-3 text-[#adff2f]" />
+                  <span className="text-[#adff2f] font-bold">{telemetry.agentViews.toLocaleString()}</span>
+                  <span>{lang === 'pt' ? 'ingestões por agentes' : 'agent ingestions'}</span>
                 </span>
               </div>
               <p id="agent-modal-desc" className="text-[11px] text-zinc-400 mt-0.5">

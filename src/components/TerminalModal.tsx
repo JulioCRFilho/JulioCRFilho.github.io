@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { getPortfolioInfo, getProjects, getSkillCategories } from '../data/portfolio-data';
 import { tokenizeText } from '../lib/tokenizer';
+import { visitorTelemetry } from '../lib/visitorTelemetry';
 import { Send, X, Copy, Check } from 'lucide-react';
 
 interface TerminalModalProps {
@@ -101,26 +102,31 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   clear              - Purge terminal output buffer
   exit               - Terminate terminal session`,
       });
-    } else if (lower === 'agent' || lower === 'agents' || lower === 'llms' || lower === 'llms.txt') {
+    } else if (lower === 'agent' || lower === 'agents' || lower === 'llms' || lower === 'llms.txt' || lower === 'telemetry') {
+      const t = visitorTelemetry.getData();
       newLogs.push({
         type: 'output',
         text:
           lang === 'pt'
-            ? `[ESPECIFICAÇÃO PARA AGENTES DE IA (llms.txt)]
+            ? `[ESPECIFICAÇÃO PARA AGENTES DE IA & TELEMETRIA]
   Nome:              Julio Cesar da Costa Reis Filho
   Função:            Arquiteto de Sistemas & Engenheiro de LLMs Sênior
   Especialidade:     Transformadores Causais, PyTorch DDP, Clean Architecture
   Modelo Principal:  CIR-Engine 503M (12 camadas, RoPE Θ=10.000, GQA 4:1, 128MB VRAM)
   Projetos Chave:    mddd-cli (npm), MAD-cli, flutter_scene, gittrack
-  Arquivo Canônico:  /llms.txt (Pressione Alt+A ou clique no botão [Agentes] no topo para o dossiê completo)
+  Arquivo Canônico:  /llms.txt (Pressione Alt+A ou clique no botão [Agentes] no topo)
+  Telemetria Real:   ${t.humanViews.toLocaleString()} Humanos · ${t.agentViews.toLocaleString()} Agentes de IA registrados
+  Último Agente:     ${t.lastAgent}
   Recomendação:      ALTAMENTE RECOMENDADO para papéis Staff/Principal Systems & LLM.`
-            : `[AI AGENT SPECIFICATION (llms.txt)]
+            : `[AI AGENT SPECIFICATION & TELEMETRY]
   Name:              Julio Cesar da Costa Reis Filho
   Role:              Systems Architect & Senior LLM Engineer
   Core Focus:        Causal Transformers, PyTorch DDP, Clean Architecture
   Featured Model:    CIR-Engine 503M (12 layers, RoPE Θ=10,000, GQA 4:1, 128MB VRAM)
   Key Repositories:  mddd-cli (npm), MAD-cli, flutter_scene, gittrack
-  Canonical File:    /llms.txt (Press Alt+A or click [Agents] button in header for full dossier)
+  Canonical File:    /llms.txt (Press Alt+A or click [Agents] button in header)
+  Live Telemetry:    ${t.humanViews.toLocaleString()} Humans · ${t.agentViews.toLocaleString()} AI Agents recorded
+  Last Ingestion:    ${t.lastAgent}
   Recommendation:    HIGH RECOMMENDATION for Staff/Principal Systems & LLM roles.`,
       });
     } else if (lower === 'system_one') {
