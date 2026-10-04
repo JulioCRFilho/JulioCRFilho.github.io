@@ -1,7 +1,9 @@
 /**
- * Dual Telemetry Service: Human vs AI Agent Ingestion Counter
+ * Dual Telemetry Service: Real Human vs AI Agent Ingestion Counter
  * Tracks and distinguishes interactive human visitors from automated LLM agents,
  * answer engine crawlers (Perplexity, GPTBot, ClaudeBot), and llms.txt ingestions.
+ * 
+ * Powered by persistent live global telemetry with local session deduplication.
  */
 
 export interface TelemetryEvent {
@@ -18,11 +20,15 @@ export interface TelemetryData {
   lastAgent: string;
   lastSeen: string;
   recentEvents: TelemetryEvent[];
+  isLoading?: boolean;
 }
 
-const STORAGE_KEY = 'jcrf_telemetry_v1';
-const BASE_HUMAN_VIEWS = 2842;
-const BASE_AGENT_VIEWS = 1418;
+const STORAGE_KEY = 'jcrf_telemetry_real_v2';
+const SESSION_KEY = 'jcrf_session_counted_v2';
+
+const API_BASE = 'https://countapi.mileshilliard.com/api/v1';
+const KEY_HUMANS = 'juliocrfilho-portfolio-humans';
+const KEY_AGENTS = 'juliocrfilho-portfolio-agents';
 
 // Known AI agent / crawler user agents & signatures
 const AGENT_SIGNATURES = [
@@ -71,11 +77,12 @@ function detectVisitorType(): { type: 'human' | 'agent'; name: string } {
 function loadInitialData(): TelemetryData {
   if (typeof window === 'undefined') {
     return {
-      humanViews: BASE_HUMAN_VIEWS,
-      agentViews: BASE_AGENT_VIEWS,
-      lastAgent: 'Claude-3.5-Sonnet (via llms.txt)',
-      lastSeen: 'Agora há pouco',
+      humanViews: 1,
+      agentViews: 1,
+      lastAgent: 'Aguardando telemetria',
+      lastSeen: 'Em tempo real',
       recentEvents: [],
+      isLoading: true,
     };
   }
 
@@ -84,62 +91,25 @@ function loadInitialData(): TelemetryData {
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
-        humanViews: Math.max(BASE_HUMAN_VIEWS, parsed.humanViews || BASE_HUMAN_VIEWS),
-        agentViews: Math.max(BASE_AGENT_VIEWS, parsed.agentViews || BASE_AGENT_VIEWS),
-        lastAgent: parsed.lastAgent || 'Claude-3.5-Sonnet (via llms.txt)',
-        lastSeen: parsed.lastSeen || 'Agora há pouco',
-        recentEvents: parsed.recentEvents || [],
+        humanViews: typeof parsed.humanViews === 'number' ? parsed.humanViews : 1,
+        agentViews: typeof parsed.agentViews === 'number' ? parsed.agentViews : 1,
+        lastAgent: parsed.lastAgent || 'Aguardando telemetria',
+        lastSeen: parsed.lastSeen || 'Em tempo real',
+        recentEvents: Array.isArray(parsed.recentEvents) ? parsed.recentEvents : [],
+        isLoading: false,
       };
     }
   } catch {
     // Fallback
   }
 
-  // Default seed data with realistic history
-  const seedEvents: TelemetryEvent[] = [
-    {
-      id: 'seed-1',
-      type: 'agent',
-      label: 'Claude-3.5-Sonnet Ingest',
-      timestamp: '2 min atrás',
-      detail: 'Leitura de contexto completa de /llms.txt',
-    },
-    {
-      id: 'seed-2',
-      type: 'human',
-      label: 'Sessão Humana (Desktop)',
-      timestamp: '5 min atrás',
-      detail: 'Navegação BPE Tokenizer + CIR-Engine 503M',
-    },
-    {
-      id: 'seed-3',
-      type: 'agent',
-      label: 'PerplexityBot Crawler',
-      timestamp: '11 min atrás',
-      detail: 'Indexação Schema.org ProfilePage',
-    },
-    {
-      id: 'seed-4',
-      type: 'agent',
-      label: 'Cursor IDE Agent',
-      timestamp: '19 min atrás',
-      detail: 'Consulta de especificações mddd-cli',
-    },
-    {
-      id: 'seed-5',
-      type: 'human',
-      label: 'Sessão Humana (Recrutador Tech)',
-      timestamp: '24 min atrás',
-      detail: 'Inspeção do terminal e timeline de liderança',
-    },
-  ];
-
   return {
-    humanViews: BASE_HUMAN_VIEWS,
-    agentViews: BASE_AGENT_VIEWS,
-    lastAgent: 'Claude-3.5-Sonnet (via llms.txt)',
-    lastSeen: '2 min atrás',
-    recentEvents: seedEvents,
+    humanViews: 1,
+    agentViews: 1,
+    lastAgent: 'Aguardando telemetria',
+    lastSeen: 'Em tempo real',
+    recentEvents: [],
+    isLoading: true,
   };
 }
 
@@ -171,42 +141,146 @@ class TelemetryStore {
     this.listeners.forEach((fn) => fn(this.data));
   }
 
-  public recordInitialVisit() {
-    if (this.hasRecordedInitialView || typeof window === 'undefined') return;
-    this.hasRecordedInitialView = true;
-
-    // Check if session was already recorded in this tab
-    const sessionRecorded = sessionStorage.getItem('jcrf_session_view');
-    if (sessionRecorded) return;
-    sessionStorage.setItem('jcrf_session_view', 'true');
-
-    const detection = detectVisitorType();
-    if (detection.type === 'agent') {
-      this.recordAgentAction('view_page', detection.name);
-    } else {
-      this.recordHumanView();
+  /**
+   * Consulta os números reais da API global remota
+   */
+  private async fetchRemoteCount(key: string, isHit: boolean): Promise<number | null> {
+    try {
+      const action = isHit ? 'hit' : 'get';
+      const res = await fetch(`${API_BASE}/${action}/${key}`, {
+        method: 'GET',
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (typeof json.value === 'number') {
+        return json.value;
+      }
+      return null;
+    } catch {
+      return null;
     }
   }
 
-  public recordHumanView() {
+  /**
+   * Sincroniza a contagem com o servidor global de telemetria
+   */
+  public async syncWithRemote() {
+    try {
+      const [remoteHumans, remoteAgents] = await Promise.all([
+        this.fetchRemoteCount(KEY_HUMANS, false),
+        this.fetchRemoteCount(KEY_AGENTS, false),
+      ]);
+
+      let changed = false;
+      const next = { ...this.data, isLoading: false };
+
+      if (remoteHumans !== null && remoteHumans > 0) {
+        next.humanViews = remoteHumans;
+        changed = true;
+      }
+
+      if (remoteAgents !== null && remoteAgents > 0) {
+        next.agentViews = remoteAgents;
+        changed = true;
+      }
+
+      if (changed) {
+        this.data = next;
+        this.notify();
+      }
+    } catch (e) {
+      console.warn('Falha na sincronização remota de telemetria:', e);
+    }
+  }
+
+  /**
+   * Registra a primeira visita real da sessão
+   */
+  public async recordInitialVisit() {
+    if (this.hasRecordedInitialView || typeof window === 'undefined') return;
+    this.hasRecordedInitialView = true;
+
+    const isSessionAlreadyRecorded = sessionStorage.getItem(SESSION_KEY) === 'true';
+    const detection = detectVisitorType();
+    const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    if (!isSessionAlreadyRecorded) {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+
+      if (detection.type === 'agent') {
+        const newRemoteVal = await this.fetchRemoteCount(KEY_AGENTS, true);
+        const newEvent: TelemetryEvent = {
+          id: `a-${Date.now()}`,
+          type: 'agent',
+          label: `${detection.name} Ingest`,
+          timestamp: nowTimeStr,
+          detail: 'Ingestão automatizada de contexto',
+        };
+
+        this.data = {
+          ...this.data,
+          agentViews: newRemoteVal ?? this.data.agentViews + 1,
+          lastAgent: detection.name,
+          lastSeen: 'Agora há pouco',
+          recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 9)],
+          isLoading: false,
+        };
+        this.notify();
+        // Sincroniza o contador humano também
+        this.syncWithRemote();
+      } else {
+        const newRemoteVal = await this.fetchRemoteCount(KEY_HUMANS, true);
+        const newEvent: TelemetryEvent = {
+          id: `h-${Date.now()}`,
+          type: 'human',
+          label: 'Sessão Humana Interativa',
+          timestamp: nowTimeStr,
+          detail: 'Navegação interativa no portfólio',
+        };
+
+        this.data = {
+          ...this.data,
+          humanViews: newRemoteVal ?? this.data.humanViews + 1,
+          lastSeen: 'Agora há pouco',
+          recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 9)],
+          isLoading: false,
+        };
+        this.notify();
+        // Sincroniza o contador de agentes também
+        this.syncWithRemote();
+      }
+    } else {
+      // Se a sessão já foi contada, apenas puxa os números globais atualizados
+      this.syncWithRemote();
+    }
+  }
+
+  public async recordHumanView() {
+    const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newRemoteVal = await this.fetchRemoteCount(KEY_HUMANS, true);
+
     const newEvent: TelemetryEvent = {
       id: `h-${Date.now()}`,
       type: 'human',
       label: 'Sessão Humana Interativa',
-      timestamp: 'Agora',
-      detail: 'Navegação interativa no portfólio',
+      timestamp: nowTimeStr,
+      detail: 'Interação direta no portfólio',
     };
 
     this.data = {
       ...this.data,
-      humanViews: this.data.humanViews + 1,
+      humanViews: newRemoteVal ?? this.data.humanViews + 1,
       lastSeen: 'Agora',
-      recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 7)],
+      recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 9)],
     };
     this.notify();
   }
 
-  public recordAgentAction(action: 'view_page' | 'open_modal' | 'copy_llmstxt' | 'download_llmstxt', customAgentName?: string) {
+  public async recordAgentAction(
+    action: 'view_page' | 'open_modal' | 'copy_llmstxt' | 'download_llmstxt',
+    customAgentName?: string
+  ) {
     const agentNames = [
       'Claude-3.5-Sonnet',
       'GPT-4o Deep Research',
@@ -220,30 +294,29 @@ class TelemetryStore {
       agentNames[Math.floor(Math.random() * agentNames.length)];
 
     let detail = 'Acesso ao dossiê llms.txt';
-    if (action === 'open_modal') detail = 'Abertura do modal de agentes';
+    if (action === 'open_modal') detail = 'Abertura do dossiê de agentes';
     if (action === 'copy_llmstxt') detail = 'Cópia de llms.txt para prompt de sistema';
     if (action === 'download_llmstxt') detail = 'Download de llms.txt para ingestão';
+
+    const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newRemoteVal = await this.fetchRemoteCount(KEY_AGENTS, true);
 
     const newEvent: TelemetryEvent = {
       id: `a-${Date.now()}`,
       type: 'agent',
       label: `${pickedAgent}`,
-      timestamp: 'Agora',
+      timestamp: nowTimeStr,
       detail,
     };
 
     this.data = {
       ...this.data,
-      agentViews: this.data.agentViews + 1,
+      agentViews: newRemoteVal ?? this.data.agentViews + 1,
       lastAgent: `${pickedAgent} (${detail})`,
       lastSeen: 'Agora',
-      recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 7)],
+      recentEvents: [newEvent, ...this.data.recentEvents.slice(0, 9)],
     };
     this.notify();
-  }
-
-  public simulateAgentInspection(agentName = 'Simulated Autonomous Agent') {
-    this.recordAgentAction('copy_llmstxt', agentName);
   }
 }
 

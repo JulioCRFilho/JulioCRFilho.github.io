@@ -34,15 +34,7 @@ export const VisitorTelemetryBadge: React.FC<VisitorTelemetryBadgeProps> = ({
   const agentPct = 100 - humanPct;
 
   const handleSimulateAgent = () => {
-    const simulatedAgents = [
-      'Gemini-2.0-Flash Evaluator',
-      'Claude-3.5-Sonnet Agent',
-      'GPT-4o Deep Research Bot',
-      'Perplexity Enterprise Crawler',
-      'Cursor IDE Context Indexer',
-    ];
-    const picked = simulatedAgents[Math.floor(Math.random() * simulatedAgents.length)];
-    visitorTelemetry.simulateAgentInspection(picked);
+    visitorTelemetry.recordAgentAction('view_page', 'Manual Agent Ingest');
     setJustSimulated(true);
     setTimeout(() => setJustSimulated(false), 2000);
   };
@@ -227,27 +219,35 @@ export const VisitorTelemetryBadge: React.FC<VisitorTelemetryBadgeProps> = ({
               </div>
 
               <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                {data.recentEvents.map((evt) => (
-                  <div
-                    key={evt.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-zinc-900/60 border border-zinc-850 text-[11px]"
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      {evt.type === 'agent' ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#adff2f]" />
-                      ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
-                      )}
-                      <span className="font-bold text-zinc-200 truncate">{evt.label}</span>
-                      <span className="text-zinc-500 text-[10px] truncate hidden sm:inline">
-                        · {evt.detail}
+                {data.recentEvents.length === 0 ? (
+                  <div className="p-3 rounded-lg bg-zinc-900/40 border border-zinc-850/60 text-center text-[11px] text-zinc-500">
+                    {lang === 'pt'
+                      ? 'Nenhum evento registrado nesta sessão ainda. Interaja com o portfólio para registrar telemetria.'
+                      : 'No events recorded in this session yet. Interact with the portfolio to log telemetry.'}
+                  </div>
+                ) : (
+                  data.recentEvents.map((evt) => (
+                    <div
+                      key={evt.id}
+                      className="flex items-center justify-between p-2 rounded-lg bg-zinc-900/60 border border-zinc-850 text-[11px]"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        {evt.type === 'agent' ? (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#adff2f]" />
+                        ) : (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />
+                        )}
+                        <span className="font-bold text-zinc-200 truncate">{evt.label}</span>
+                        <span className="text-zinc-500 text-[10px] truncate hidden sm:inline">
+                          · {evt.detail}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-zinc-500 tabular-nums shrink-0 ml-2">
+                        {evt.timestamp}
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-500 tabular-nums shrink-0 ml-2">
-                      {evt.timestamp}
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -257,13 +257,13 @@ export const VisitorTelemetryBadge: React.FC<VisitorTelemetryBadgeProps> = ({
                 type="button"
                 onClick={handleSimulateAgent}
                 className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#adff2f]/10 hover:bg-[#adff2f]/20 border border-[#adff2f]/40 text-xs font-bold text-[#adff2f] transition-all cursor-pointer"
-                title={lang === 'pt' ? 'Simula a chegada de um agente de IA e incrementa o contador' : 'Simulate an incoming AI agent request and increment counter'}
+                title={lang === 'pt' ? 'Registra o acesso de um agente de IA no contador global' : 'Record an incoming AI agent request in global counter'}
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
                   {justSimulated
                     ? (lang === 'pt' ? '✓ Agente Registrado (+1)!' : '✓ Agent Recorded (+1)!')
-                    : (lang === 'pt' ? 'Simular Ingestão por Agente (+1)' : 'Simulate Agent Ingest (+1)')}
+                    : (lang === 'pt' ? 'Registrar Acesso de Agente (+1)' : 'Record Agent Access (+1)')}
                 </span>
               </button>
 
