@@ -7,6 +7,7 @@ import { ProjectShowcase } from './components/ProjectShowcase';
 import { InteractiveToolDemos } from './components/InteractiveToolDemos';
 import { ExperienceTimeline } from './components/ExperienceTimeline';
 import { TerminalModal } from './components/TerminalModal';
+import { AgentViewModal } from './components/AgentViewModal';
 import { FloatingTokenMonitor } from './components/FloatingTokenMonitor';
 import { AmbientTensorCanvas } from './components/AmbientTensorCanvas';
 import {
@@ -22,6 +23,7 @@ import {
   RotateCcw,
   CheckCircle2,
   ArrowRight,
+  Bot,
 } from 'lucide-react';
 
 /**
@@ -139,6 +141,19 @@ export default function App() {
   const [isReplaying, setIsReplaying] = useState<boolean>(false);
   const [lang, setLang] = useState<'en' | 'pt'>('en');
   const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState<boolean>(false);
+
+  // Keyboard shortcut Alt+A to toggle Agent Mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.altKey && (e.key === 'a' || e.key === 'A')) || (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A'))) {
+        e.preventDefault();
+        setIsAgentModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const heroAnimatedRef = useRef<boolean>(false);
   const heroRafRef = useRef<number | null>(null);
@@ -234,6 +249,7 @@ export default function App() {
         lang={lang}
         setLang={setLang}
         onOpenTerminal={() => setIsTerminalOpen(true)}
+        onOpenAgentView={() => setIsAgentModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -251,6 +267,19 @@ export default function App() {
             </span>
             <span aria-hidden="true">·</span>
             <span>{lang === 'pt' ? 'CURITIBA, BRASIL' : 'CURITIBA, BRAZIL'}</span>
+            <span aria-hidden="true">·</span>
+            <button
+              type="button"
+              onClick={() => setIsAgentModalOpen(true)}
+              aria-haspopup="dialog"
+              aria-label={lang === 'pt' ? 'Abrir versão estruturada para agentes de IA (llms.txt)' : 'Open machine-readable AI agent version (llms.txt)'}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-700/80 hover:border-[#adff2f] text-zinc-300 hover:text-white transition-all cursor-pointer focus:ring-2 focus:ring-[#adff2f] focus:outline-hidden"
+              title={lang === 'pt' ? 'Ver dossiê para agentes de IA e answer engines (llms.txt)' : 'View AI agent & answer engine dossier (llms.txt)'}
+            >
+              <Bot className="w-3.5 h-3.5 text-[#adff2f]" />
+              <span className="font-semibold text-white">{lang === 'pt' ? 'Versão p/ Agentes' : 'Agent Dossier'}</span>
+              <span className="text-[10px] text-[#adff2f] font-mono">llms.txt</span>
+            </button>
           </div>
 
           {/* Hero Main Headline with 3-Stage Progressive Token Assembly */}
@@ -680,7 +709,17 @@ export default function App() {
             <span aria-hidden="true">·</span>
             <span>{lang === 'pt' ? 'O Arquiteto Latente' : 'The Latent Architect'}</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setIsAgentModalOpen(true)}
+              aria-haspopup="dialog"
+              className="text-[#adff2f] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 font-semibold"
+              title={lang === 'pt' ? 'Versão para Agentes de IA & LLMs (llms.txt)' : 'AI Agent & LLM View (llms.txt)'}
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>{lang === 'pt' ? 'Modo Agentes (llms.txt)' : 'Agent View (llms.txt)'}</span>
+            </button>
             <a href="https://linkedin.com/in/juliocrfilho" target="_blank" rel="noopener noreferrer" className="hover:text-[#38bdf8] transition-colors flex items-center gap-1">
               <Linkedin className="w-3.5 h-3.5 text-[#0a66c2]" />
               <span>LinkedIn</span>
@@ -702,6 +741,13 @@ export default function App() {
       <TerminalModal
         isOpen={isTerminalOpen}
         onClose={() => setIsTerminalOpen(false)}
+        lang={lang}
+      />
+
+      {/* Accessible AI Agent View & LLMs.txt Modal */}
+      <AgentViewModal
+        isOpen={isAgentModalOpen}
+        onClose={() => setIsAgentModalOpen(false)}
         lang={lang}
       />
     </div>

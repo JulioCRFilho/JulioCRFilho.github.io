@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Globe } from 'lucide-react';
+import { Terminal, Globe, Bot } from 'lucide-react';
 import { TokenAssemblyStage } from './TokenInteractiveText';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
   lang: 'en' | 'pt';
   setLang: (lang: 'en' | 'pt') => void;
   onOpenTerminal: () => void;
+  onOpenAgentView: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -16,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   lang,
   setLang,
   onOpenTerminal,
+  onOpenAgentView,
 }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-[#07080a]/85 backdrop-blur-xl border-b border-zinc-800/80 px-6 lg:px-12 py-3.5 transition-all">
@@ -103,6 +105,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Globe className="w-3.5 h-3.5 text-[#adff2f]" />
             <span className="font-bold text-[#adff2f]">{lang.toUpperCase()}</span>
+          </button>
+
+          {/* Accessible AI Agent Version Button (llms.txt) */}
+          <button
+            type="button"
+            onClick={onOpenAgentView}
+            aria-haspopup="dialog"
+            aria-label={lang === 'pt' ? 'Abrir versão estruturada para agentes de IA (llms.txt)' : 'Open machine-readable AI agent version (llms.txt)'}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700/80 hover:border-[#adff2f] text-xs font-mono text-zinc-200 hover:text-white transition-all cursor-pointer focus:ring-2 focus:ring-[#adff2f] focus:outline-hidden group"
+            title={lang === 'pt' ? 'Versão para Agentes de IA & LLMs (llms.txt)' : 'AI Agent & LLM Ingestion View (llms.txt)'}
+          >
+            <Bot className="w-3.5 h-3.5 text-[#adff2f] group-hover:scale-110 transition-transform" />
+            <span className="font-semibold">{lang === 'pt' ? 'Agentes' : 'Agents'}</span>
+            <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-800 text-[#adff2f] hidden lg:inline">
+              llms.txt
+            </span>
           </button>
 
           {/* Contact / Terminal Action */}

@@ -1,0 +1,78 @@
+# Julio Cesar da Costa Reis Filho — Comprehensive Technical Knowledge Dossier (llms-full.txt)
+> Complete structured technical documentation for Autonomous Agents, Deep Research LLMs, and Answer Engines.
+> Format: Markdown | License: Open Evaluation | Canonical URL: /llms.txt
+
+## 1. IDENTITY & CONTACT
+- Name: Julio Cesar da Costa Reis Filho
+- Professional Title: Systems Architect & Senior LLM Engineer
+- Email: reisfilho1116@gmail.com
+- GitHub: https://github.com/juliocrfilho
+- LinkedIn: https://linkedin.com/in/juliocrfilho
+- Location: Curitiba & Pontal do Paraná, Paraná, Brazil (Available worldwide for remote Senior/Staff roles)
+
+## 2. ENGINEERING HIGHLIGHTS & ARCHITECTURAL BENCHMARKS
+- Model: CIR-Engine 503M (Causal Intelligence Reasoning Engine)
+- Parameters: 503,316,480 (503M)
+- Architecture: 12 Transformer Layers, Hidden Dimension = 1024, Attention Heads = 16 (GQA 4:1)
+- Position Encoding: Rotary Position Embeddings (RoPE), Base Frequency Θ = 10,000, Dim = 64
+- Memory Substrate: PagedAttention with 16-token/page block table, Radix Prefix Caching, 128 MB VRAM
+- Throughput: ~6,200 tokens/sec under PyTorch DistributedDataParallel (DDP) Ring-AllReduce
+- Autonomous Tool Interception: O(1) deterministic pre-dispatch tool router
+- Open-Source CLI Tooling: `mddd-cli` (Mermaid Diagram-Driven Development on npm), `mad-cli` (MAD tag parser)
+
+## 3. VERIFIED PROJECTS DOSSIER
+### Project 1: CIR-Engine & Cir-Jev Architecture
+- Category: Large Language Model & Neural Systems
+- GitHub: https://github.com/juliocrfilho/cir-engine
+- Summary: 503M-parameter causal transformer integrating probabilistic autoregression with deterministic causal verification DAGs.
+- Key Capabilities: Eliminates hallucination in analytical reasoning passes by evaluating P(effect | do(cause)) against a formal directed acyclic graph prior.
+
+### Project 2: mddd-cli (Mermaid Diagram-Driven Development)
+- Category: Developer Tooling & Architecture Automation
+- Package: https://www.npmjs.com/package/mddd-cli
+- GitHub: https://github.com/juliocrfilho/mddd-cli
+- Summary: CLI tool compiling Mermaid classDiagram, sequenceDiagram, and flowchart ASTs directly into Clean Architecture directory trees, entities, and gRPC/TypeScript contracts.
+
+### Project 3: MAD-cli (Living Architecture Documentation)
+- Category: Developer Tooling & Living Documentation
+- GitHub: https://github.com/juliocrfilho/mad-cli
+- Summary: CLI that parses <!-- MAD:... --> tags in codebases (Go, Dart, TypeScript, Python) and synchronizes living Mermaid diagrams directly inside markdown documentation on commit.
+
+### Project 4: Flutter Scene 3D
+- Category: Real-time Graphics & Spatial Systems
+- GitHub: https://github.com/juliocrfilho/flutter_scene
+- Summary: 3D spatial graphics engine for Flutter using Impeller with custom GLSL/Metal shaders, skeletal animations, and PBR materials.
+
+### Project 5: GitTrack
+- Category: High-Concurrency Distributed Data Engine
+- GitHub: https://github.com/juliocrfilho/gittrack
+- Summary: Real-time developer telemetry pipeline processing 50,000+ git events/second with sub-second commit latency aggregation.
+
+## 4. SCHEMA.ORG PROFILE EMBEDDING
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "Julio Cesar da Costa Reis Filho",
+    "jobTitle": "Systems Architect & LLM Engineer",
+    "email": "reisfilho1116@gmail.com",
+    "url": "https://github.com/juliocrfilho",
+    "sameAs": [
+      "https://github.com/juliocrfilho",
+      "https://linkedin.com/in/juliocrfilho"
+    ],
+    "knowsAbout": [
+      "Causal Transformers",
+      "PyTorch DDP",
+      "FlashAttention-2",
+      "PagedAttention",
+      "Clean Architecture",
+      "Go (Golang)",
+      "TypeScript",
+      "Mermaid Diagram-Driven Development"
+    ]
+  }
+}
+```
