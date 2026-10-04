@@ -15,6 +15,7 @@ import {
   ensureOnnxRuntime,
   type DecisionResult,
 } from '../lib/system1';
+import { RubiksCube3D } from './RubiksCube3D';
 
 interface ActionLogItem {
   id: number;
@@ -27,6 +28,21 @@ interface ActionLogItem {
 
 export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en' }) => {
   const [activeDemo, setActiveDemo] = useState<'rubiks' | 'cartpole'>('rubiks');
+  const [cubeViewMode, setCubeViewMode] = useState<'3d' | '2d'>('3d');
+  const [cubeState, setCubeState] = useState<{
+    state: Int32Array;
+    lastAction: string;
+    steps: number;
+    alignedCount: number;
+    isSolved: boolean;
+  }>({
+    state: new Int32Array(54),
+    lastAction: 'RESET',
+    steps: 0,
+    alignedCount: 54,
+    isSolved: true,
+  });
+
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -101,12 +117,19 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       const cube = new RubiksCubeSim();
       cube.scramble(cubeScrambleDepth);
       simRef.current = cube;
+      setCubeState({
+        state: new Int32Array(cube.state),
+        lastAction: cube.lastAction,
+        steps: cube.steps,
+        alignedCount: cube.getAlignedCount(),
+        isSolved: cube.isSolved(),
+      });
     } else {
       const cp = new CartPoleSim();
       simRef.current = cp;
     }
 
-    if (canvasRef.current && simRef.current) {
+    if (canvasRef.current && simRef.current && (demoKey !== 'rubiks' || cubeViewMode === '2d')) {
       simRef.current.render(canvasRef.current);
     }
 
@@ -114,6 +137,12 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       agentRef.current.resetMemory();
     }
   };
+
+  useEffect(() => {
+    if (activeDemo === 'rubiks' && cubeViewMode === '2d' && canvasRef.current && simRef.current) {
+      simRef.current.render(canvasRef.current);
+    }
+  }, [cubeViewMode, activeDemo]);
 
   const loadModel = async (demoKey: 'rubiks' | 'cartpole') => {
     setIsLoading(true);
@@ -190,7 +219,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       const agent = agentRef.current;
       const canvas = canvasRef.current;
 
-      if (sim && agent && canvas) {
+      if (sim && agent) {
         try {
           const obs =
             activeDemo === 'rubiks'
@@ -205,6 +234,14 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             const cube = sim as RubiksCubeSim;
             currentActionName = RubiksCubeSim.MACRO_NAMES[dec.action] || `ACT_${dec.action}`;
             cube.applyMacro(currentActionName);
+
+            setCubeState({
+              state: new Int32Array(cube.state),
+              lastAction: currentActionName,
+              steps: cube.steps,
+              alignedCount: cube.getAlignedCount(),
+              isSolved: cube.isSolved(),
+            });
 
             if (cube.isSolved()) {
               stopEvaluation();
@@ -256,7 +293,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             }
           }
 
-          sim.render(canvas);
+          if (canvas && (activeDemo !== 'rubiks' || cubeViewMode === '2d')) {
+            sim.render(canvas);
+          }
         } catch (e) {
           console.error('Erro no passo neural:', e);
         }
@@ -279,18 +318,40 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   };
 
   const scrambleEnv = () => {
-    if (activeDemo === 'rubiks' && simRef.current && canvasRef.current) {
-      (simRef.current as RubiksCubeSim).scramble(cubeScrambleDepth);
-      simRef.current.render(canvasRef.current);
+    if (activeDemo === 'rubiks' && simRef.current) {
+      const cube = simRef.current as RubiksCubeSim;
+      cube.scramble(cubeScrambleDepth);
+      if (canvasRef.current && cubeViewMode === '2d') {
+        cube.render(canvasRef.current);
+      }
+      setCubeState({
+        state: new Int32Array(cube.state),
+        lastAction: cube.lastAction,
+        steps: cube.steps,
+        alignedCount: cube.getAlignedCount(),
+        isSolved: cube.isSolved(),
+      });
       if (agentRef.current) agentRef.current.resetMemory();
       setStatusDesc(lang === 'pt' ? 'Cubo reembaralhado' : 'Cube scrambled');
     }
   };
 
   const resetEnv = () => {
-    if (simRef.current && canvasRef.current) {
+    if (simRef.current) {
       simRef.current.reset();
-      simRef.current.render(canvasRef.current);
+      if (canvasRef.current && (activeDemo !== 'rubiks' || cubeViewMode === '2d')) {
+        simRef.current.render(canvasRef.current);
+      }
+      if (activeDemo === 'rubiks') {
+        const cube = simRef.current as RubiksCubeSim;
+        setCubeState({
+          state: new Int32Array(cube.state),
+          lastAction: cube.lastAction,
+          steps: cube.steps,
+          alignedCount: cube.getAlignedCount(),
+          isSolved: cube.isSolved(),
+        });
+      }
       if (agentRef.current) agentRef.current.resetMemory();
       setStatusDesc(lang === 'pt' ? 'Ambiente reiniciado' : 'Environment reset');
     }
@@ -355,6 +416,34 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                {activeDemo === 'rubiks' && (
+                  <div className="flex items-center gap-0.5 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => setCubeViewMode('3d')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition cursor-pointer ${
+                        cubeViewMode === '3d'
+                          ? 'bg-cyan-500 text-black shadow'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                      title={lang === 'pt' ? 'Visualização 3D interativa (WebGL)' : 'Interactive 3D view (WebGL)'}
+                    >
+                      3D
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCubeViewMode('2d')}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold transition cursor-pointer ${
+                        cubeViewMode === '2d'
+                          ? 'bg-cyan-500 text-black shadow'
+                          : 'text-zinc-400 hover:text-white'
+                      }`}
+                      title={lang === 'pt' ? 'Visualização 2D desdobrada em cruz' : 'Unfolded 2D net view'}
+                    >
+                      2D Net
+                    </button>
+                  </div>
+                )}
                 <span className="text-[10px] font-mono tabular-nums text-cyan-400 bg-cyan-950/70 px-2 py-0.5 rounded border border-cyan-800 min-w-[54px] text-center inline-block">
                   {fps} FPS
                 </span>
@@ -364,41 +453,81 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               </div>
             </div>
 
-            {/* Canvas Viewport */}
-            <div className="relative bg-[#07090e] rounded-xl overflow-hidden border border-zinc-800/80 flex items-center justify-center min-h-[320px]">
-              <canvas
-                ref={canvasRef}
-                width={480}
-                height={320}
-                className="w-full h-auto max-h-[320px] object-contain block"
-              />
+            {/* Viewport: 3D Rubik's Cube (WebGL) OR 2D Canvas */}
+            {activeDemo === 'rubiks' && cubeViewMode === '3d' ? (
+              <div className="relative rounded-xl overflow-hidden min-h-[320px]">
+                <RubiksCube3D
+                  state={cubeState.state}
+                  lastAction={cubeState.lastAction}
+                  steps={cubeState.steps}
+                  alignedCount={cubeState.alignedCount}
+                  isSolved={cubeState.isSolved}
+                  isRunning={isRunning}
+                  lang={lang}
+                />
 
-              {/* Loader Overlay */}
-              {isLoading && (
-                <div className="absolute inset-0 bg-[#07090e]/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-xs font-mono text-cyan-400 z-10">
-                  <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                  <span>
-                    {lang === 'pt'
-                      ? 'Carregando pesos neurais ONNX (Wasm SIMD)...'
-                      : 'Loading ONNX neural weights (Wasm SIMD)...'}
-                  </span>
-                  <span className="text-[10px] text-zinc-500">{currentCfg.file}</span>
-                </div>
-              )}
+                {/* Loader Overlay */}
+                {isLoading && (
+                  <div className="absolute inset-0 bg-[#07090e]/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-xs font-mono text-cyan-400 z-10 rounded-xl">
+                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                    <span>
+                      {lang === 'pt'
+                        ? 'Carregando pesos neurais ONNX (Wasm SIMD)...'
+                        : 'Loading ONNX neural weights (Wasm SIMD)...'}
+                    </span>
+                    <span className="text-[10px] text-zinc-500">{currentCfg.file}</span>
+                  </div>
+                )}
 
-              {/* Error Overlay */}
-              {loadError && (
-                <div className="absolute inset-0 bg-[#07090e]/90 flex flex-col items-center justify-center gap-2 p-4 text-center z-10">
-                  <span className="text-red-400 text-xs font-mono">⚠️ {loadError}</span>
-                  <button
-                    onClick={() => loadModel(activeDemo)}
-                    className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono rounded text-zinc-200 border border-zinc-700 transition"
-                  >
-                    {lang === 'pt' ? 'Tentar novamente' : 'Retry'}
-                  </button>
-                </div>
-              )}
-            </div>
+                {/* Error Overlay */}
+                {loadError && (
+                  <div className="absolute inset-0 bg-[#07090e]/90 flex flex-col items-center justify-center gap-2 p-4 text-center z-10 rounded-xl">
+                    <span className="text-red-400 text-xs font-mono">⚠️ {loadError}</span>
+                    <button
+                      onClick={() => loadModel(activeDemo)}
+                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono rounded text-zinc-200 border border-zinc-700 transition"
+                    >
+                      {lang === 'pt' ? 'Tentar novamente' : 'Retry'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative bg-[#07090e] rounded-xl overflow-hidden border border-zinc-800/80 flex items-center justify-center min-h-[320px]">
+                <canvas
+                  ref={canvasRef}
+                  width={480}
+                  height={320}
+                  className="w-full h-auto max-h-[320px] object-contain block"
+                />
+
+                {/* Loader Overlay */}
+                {isLoading && (
+                  <div className="absolute inset-0 bg-[#07090e]/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-xs font-mono text-cyan-400 z-10">
+                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                    <span>
+                      {lang === 'pt'
+                        ? 'Carregando pesos neurais ONNX (Wasm SIMD)...'
+                        : 'Loading ONNX neural weights (Wasm SIMD)...'}
+                    </span>
+                    <span className="text-[10px] text-zinc-500">{currentCfg.file}</span>
+                  </div>
+                )}
+
+                {/* Error Overlay */}
+                {loadError && (
+                  <div className="absolute inset-0 bg-[#07090e]/90 flex flex-col items-center justify-center gap-2 p-4 text-center z-10">
+                    <span className="text-red-400 text-xs font-mono">⚠️ {loadError}</span>
+                    <button
+                      onClick={() => loadModel(activeDemo)}
+                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono rounded text-zinc-200 border border-zinc-700 transition"
+                    >
+                      {lang === 'pt' ? 'Tentar novamente' : 'Retry'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Interactive Control Buttons */}
             <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
