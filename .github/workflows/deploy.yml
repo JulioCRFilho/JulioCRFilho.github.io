@@ -45,3 +45,21 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Notify Search Engines & AI Bots via IndexNow
+        continue-on-error: true
+        run: |
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d '{
+              "host": "juliocrfilho.github.io",
+              "key": "97f2b184918e47268d37449265e3170a",
+              "keyLocation": "https://juliocrfilho.github.io/97f2b184918e47268d37449265e3170a.txt",
+              "urlList": [
+                "https://juliocrfilho.github.io/",
+                "https://juliocrfilho.github.io/llms.txt",
+                "https://juliocrfilho.github.io/llms-full.txt",
+                "https://juliocrfilho.github.io/ai-index.json",
+                "https://juliocrfilho.github.io/sitemap.xml"
+              ]
+            }'
