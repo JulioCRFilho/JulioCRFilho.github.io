@@ -67,6 +67,31 @@ export class RubiksCubeSim {
     U_PRIME_TURN: ['U_prime'],
   };
 
+  static INVERSE_ATOMIC: Record<string, string> = {
+    U: 'U_prime', U_prime: 'U',
+    D: 'D_prime', D_prime: 'D',
+    F: 'F_prime', F_prime: 'F',
+    B: 'B_prime', B_prime: 'B',
+    R: 'R_prime', R_prime: 'R',
+    L: 'L_prime', L_prime: 'L',
+  };
+
+  static INVERSE_MACROS: Record<string, string> = {
+    SUNE: 'ANTI_SUNE',
+    ANTI_SUNE: 'SUNE',
+    U_TURN: 'U_PRIME_TURN',
+    U_PRIME_TURN: 'U_TURN',
+    INSERT_EDGE_R: 'INSERT_EDGE_L',
+    INSERT_EDGE_L: 'INSERT_EDGE_R',
+  };
+
+  static SCRAMBLE_MACRO_NAMES = [
+    'SEXY_MOVE_R', 'SEXY_MOVE_L',
+    'SUNE', 'ANTI_SUNE',
+    'T_PERM', 'INSERT_EDGE_R', 'INSERT_EDGE_L', 'YELLOW_CROSS',
+    'U_TURN', 'U_PRIME_TURN',
+  ];
+
   static MACRO_NAMES = Object.keys(RubiksCubeSim.MACRO_ACTIONS);
 
   static PALETTE: Record<number, string> = {
@@ -198,14 +223,53 @@ export class RubiksCubeSim {
     this.steps++;
   }
 
-  scramble(depth = 2) {
-    this.reset();
-    for (let i = 0; i < depth; i++) {
-      const act = RubiksCubeSim.MACRO_NAMES[Math.floor(Math.random() * RubiksCubeSim.MACRO_NAMES.length)];
-      this.applyMacro(act);
+  scrambleAtomic(depth = 3): string[] {
+    const moves: string[] = [];
+    let lastMove: string | null = null;
+    while (moves.length < depth) {
+      const move = RubiksCubeSim.ATOMIC_MOVES[Math.floor(Math.random() * RubiksCubeSim.ATOMIC_MOVES.length)];
+      if (lastMove && RubiksCubeSim.INVERSE_ATOMIC[move] === lastMove) {
+        continue;
+      }
+      this.applyAtomic(move);
+      moves.push(move);
+      lastMove = move;
     }
+    return moves;
+  }
+
+  scrambleMacro(depth = 2): string[] {
+    const moves: string[] = [];
+    let lastMove: string | null = null;
+    const candidates = RubiksCubeSim.SCRAMBLE_MACRO_NAMES;
+    while (moves.length < depth) {
+      const act = candidates[Math.floor(Math.random() * candidates.length)];
+      if (lastMove && RubiksCubeSim.INVERSE_MACROS[act] === lastMove) {
+        continue;
+      }
+      this.applyMacro(act);
+      moves.push(act);
+      lastMove = act;
+    }
+    return moves;
+  }
+
+  scramble(depth = 2, mode = 'atomic'): string[] {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      this.reset();
+      const moves = mode === 'macro' ? this.scrambleMacro(depth) : this.scrambleAtomic(depth);
+      if (this.getAlignedCount() < 54) {
+        this.lastAction = 'SCRAMBLED';
+        this.steps = 0;
+        return moves;
+      }
+    }
+    this.reset();
+    this.applyAtomic('R');
+    this.applyAtomic('U');
     this.lastAction = 'SCRAMBLED';
     this.steps = 0;
+    return ['R', 'U'];
   }
 
   getAlignedCount(): number {
@@ -1081,7 +1145,12 @@ export class System1AgentWeb {
     this.prevReward = 0.0;
   }
 
-  async actWithConfidence(obsArr: Float32Array): Promise<DecisionResult> {
+  async actWithConfidence(
+    obsArr: Float32Array,
+    stepReward = 0.0,
+    options: { avoidAction?: number; temperature?: number } = {}
+  ): Promise<DecisionResult> {
+    const { avoidAction = -1, temperature = 1.0 } = options;
     const obsDim = obsArr.length;
     const deltaArr = new Float32Array(obsDim);
     if (this.prevObs) {
@@ -1094,7 +1163,7 @@ export class System1AgentWeb {
     const tObs = new this.ort.Tensor('float32', obsArr, [1, 1, obsDim]);
     const tDelta = new this.ort.Tensor('float32', deltaArr, [1, 1, obsDim]);
     const tAct = new this.ort.Tensor('int64', BigInt64Array.from([BigInt(this.prevAction)]), [1, 1]);
-    const tRew = new this.ort.Tensor('float32', new Float32Array([this.prevReward]), [1, 1, 1]);
+    const tRew = new this.ort.Tensor('float32', new Float32Array([stepReward]), [1, 1, 1]);
     const tHx = new this.ort.Tensor('float32', this.hx, [1, 1, 256]);
 
     const feeds = {
@@ -1111,14 +1180,20 @@ export class System1AgentWeb {
     const logits = results.logits.data;
     this.hx.set(results.next_hx.data);
 
-    // Softmax & Entropia de Shannon (Gating System 1 -> System 2)
+    // Softmax & Entropia de Shannon com penalidade de ciclo (anti-loop)
     let maxLogit = -Infinity;
-    for (let i = 0; i < logits.length; i++) if (logits[i] > maxLogit) maxLogit = logits[i];
+    for (let i = 0; i < logits.length; i++) {
+      let l = logits[i] / (temperature || 1.0);
+      if (i === avoidAction) l -= 2.0;
+      if (l > maxLogit) maxLogit = l;
+    }
 
     let sumExp = 0;
     const probs = new Float32Array(logits.length);
     for (let i = 0; i < logits.length; i++) {
-      probs[i] = Math.exp(logits[i] - maxLogit);
+      let l = logits[i] / (temperature || 1.0);
+      if (i === avoidAction) l -= 2.0;
+      probs[i] = Math.exp(l - maxLogit);
       sumExp += probs[i];
     }
 
@@ -1135,7 +1210,7 @@ export class System1AgentWeb {
     const uncertainty = Math.min(1.0, Math.max(0.0, entropy / maxEntropy));
 
     this.prevAction = bestAction;
-    this.prevReward = 0.0;
+    this.prevReward = stepReward;
 
     return {
       action: bestAction,

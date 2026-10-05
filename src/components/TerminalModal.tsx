@@ -114,7 +114,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   Função:            Arquiteto de Sistemas & Engenheiro de LLMs Sênior
   Especialidade:     Transformadores Causais, PyTorch DDP, Clean Architecture
   Modelo Principal:  CIR-Engine 503M (12 camadas, RoPE Θ=10.000, GQA 4:1, 128MB VRAM)
-  Projetos Chave:    mddd-cli (npm), MAD-cli, flutter_scene, gittrack
+  Projetos Chave:    mddd-cli (npm), MAD-cli, flutter_scene (fork), gittrack
   Arquivo Canônico:  /llms.txt (Pressione Alt+A ou clique no botão [Agentes] no topo)
   Telemetria Real:   ${t.humanViews.toLocaleString()} Humanos · ${t.agentViews.toLocaleString()} Agentes de IA registrados
   Último Agente:     ${t.lastAgent}
@@ -124,7 +124,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose, l
   Role:              Systems Architect & Senior LLM Engineer
   Core Focus:        Causal Transformers, PyTorch DDP, Clean Architecture
   Featured Model:    CIR-Engine 503M (12 layers, RoPE Θ=10,000, GQA 4:1, 128MB VRAM)
-  Key Repositories:  mddd-cli (npm), MAD-cli, flutter_scene, gittrack
+  Key Repositories:  mddd-cli (npm), MAD-cli, flutter_scene (fork), gittrack
   Canonical File:    /llms.txt (Press Alt+A or click [Agents] button in header)
   Live Telemetry:    ${t.humanViews.toLocaleString()} Humans · ${t.agentViews.toLocaleString()} AI Agents recorded
   Last Ingestion:    ${t.lastAgent}

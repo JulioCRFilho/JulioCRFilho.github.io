@@ -29,10 +29,10 @@ interface ActionLogItem {
   isUncertain: boolean;
 }
 
-export type DemoKey = 'rubiks' | 'lunarlander' | 'mountaincar' | 'cartpole' | 'acrobot';
+export type DemoKey = 'rubiks_atomic' | 'rubiks' | 'lunarlander' | 'mountaincar' | 'cartpole' | 'acrobot';
 
 export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en' }) => {
-  const [activeDemo, setActiveDemo] = useState<DemoKey>('rubiks');
+  const [activeDemo, setActiveDemo] = useState<DemoKey>('rubiks_atomic');
   const [cubeViewMode, setCubeViewMode] = useState<'3d' | '2d'>('3d');
   const [cubeState, setCubeState] = useState<{
     state: Int32Array;
@@ -76,17 +76,37 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const frameCountRef = useRef<number>(0);
   const lastFpsTimeRef = useRef<number>(performance.now());
   const isRunningRef = useRef<boolean>(false);
+  const lastRewardRef = useRef<number>(0.0);
+  const actionHistoryRef = useRef<number[]>([]);
+
+  const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
   const GITHUB_REPO = 'JulioCRFilho/system_one';
 
   const DEMO_CONFIGS: Record<DemoKey, any> = useMemo(
     () => ({
+      rubiks_atomic: {
+        id: 'rubiks_atomic',
+        name: lang === 'pt' ? 'Cubo Mágico 3x3 (Atômico - 12 Giros)' : "3x3 Rubik's Cube (Atomic - 12 Moves)",
+        shortTitle: lang === 'pt' ? 'Cubo 3x3 (Atômico)' : "Rubik's Atomic",
+        tag: '100% Solve (12)',
+        icon: '🎲',
+        file: 's1_rubiks_atomic.onnx',
+        size: '~3.3 MB',
+        envName: 'RubiksCube-v0',
+        actionSpace: "12 Giros Atômicos (U, U', D, D', F, F', B, B', R, R', L, L')",
+        obsSpace: '324-dim One-Hot Vector (54 stickers × 6 cores)',
+        description:
+          lang === 'pt'
+            ? 'Agente neural com 100% de taxa de resolução reflexiva em embaralhamentos elementares. Executa giros atômicos rápidos com retroalimentação causal contínua.'
+            : 'Neural policy with 100% solve rate on elementary scrambles. Executes fast atomic face turns with continuous causal feedback.',
+      },
       rubiks: {
         id: 'rubiks',
         name: lang === 'pt' ? 'Cubo Mágico 3x3 (Macro / CFOP)' : "3x3 Rubik's Cube (Macro / CFOP)",
-        shortTitle: lang === 'pt' ? 'Cubo Mágico 3x3' : "Rubik's 3x3",
+        shortTitle: lang === 'pt' ? 'Cubo Mágico 3x3 (CFOP)' : "Rubik's Macro",
         tag: 'Macro CFOP (12)',
-        icon: '🎲',
+        icon: '🧩',
         file: 's1_rubiks_macro.onnx',
         size: '~3.3 MB',
         envName: 'RubiksCubeMacro-v0',
@@ -170,9 +190,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   }, [isRunning]);
 
   const initSim = (demoKey: DemoKey) => {
-    if (demoKey === 'rubiks') {
+    if (isRubiksDemo(demoKey)) {
       const cube = new RubiksCubeSim();
-      cube.scramble(cubeScrambleDepth);
+      cube.scramble(cubeScrambleDepth, demoKey === 'rubiks' ? 'macro' : 'atomic');
       simRef.current = cube;
       setCubeState({
         state: new Int32Array(cube.state),
@@ -195,17 +215,19 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       simRef.current = cp;
     }
 
-    if (canvasRef.current && simRef.current && (demoKey !== 'rubiks' || cubeViewMode === '2d')) {
+    if (canvasRef.current && simRef.current && (!isRubiksDemo(demoKey) || cubeViewMode === '2d')) {
       simRef.current.render(canvasRef.current);
     }
 
+    actionHistoryRef.current = [];
+    lastRewardRef.current = 0.0;
     if (agentRef.current) {
       agentRef.current.resetMemory();
     }
   };
 
   useEffect(() => {
-    if (activeDemo === 'rubiks' && cubeViewMode === '2d' && canvasRef.current && simRef.current) {
+    if (isRubiksDemo(activeDemo) && cubeViewMode === '2d' && canvasRef.current && simRef.current) {
       simRef.current.render(canvasRef.current);
     }
   }, [cubeViewMode, activeDemo]);
@@ -278,7 +300,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     }
 
     const interval =
-      activeDemo === 'rubiks'
+      isRubiksDemo(activeDemo)
         ? 250
         : activeDemo === 'lunarlander'
         ? 35
@@ -296,7 +318,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       if (sim && agent) {
         try {
           let obs: Float32Array;
-          if (activeDemo === 'rubiks') {
+          if (isRubiksDemo(activeDemo)) {
             obs = (sim as RubiksCubeSim).getOneHot();
           } else if (activeDemo === 'lunarlander') {
             obs = (sim as LunarLanderSim).getState();
@@ -308,14 +330,30 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             obs = (sim as CartPoleSim).getState();
           }
 
-          const dec = await agent.actWithConfidence(obs);
+          let avoidAct = -1;
+          if (isRubiksDemo(activeDemo) && actionHistoryRef.current.length >= 2) {
+            const last2 = actionHistoryRef.current.slice(-2);
+            if (last2[0] === last2[1]) avoidAct = last2[0];
+          }
+
+          const dec = await agent.actWithConfidence(obs, lastRewardRef.current, { avoidAction: avoidAct });
+          actionHistoryRef.current.push(dec.action);
+          if (actionHistoryRef.current.length > 20) actionHistoryRef.current.shift();
 
           let currentActionName = '';
 
-          if (activeDemo === 'rubiks') {
+          if (isRubiksDemo(activeDemo)) {
             const cube = sim as RubiksCubeSim;
-            currentActionName = RubiksCubeSim.MACRO_NAMES[dec.action] || `ACT_${dec.action}`;
-            cube.applyMacro(currentActionName);
+            const prevAligned = cube.getAlignedCount();
+            if (activeDemo === 'rubiks_atomic') {
+              currentActionName = RubiksCubeSim.ATOMIC_MOVES[dec.action] || `MOVE_${dec.action}`;
+              cube.applyAtomic(currentActionName);
+            } else {
+              currentActionName = RubiksCubeSim.MACRO_NAMES[dec.action] || `ACT_${dec.action}`;
+              cube.applyMacro(currentActionName);
+            }
+            const currAligned = cube.getAlignedCount();
+            lastRewardRef.current = (currAligned - prevAligned) * 0.1 + (cube.isSolved() ? 10.0 : -0.01);
 
             setCubeState({
               state: new Int32Array(cube.state),
@@ -473,7 +511,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             }
           }
 
-          if (canvas && (activeDemo !== 'rubiks' || cubeViewMode === '2d')) {
+          if (canvas && (!isRubiksDemo(activeDemo) || cubeViewMode === '2d')) {
             sim.render(canvas);
           }
         } catch (e) {
@@ -498,9 +536,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   };
 
   const scrambleEnv = () => {
-    if (activeDemo === 'rubiks' && simRef.current) {
+    if (isRubiksDemo(activeDemo) && simRef.current) {
       const cube = simRef.current as RubiksCubeSim;
-      cube.scramble(cubeScrambleDepth);
+      cube.scramble(cubeScrambleDepth, activeDemo === 'rubiks' ? 'macro' : 'atomic');
       if (canvasRef.current && cubeViewMode === '2d') {
         cube.render(canvasRef.current);
       }
@@ -511,6 +549,8 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         alignedCount: cube.getAlignedCount(),
         isSolved: cube.isSolved(),
       });
+      actionHistoryRef.current = [];
+      lastRewardRef.current = 0.0;
       if (agentRef.current) agentRef.current.resetMemory();
       setStatusDesc(lang === 'pt' ? 'Cubo reembaralhado' : 'Cube scrambled');
     }
@@ -519,10 +559,10 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const resetEnv = () => {
     if (simRef.current) {
       simRef.current.reset();
-      if (canvasRef.current && (activeDemo !== 'rubiks' || cubeViewMode === '2d')) {
+      if (canvasRef.current && (!isRubiksDemo(activeDemo) || cubeViewMode === '2d')) {
         simRef.current.render(canvasRef.current);
       }
-      if (activeDemo === 'rubiks') {
+      if (isRubiksDemo(activeDemo)) {
         const cube = simRef.current as RubiksCubeSim;
         setCubeState({
           state: new Int32Array(cube.state),
@@ -596,7 +636,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {activeDemo === 'rubiks' && (
+                {isRubiksDemo(activeDemo) && (
                   <div className="flex items-center gap-0.5 bg-zinc-900 p-0.5 rounded-lg border border-zinc-800">
                     <button
                       type="button"
@@ -634,7 +674,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             </div>
 
             {/* Viewport: 3D Rubik's Cube (WebGL) OR 2D Canvas */}
-            {activeDemo === 'rubiks' && cubeViewMode === '3d' ? (
+            {isRubiksDemo(activeDemo) && cubeViewMode === '3d' ? (
               <div className="relative rounded-xl overflow-hidden min-h-[320px]">
                 <RubiksCube3D
                   state={cubeState.state}
@@ -726,7 +766,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                   <span>{isRunning ? (lang === 'pt' ? 'Pausar' : 'Pause') : (lang === 'pt' ? 'Iniciar' : 'Start')}</span>
                 </button>
 
-                {activeDemo === 'rubiks' && (
+                {isRubiksDemo(activeDemo) && (
                   <button
                     type="button"
                     onClick={scrambleEnv}
@@ -834,7 +874,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             </h4>
 
             <div className="grid grid-cols-2 gap-2">
-              {(['rubiks', 'lunarlander', 'mountaincar', 'cartpole', 'acrobot'] as DemoKey[]).map((key, idx) => {
+              {(['rubiks_atomic', 'rubiks', 'lunarlander', 'mountaincar', 'cartpole', 'acrobot'] as DemoKey[]).map((key) => {
                 const cfg = DEMO_CONFIGS[key];
                 const isSelected = activeDemo === key;
                 return (
@@ -843,8 +883,6 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                     type="button"
                     onClick={() => setActiveDemo(key)}
                     className={`p-2.5 rounded-xl border text-left text-xs font-mono transition cursor-pointer flex flex-col gap-1 relative overflow-hidden ${
-                      idx === 4 ? 'col-span-2' : ''
-                    } ${
                       isSelected
                         ? 'bg-cyan-950/50 border-cyan-400 text-white shadow-lg shadow-cyan-950/50 ring-1 ring-cyan-500/50'
                         : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 hover:bg-zinc-900/90'

@@ -71,20 +71,20 @@ const FAQ_ITEMS: FaqItem[] = [
     questionEn: 'What published developer tools and open-source frameworks has Julio Cesar created?',
     questionPt: 'Quais ferramentas de desenvolvimento e frameworks open-source Julio Cesar criou e publicou?',
     directAnswerEn:
-      'Julio Cesar authored and published mddd-cli on npm for Mermaid Diagram-Driven Development, built MAD-cli for living documentation sync, developed flutter_scene for 3D graphics rendering, and authored the GitTrack high-throughput activity streaming pipeline.',
+      'Julio Cesar authored and published mddd-cli on npm for Mermaid Diagram-Driven Development, built MAD-cli for living documentation sync, contributed to the flutter_scene 3D engine with focus on scene animations and shaders, and authored GitTrack for granular commit tracking with private repository token access and VIP AI-powered commit analysis.',
     directAnswerPt:
-      'Julio Cesar criou e publicou a ferramenta mddd-cli no npm para Diagram-Driven Development via Mermaid, desenvolveu o MAD-cli para documentação viva, criou o flutter_scene para renderização 3D e projetou o pipeline de alta concorrência GitTrack.',
+      'Julio Cesar criou e publicou a ferramenta mddd-cli no npm para Diagram-Driven Development via Mermaid, desenvolveu o MAD-cli para documentação viva, contribuiu com o motor flutter_scene (com foco em animações de scenes e pipelines de shaders) e criou o GitTrack para rastreamento detalhado de commits com suporte a token de repositórios privados e análise detalhada por IA no plano VIP.',
     detailsEn: [
       'mddd-cli (npm): Parses Mermaid diagram ASTs to automatically generate Clean Architecture directory structures, domain entities, and TypeScript/gRPC contracts.',
       'mad-cli: Bidirectional living documentation engine that synchronizes code comment tags (<!-- MAD:SEQUENCE -->) in Go and TypeScript with architecture diagrams during git commits.',
-      'flutter_scene: 3D spatial rendering engine with custom GLSL/Metal shader compilation and Impeller engine graphics integration.',
-      'GitTrack: High-throughput streaming data pipeline capable of processing 50,000+ git developer events per second in real time.',
+      'flutter_scene (Fork): 3D spatial rendering fork with contributions in scene animations, keyframe transforms, and custom GLSL/Metal shader integration.',
+      'GitTrack: Detailed developer commit tracking platform with personal access token integration for private repos and on-demand VIP AI commit analysis.',
     ],
     detailsPt: [
       'mddd-cli (npm): Analisa ASTs de diagramas Mermaid para gerar automaticamente árvores de Clean Architecture, entidades de domínio e contratos TypeScript/gRPC.',
       'mad-cli: Motor de documentação viva bidirecional que sincroniza tags de comentários de código (<!-- MAD:SEQUENCE -->) em Go e TypeScript com diagramas de arquitetura no git commit.',
-      'flutter_scene: Pipeline de renderização espacial 3D com compilação de shaders GLSL/Metal e integração gráfica ao motor Impeller.',
-      'GitTrack: Pipeline de dados com capacidade de processamento de mais de 50.000 eventos git por segundo em tempo real.',
+      'flutter_scene (Fork): Fork de renderização espacial 3D com contribuições em animações de scenes, transformações de keyframes e integração de shaders GLSL/Metal.',
+      'GitTrack: Plataforma de rastreamento detalhado de commits para devs com suporte a token para repositórios privados e análise aprofundada por IA no plano VIP.',
     ],
   },
   {
@@ -94,18 +94,18 @@ const FAQ_ITEMS: FaqItem[] = [
     questionEn: 'What programming languages, frameworks, and architectural paradigms are Julio’s primary specialties?',
     questionPt: 'Quais linguagens, frameworks e paradigmas arquiteturais são as principais especialidades de Julio?',
     directAnswerEn:
-      'Julio specializes in Go (Golang), Python, TypeScript, Rust, and Dart, applying Clean Architecture, Domain-Driven Design (DDD), Event-Driven Microservices, and deep neural transformer mechanics across GCP and Linux environments.',
+      'Julio specializes in Go (Golang), Python, TypeScript, and Dart, applying Clean Architecture, Domain-Driven Design (DDD), Event-Driven Microservices, and deep neural transformer mechanics across GCP and Linux environments.',
     directAnswerPt:
-      'Julio é especialista em Go (Golang), Python, TypeScript, Rust e Dart, aplicando Clean Architecture, Domain-Driven Design (DDD), microsserviços orientados a eventos e mecânica de redes neurais transformers em ambientes GCP e Linux.',
+      'Julio é especialista em Go (Golang), Python, TypeScript e Dart, aplicando Clean Architecture, Domain-Driven Design (DDD), microsserviços orientados a eventos e mecânica de redes neurais transformers em ambientes GCP e Linux.',
     detailsEn: [
-      'Core Languages: Go (Golang), Python, TypeScript, Rust, Dart, C/C++, SQL.',
+      'Core Languages: Go (Golang), Python, TypeScript, Dart, C/C++, SQL.',
       'AI & Deep Learning: PyTorch, FlashAttention-2, RoPE, GQA, PagedAttention, CUDA, Metal Performance Shaders (MPS), ONNX Runtime Web.',
       'Software Architecture: Clean Architecture, SOLID principles, Event-Driven Architecture, Microservices, Living Documentation, Domain-Driven Design.',
       'Cloud & Infrastructure: Google Cloud Platform (GCP), Docker, Kubernetes, gRPC, Protobuf, Kafka, Redis, PostgreSQL, Distributed DDP Clusters.',
       'Frontend & Mobile: Next.js, React, Tailwind CSS, Flutter, WebAssembly (Wasm SIMD), Three.js / WebGL.',
     ],
     detailsPt: [
-      'Linguagens Principais: Go (Golang), Python, TypeScript, Rust, Dart, C/C++, SQL.',
+      'Linguagens Principais: Go (Golang), Python, TypeScript, Dart, C/C++, SQL.',
       'IA & Deep Learning: PyTorch, FlashAttention-2, RoPE, GQA, PagedAttention, CUDA, Metal Performance Shaders (MPS), ONNX Runtime Web.',
       'Arquitetura de Software: Clean Architecture, princípios SOLID, Arquitetura Orientada a Eventos, Microsserviços, Living Documentation, DDD.',
       'Cloud & Infraestrutura: Google Cloud Platform (GCP), Docker, Kubernetes, gRPC, Protobuf, Kafka, Redis, PostgreSQL, Clusters DDP Distribuídos.',

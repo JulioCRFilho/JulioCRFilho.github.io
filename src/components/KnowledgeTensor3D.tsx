@@ -48,10 +48,16 @@ export const KnowledgeTensor3D: React.FC<KnowledgeTensor3DProps> = ({
   const [activeCluster, setActiveCluster] = useState<number | 'all'>('all');
   const [projectionMode, setProjectionMode] = useState<'latent' | 'spherical' | 'cube'>('latent');
   const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const isAutoRotatingRef = useRef(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<TensorNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<TensorNode | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Keep isAutoRotatingRef in sync with state
+  useEffect(() => {
+    isAutoRotatingRef.current = isAutoRotating;
+  }, [isAutoRotating]);
 
   const skillCategories = useMemo(() => getSkillCategories(lang), [lang]);
 
@@ -345,7 +351,7 @@ export const KnowledgeTensor3D: React.FC<KnowledgeTensor3DProps> = ({
       const delta = clock.getDelta();
 
       // Smooth Auto-Rotation if active and user not dragging
-      if (isAutoRotating && !mouseRef.current.down) {
+      if (isAutoRotatingRef.current && !mouseRef.current.down) {
         rotationRef.current.targetY += delta * 0.25;
       }
 
@@ -708,7 +714,13 @@ export const KnowledgeTensor3D: React.FC<KnowledgeTensor3DProps> = ({
           {/* Auto Rotate Toggle */}
           <button
             type="button"
-            onClick={() => setIsAutoRotating((prev) => !prev)}
+            onClick={() => {
+              setIsAutoRotating((prev) => {
+                const next = !prev;
+                isAutoRotatingRef.current = next;
+                return next;
+              });
+            }}
             className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer backdrop-blur-md ${
               isAutoRotating
                 ? 'bg-zinc-950/90 border-[#adff2f]/40 text-[#adff2f]'

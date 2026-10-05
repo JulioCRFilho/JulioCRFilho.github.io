@@ -25,7 +25,7 @@ token_efficiency: ~1800 tokens (Context-optimized for Gemini 1.5/2.0, Claude 3.5
 ---
 
 ## Executive Summary & Engineering Thesis
-Julio Cesar da Costa Reis Filho is an elite Systems Architect and LLM Engineer combining low-level systems programming (Go, Rust, CUDA/Metal kernels) with modern deep learning transformer architectures (PyTorch, FlashAttention-2, RadixAttention). 
+Julio Cesar da Costa Reis Filho is an elite Systems Architect and LLM Engineer combining low-level systems programming (Go, C++, CUDA/Metal kernels) with modern deep learning transformer architectures (PyTorch, FlashAttention-2, RadixAttention). 
 He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with zero-hallucination graph validation and sub-millisecond tool execution) and creator of published developer tooling including mddd-cli on npm (Spec-Driven Development using diagrams and decision matrices rather than ambiguous pure text) and MAD-cli (Living Documentation Parser).
 
 ## Core Technical Differentiators
@@ -42,8 +42,8 @@ He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with
    - Created mad-cli: Bidirectional engine parsing code comment tags (<!-- MAD:SEQUENCE -->, @mad) in Go, Dart, and TypeScript to auto-update living Mermaid architecture diagrams on git commit.
 
 3. High-Performance 3D & Mobile Systems:
-   - flutter_scene: 3D spatial rendering pipeline with custom GLSL/Metal shader compilation and Impeller engine integration.
-   - GitTrack: High-concurrency developer activity pipeline crunching 50,000+ git events/sec in real-time.
+   - flutter_scene (Fork): 3D spatial rendering fork with contributions focused on scene animation pipelines, keyframe playback, and custom GLSL/Metal shaders.
+   - GitTrack: Detailed developer commit tracking platform with private repository token access and on-demand VIP AI commit analysis.
 
 ## Professional Experience
 - Tech Lead & Principal Architect | JCRF Labs (2024 – Present)
@@ -63,7 +63,7 @@ He is the author of CIR-Engine 503M (a verified 12-layer Causal Transformer with
 
 ## Technical Skills Taxonomy
 - LLM & Neural Systems: PyTorch, Causal Transformers, FlashAttention-2, Grouped-Query Attention (GQA), Rotary Position Embeddings (RoPE), PagedAttention, KV-Cache Optimization, CUDA, Apple Metal MPS, Distributed DDP.
-- Languages & Runtimes: Go (Golang), TypeScript, Python, Dart, Rust, C/C++, SQL.
+- Languages & Runtimes: Go (Golang), TypeScript, Python, Dart, C/C++, SQL.
 - Architecture & Paradigms: Clean Architecture, SOLID, Event-Driven Architecture, Microservices, Domain-Driven Design (DDD), Spec-Driven Development (MDDD via Diagrams & Decision Matrices), Living Documentation.
 - Infrastructure & Cloud: Google Cloud Platform (GCP), Docker, Kubernetes, gRPC, Protocol Buffers, Kafka, Redis, PostgreSQL.
 - Multi-Agent Systems: Tool-calling workflows, deterministic verification DAGs, automated CI/CD code generation pipelines.
@@ -162,7 +162,7 @@ const AGENT_SYSTEM_PROMPT = `You are an AI Technical Evaluator reviewing candida
 Below is verified factual context regarding Julio Cesar da Costa Reis Filho:
 - Identity: Julio Cesar da Costa Reis Filho (Curitiba/Pontal do Paraná, Brazil).
 - Core Discipline: Dual-mastery of Low-Level Systems (Go, Clean Architecture, Distributed DDP) and Deep Transformer Mechanics (CIR-Engine 503M, FlashAttention, RoPE, GQA, PagedAttention).
-- Open Source Author: mddd-cli (Mermaid Diagram-Driven Dev on npm), mad-cli (Living docs AST parser), flutter_scene (3D spatial shaders), gittrack (50k events/sec telemetry).
+- Open Source Author & Contributor: mddd-cli (Mermaid Diagram-Driven Dev on npm), mad-cli (Living docs AST parser), flutter_scene (Fork / Scene animations & 3D shaders), gittrack (Detailed commit tracking & VIP AI analysis).
 - CIR-Engine 503M: 12-layer causal transformer with deterministic DAG causal verifier (P(effect | do(cause))), 6,200 tok/s DDP throughput, 128 MB VRAM PagedAttention.
 - Contact: reisfilho1116@gmail.com | https://github.com/juliocrfilho
 

@@ -28,6 +28,8 @@ import {
   HardDrive,
   Copy,
   ExternalLink,
+  Key,
+  Sparkles,
 } from 'lucide-react';
 import { SystemOneHudDemo } from './SystemOneHudDemo';
 
@@ -49,8 +51,8 @@ export const InteractiveToolDemos: React.FC<InteractiveToolDemosProps> = ({ lang
           </h3>
           <p className="text-xs text-zinc-400 mt-1">
             {lang === 'pt'
-              ? 'Interaja diretamente com o renderizador 3D do Flutter Scene, o GitTrack (Observabilidade), o MAD-cli (Doc Viva), o mddd-cli (Spec-Driven Dev) e a avaliação neural em tempo real do system_one (ONNX Runtime Web / Wasm SIMD).'
-              : 'Directly test Flutter Scene 3D Shaders, GitTrack Observability, MAD-cli (Auto-Doccing), mddd-cli (Spec-Driven Dev), and real-time neural evaluation of system_one (ONNX Runtime Web / Wasm SIMD).'}
+              ? 'Interaja diretamente com o renderizador 3D do Flutter Scene, o GitTrack (Rastreamento & IA VIP), o MAD-cli (Doc Viva), o mddd-cli (Spec-Driven Dev) e a avaliação neural em tempo real do system_one (ONNX Runtime Web / Wasm SIMD).'
+              : 'Directly test Flutter Scene 3D Shaders, GitTrack (Commit Tracking & VIP AI), MAD-cli (Auto-Doccing), mddd-cli (Spec-Driven Dev), and real-time neural evaluation of system_one (ONNX Runtime Web / Wasm SIMD).'}
           </p>
         </div>
 
@@ -72,7 +74,7 @@ export const InteractiveToolDemos: React.FC<InteractiveToolDemosProps> = ({ lang
               activeTab === 'gittrack' ? 'bg-zinc-800 text-[#c4b5fd] font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            {lang === 'pt' ? 'GitTrack (Telemetria)' : 'GitTrack (Telemetry)'}
+            {lang === 'pt' ? 'GitTrack (Rastreamento & IA)' : 'GitTrack (Tracking & AI)'}
           </button>
           <button
             type="button"
@@ -302,12 +304,12 @@ const FlutterSceneDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang }) => {
           <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
               <span className="text-[#38bdf8]">▹</span>
-              <span>{lang === 'pt' ? 'Motor 3D Nativo para Flutter' : 'Native 3D Engine for Flutter'}</span>
+              <span>{lang === 'pt' ? 'Fork 3D & Animações de Scene' : '3D Fork & Scene Animations'}</span>
             </h4>
             <p className="text-zinc-300 font-sans leading-relaxed text-xs">
               {lang === 'pt'
-                ? 'Fork de alta performance trazendo renderização 3D nativa sobre Impeller (Metal no iOS/macOS e Vulkan no Android/Linux). Elimina sobrecargas de ponte entre o código Dart e shaders GLSL/MSL compilados em tempo real.'
-                : 'High-performance fork bringing native 3D mesh rendering atop Impeller (Metal on iOS/macOS and Vulkan on Android/Linux), avoiding bridge overheads between Dart code and compiled GLSL/MSL shaders.'}
+                ? 'Fork de alta performance com contribuições focadas na esteira de animações de scenes e renderização 3D nativa sobre Impeller (Metal no iOS/macOS e Vulkan no Android/Linux). Elimina sobrecargas de ponte entre o código Dart e shaders GLSL/MSL compilados em tempo real.'
+                : 'High-performance fork with contributions focused on scene animation pipelines and native 3D mesh rendering atop Impeller (Metal on iOS/macOS and Vulkan on Android/Linux), avoiding bridge overheads between Dart code and compiled GLSL/MSL shaders.'}
             </p>
             <div className="p-2.5 rounded bg-black/80 border border-zinc-800 text-[11px] text-zinc-400 space-y-1">
               <div className="text-cyan-400 font-bold">// Dart + Impeller Pipeline:</div>
@@ -326,15 +328,58 @@ const FlutterSceneDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang }) => {
    2. GITTRACK TELEMETRY DEMO
    ========================================================================= */
 const GitTrackDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang }) => {
+  const [hasToken, setHasToken] = useState<boolean>(true);
   const [filterPrivacy, setFilterPrivacy] = useState<'all' | 'public' | 'private'>('all');
+  const [isAnalyzingAi, setIsAnalyzingAi] = useState<boolean>(false);
+  const [showAiAnalysis, setShowAiAnalysis] = useState<boolean>(false);
 
   const commits = [
-    { hash: 'e89a12c', message: 'feat(ast): Implement invariant token validation in System 1', isPrivate: false, date: '2h ago' },
-    { hash: '•••••••', message: '🔒 NDA Client Enterprise Microservice refactor', isPrivate: true, date: '1d ago' },
-    { hash: '4f2910b', message: 'perf(impeller): Optimize memory buffer allocation for Metal 3D shaders', isPrivate: false, date: '2d ago' },
-    { hash: '•••••••', message: '🔒 NDA Proprietary Financial Event-Driven Core', isPrivate: true, date: '3d ago' },
-    { hash: '9b772c1', message: 'docs(mddd): Add decision matrix compilation to Mermaid CLI spec', isPrivate: false, date: '4d ago' },
+    {
+      hash: 'e89a12c',
+      message: 'feat(ast): Implement invariant token validation in System 1',
+      diff: '+142 -8',
+      isPrivate: false,
+      date: '2h ago',
+    },
+    {
+      hash: '7c392f1',
+      message: 'refactor(core): Microservice clean architecture domain boundary isolation',
+      diff: '+215 -64',
+      isPrivate: true,
+      repo: 'enterprise/payment-gateway',
+      date: '1d ago',
+    },
+    {
+      hash: '4f2910b',
+      message: 'perf(impeller): Optimize memory buffer allocation for Metal 3D shaders',
+      diff: '+86 -14',
+      isPrivate: false,
+      date: '2d ago',
+    },
+    {
+      hash: 'a10e42d',
+      message: 'security(auth): Implement token-based biometric IPC session validation',
+      diff: '+112 -19',
+      isPrivate: true,
+      repo: 'fintech/banking-native-sdk',
+      date: '3d ago',
+    },
+    {
+      hash: '9b772c1',
+      message: 'docs(mddd): Add decision matrix compilation to Mermaid CLI spec',
+      diff: '+320 -15',
+      isPrivate: false,
+      date: '4d ago',
+    },
   ];
+
+  const handleRequestAiAnalysis = () => {
+    setIsAnalyzingAi(true);
+    setTimeout(() => {
+      setIsAnalyzingAi(false);
+      setShowAiAnalysis(true);
+    }, 600);
+  };
 
   const filtered = commits.filter((c) => {
     if (filterPrivacy === 'public') return !c.isPrivate;
@@ -345,12 +390,13 @@ const GitTrackDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang }) => {
   return (
     <div className="mt-6 space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left: Commit Stream */}
-        <div className="lg:col-span-7 bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        {/* Left: Commit Stream & Token Configuration */}
+        <div className="lg:col-span-7 bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 space-y-4">
+          {/* Header & Filter Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800">
             <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
               <GitCommit className="w-4 h-4 text-[#c4b5fd]" />
-              <span>{lang === 'pt' ? 'Fluxo de Commits & Máscara de NDA' : 'Commit Stream & NDA Masking'}</span>
+              <span>{lang === 'pt' ? 'Rastreamento Granular de Commits' : 'Granular Commit Tracking'}</span>
             </span>
             <div className="flex gap-1 text-[11px] font-mono">
               {(['all', 'public', 'private'] as const).map((mode) => (
@@ -364,51 +410,159 @@ const GitTrackDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang }) => {
                       : 'bg-zinc-950 text-zinc-400 hover:text-white border border-zinc-800'
                   }`}
                 >
-                  {mode.toUpperCase()}
+                  {mode === 'all'
+                    ? (lang === 'pt' ? 'TODOS' : 'ALL')
+                    : mode === 'public'
+                    ? (lang === 'pt' ? 'PÚBLICOS' : 'PUBLIC')
+                    : (lang === 'pt' ? 'PRIVADOS' : 'PRIVATE')}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            {filtered.map((c, i) => (
-              <div
-                key={i}
-                className={`p-3 rounded-lg border text-xs font-mono flex items-center justify-between gap-3 ${
-                  c.isPrivate ? 'bg-amber-950/20 border-amber-500/30 text-amber-200' : 'bg-zinc-950 border-zinc-800 text-zinc-300'
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  {c.isPrivate ? <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" /> : <GitBranch className="w-3.5 h-3.5 text-[#c4b5fd] shrink-0" />}
-                  <span className="text-zinc-500 font-bold shrink-0">{c.hash}</span>
-                  <span className="truncate">{c.message}</span>
-                </div>
-                <span className="text-[10px] text-zinc-500 shrink-0">{c.date}</span>
-              </div>
-            ))}
+          {/* Token Access Simulation Header */}
+          <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <Key className={`w-3.5 h-3.5 ${hasToken ? 'text-emerald-400' : 'text-zinc-500'}`} />
+              <span className="text-zinc-400">{lang === 'pt' ? 'Token Repos Privados:' : 'Private Repo Token:'}</span>
+              <code className="text-zinc-300 bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800 text-[11px]">
+                {hasToken ? 'ghp_••••••••••••94b2' : (lang === 'pt' ? 'Não informado' : 'Not provided')}
+              </code>
+            </div>
+            <button
+              type="button"
+              onClick={() => setHasToken(!hasToken)}
+              className={`px-2.5 py-1 rounded text-[11px] font-mono transition cursor-pointer self-start sm:self-auto ${
+                hasToken
+                  ? 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20'
+                  : 'bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white'
+              }`}
+            >
+              {hasToken
+                ? (lang === 'pt' ? '✓ Token Ativo (Clique p/ Remover)' : '✓ Token Active (Click to Remove)')
+                : (lang === 'pt' ? '+ Incluir Token Privado' : '+ Include Private Token')}
+            </button>
           </div>
+
+          {/* Commits Stream */}
+          <div className="space-y-2">
+            {filtered.map((c, i) => {
+              const isLockedPrivate = c.isPrivate && !hasToken;
+              return (
+                <div
+                  key={i}
+                  className={`p-3 rounded-lg border text-xs font-mono flex items-center justify-between gap-3 ${
+                    c.isPrivate
+                      ? isLockedPrivate
+                        ? 'bg-zinc-950/80 border-zinc-850 text-zinc-500'
+                        : 'bg-amber-950/20 border-amber-500/30 text-amber-200'
+                      : 'bg-zinc-950 border-zinc-800 text-zinc-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {c.isPrivate ? (
+                      <Lock className={`w-3.5 h-3.5 shrink-0 ${isLockedPrivate ? 'text-zinc-500' : 'text-amber-400'}`} />
+                    ) : (
+                      <GitBranch className="w-3.5 h-3.5 text-[#c4b5fd] shrink-0" />
+                    )}
+                    <span className="text-zinc-500 font-bold shrink-0">{c.hash}</span>
+                    <span className="truncate">
+                      {isLockedPrivate
+                        ? (lang === 'pt' ? '🔒 [Repositório Privado · Inclua o token para visualizar]' : '🔒 [Private Repo · Include token to view]')
+                        : c.message}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 text-[10px]">
+                    {!isLockedPrivate && (
+                      <span className="text-emerald-400/90 font-mono hidden sm:inline">{c.diff}</span>
+                    )}
+                    <span className="text-zinc-500">{c.date}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* VIP AI Commit Analysis Action */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleRequestAiAnalysis}
+              disabled={isAnalyzingAi}
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 via-purple-500/20 to-sky-500/20 hover:from-amber-500/30 hover:to-sky-500/30 border border-amber-500/40 text-amber-300 hover:text-white rounded-lg text-xs font-mono font-bold flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-50"
+            >
+              <Sparkles className={`w-3.5 h-3.5 text-amber-400 ${isAnalyzingAi ? 'animate-spin' : ''}`} />
+              <span>
+                {isAnalyzingAi
+                  ? (lang === 'pt' ? 'Processando Análise por IA dos Commits...' : 'Processing AI Commit Analysis...')
+                  : (lang === 'pt' ? 'Solicitar Análise Detalhada por IA (Plano VIP)' : 'Request Detailed AI Commit Analysis (VIP Plan)')}
+              </span>
+            </button>
+          </div>
+
+          {/* VIP AI Analysis Report Box */}
+          {showAiAnalysis && (
+            <div className="p-3.5 rounded-lg bg-amber-950/20 border border-amber-500/40 space-y-2.5 font-mono text-xs">
+              <div className="flex items-center justify-between text-amber-300 font-bold pb-2 border-b border-amber-500/30">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{lang === 'pt' ? 'Relatório de IA GitTrack (Plano VIP)' : 'GitTrack AI Report (VIP Plan)'}</span>
+                </span>
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
+                  {lang === 'pt' ? 'SCORE: 98/100' : 'SCORE: 98/100'}
+                </span>
+              </div>
+              <p className="text-zinc-300 font-sans text-xs leading-relaxed">
+                {lang === 'pt'
+                  ? 'A análise de IA detectou alta consistência arquitetural com commits atômicos, mensagens padronizadas em Conventional Commits e separação estrita entre domínio e infraestrutura. Os repositórios privados desbloqueados via token apresentam conformidade total com Clean Architecture e zero vazamento de credenciais.'
+                  : 'AI analysis detected high architectural consistency with atomic commits, conventional commit syntax, and strict separation between domain and infrastructure. Private repos unlocked via token exhibit full Clean Architecture compliance with zero credential leakage.'}
+              </p>
+              <div className="grid grid-cols-3 gap-2 pt-1 text-[10px] text-zinc-400">
+                <div className="p-1.5 rounded bg-black/40 border border-zinc-800">
+                  <span className="text-zinc-500 block">{lang === 'pt' ? 'Padrão' : 'Pattern'}</span>
+                  <span className="text-white font-bold">Clean Arch</span>
+                </div>
+                <div className="p-1.5 rounded bg-black/40 border border-zinc-800">
+                  <span className="text-zinc-500 block">{lang === 'pt' ? 'Atomicidade' : 'Atomicity'}</span>
+                  <span className="text-emerald-400 font-bold">100%</span>
+                </div>
+                <div className="p-1.5 rounded bg-black/40 border border-zinc-800">
+                  <span className="text-zinc-500 block">{lang === 'pt' ? 'Risco' : 'Risk'}</span>
+                  <span className="text-sky-400 font-bold">{lang === 'pt' ? 'Mínimo' : 'Minimal'}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right: Metrics Deck */}
+        {/* Right: Technical Details & Metrics Deck */}
         <div className="lg:col-span-5 space-y-3 font-mono text-xs">
           <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
             <h4 className="text-sm font-bold text-white flex items-center gap-2">
               <span className="text-[#c4b5fd]">▹</span>
-              <span>{lang === 'pt' ? 'Observabilidade Git sem Vazamento' : 'Leak-Free Git Observability'}</span>
+              <span>{lang === 'pt' ? 'Rastreamento Detalhado & IA VIP' : 'Granular Tracking & VIP AI'}</span>
             </h4>
             <p className="text-zinc-300 font-sans text-xs leading-relaxed">
               {lang === 'pt'
-                ? 'Permite comprovar consistência e velocidade técnica em repositórios privados corporativos mantendo sigilo contratual estrito através de mascaramento criptográfico de metadados e diffs.'
-                : 'Proves engineering velocity in private corporate repositories while preserving strict contractual secrecy via cryptographic masking of metadata and diffs.'}
+                ? 'O GitTrack rastreia minuciosamente o fluxo de commits do desenvolvedor, permitindo a inclusão segura de token de acesso pessoal (PAT) para indexar repositórios privados com proteção e mascaramento. No plano VIP, é possível solicitar análises profundas de qualidade e impacto via IA.'
+                : 'GitTrack provides granular tracking of developer commit streams, supporting Personal Access Tokens (PAT) to safely index private repositories with secret masking. On the VIP plan, developers can request deep AI analysis auditing commit quality and architectural impact.'}
             </p>
             <div className="grid grid-cols-2 gap-2 pt-2">
               <div className="p-2 rounded bg-zinc-950 border border-zinc-850">
-                <div className="text-[10px] text-zinc-500">Commits / Semana</div>
-                <div className="text-base font-bold text-white">42.8</div>
+                <div className="text-[10px] text-zinc-500">{lang === 'pt' ? 'Rastreamento' : 'Tracking'}</div>
+                <div className="text-base font-bold text-white">{lang === 'pt' ? 'Detalhado' : 'Granular'}</div>
               </div>
               <div className="p-2 rounded bg-zinc-950 border border-zinc-850">
-                <div className="text-[10px] text-zinc-500">PR Lead Time</div>
-                <div className="text-base font-bold text-emerald-400">&lt; 4.2h</div>
+                <div className="text-[10px] text-zinc-500">{lang === 'pt' ? 'Repos Privados' : 'Private Repos'}</div>
+                <div className="text-base font-bold text-emerald-400">{lang === 'pt' ? 'Via Token' : 'Token Access'}</div>
+              </div>
+              <div className="p-2 rounded bg-zinc-950 border border-zinc-850">
+                <div className="text-[10px] text-zinc-500">{lang === 'pt' ? 'Análise IA' : 'AI Analysis'}</div>
+                <div className="text-base font-bold text-amber-400">{lang === 'pt' ? 'Plano VIP' : 'VIP Tier'}</div>
+              </div>
+              <div className="p-2 rounded bg-zinc-950 border border-zinc-850">
+                <div className="text-[10px] text-zinc-500">{lang === 'pt' ? 'Motor' : 'Engine'}</div>
+                <div className="text-base font-bold text-[#c4b5fd]">Go Core</div>
               </div>
             </div>
           </div>

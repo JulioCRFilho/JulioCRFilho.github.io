@@ -125,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     {
       href: '#repositories',
       label: lang === 'pt' ? 'Repositórios Open Source' : 'Open Source Repositories',
-      desc: lang === 'pt' ? 'mddd-cli, MAD-cli, flutter_scene, gittrack' : 'mddd-cli, MAD-cli, flutter_scene, gittrack',
+      desc: lang === 'pt' ? 'mddd-cli, MAD-cli, flutter_scene (fork), gittrack' : 'mddd-cli, MAD-cli, flutter_scene (fork), gittrack',
       icon: GitBranch,
       tag: '04',
     },
