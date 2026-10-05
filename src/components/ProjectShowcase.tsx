@@ -109,15 +109,24 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
                       <Package className="w-4 h-4" />
                     </a>
                   )}
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-zinc-500 hover:text-white transition-colors p-1"
-                    title={lang === 'pt' ? 'Repositório no GitHub' : 'GitHub Repository'}
-                  >
-                    <Github className="w-4 h-4" />
-                  </a>
+                  {project.githubUrl ? (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-zinc-500 hover:text-white transition-colors p-1"
+                      title={lang === 'pt' ? 'Repositório no GitHub' : 'GitHub Repository'}
+                    >
+                      <Github className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span
+                      className="text-zinc-600 px-1 py-0.5 text-[10px] font-mono rounded bg-zinc-900 border border-zinc-800 select-none"
+                      title={lang === 'pt' ? 'Repositório Interno' : 'Internal Repository'}
+                    >
+                      int
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -249,15 +258,21 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({ lang = 'en' })
 
             {/* Modal Footer */}
             <div className="pt-4 border-t border-zinc-850 flex items-center justify-between">
-              <a
-                href={activeProjectModal.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-white text-black font-mono text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors"
-              >
-                <Github className="w-4 h-4" />
-                <span>{lang === 'pt' ? 'Ver no GitHub' : 'View on GitHub'}</span>
-              </a>
+              {activeProjectModal.githubUrl ? (
+                <a
+                  href={activeProjectModal.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-black font-mono text-xs font-bold rounded-lg hover:bg-zinc-200 transition-colors"
+                >
+                  <Github className="w-4 h-4" />
+                  <span>{lang === 'pt' ? 'Ver no GitHub' : 'View on GitHub'}</span>
+                </a>
+              ) : (
+                <span className="text-xs font-mono text-zinc-500 italic">
+                  {lang === 'pt' ? 'Repositório Interno / Proprietário' : 'Internal / Proprietary Repository'}
+                </span>
+              )}
 
               <button
                 type="button"

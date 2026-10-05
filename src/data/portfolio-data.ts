@@ -7,7 +7,7 @@ export interface ProjectData {
   summary: string;
   details: string[];
   techStack: string[];
-  githubUrl: string;
+  githubUrl?: string;
   packageUrl?: string;
   interactiveType?: 'transformer_sim' | 'mermaid_demo' | 'graphics_demo' | 'git_telemetry';
   metrics?: { label: string; value: string }[];
@@ -80,7 +80,7 @@ export const PROJECTS: ProjectData[] = [
       'Headless MLOps linking VS Code, Git, and Kaggle API to autonomously dispatch training jobs and evaluate local inference via Apple Silicon Metal Performance Shaders (MPS) at ~0.19s latency.'
     ],
     techStack: ['PyTorch', 'DistributedDataParallel (DDP)', 'CUDA', 'RoPE', 'FlashAttention', 'Kaggle API', 'Apple Metal (MPS)'],
-    githubUrl: 'https://github.com/juliocrfilho/cir-engine',
+    githubUrl: 'https://github.com/JulioCRFilho/cir-jev',
     interactiveType: 'transformer_sim',
     metrics: [
       { label: 'Parameters', value: '503M' },
@@ -102,7 +102,7 @@ export const PROJECTS: ProjectData[] = [
       'Published on npm for global developer consumption; guarantees mathematical alignment between architecture specs and production code.'
     ],
     techStack: ['TypeScript', 'Node.js', 'Mermaid.js', 'AST Parsing', 'Decision Matrices', 'CLI', 'Clean Architecture'],
-    githubUrl: 'https://github.com/juliocrfilho/mddd-cli',
+    githubUrl: 'https://github.com/JulioCRFilho/mermaid-diagram-driven-development',
     packageUrl: 'https://www.npmjs.com/package/mddd-cli',
     interactiveType: 'mermaid_demo',
     metrics: [
@@ -125,7 +125,7 @@ export const PROJECTS: ProjectData[] = [
       'Published open-source developer tooling for clean architectural visibility across distributed teams.'
     ],
     techStack: ['Go', 'TypeScript', 'AST Parsing', 'Mermaid.js', 'Living Documentation', 'Git Hooks', 'CLI'],
-    githubUrl: 'https://github.com/juliocrfilho/mad-cli',
+    githubUrl: 'https://github.com/JulioCRFilho/mad',
     metrics: [
       { label: 'Syntax Engine', value: 'MAD Tags' },
       { label: 'Sync Loop', value: 'Code-to-Diagram' },
@@ -182,7 +182,6 @@ export const PROJECTS: ProjectData[] = [
       'Integrates with headless CI pipelines for team health diagnostics.'
     ],
     techStack: ['Go', 'Git Plumbing APIs', 'CLI', 'SQLite', 'Analytics'],
-    githubUrl: 'https://github.com/juliocrfilho/gittrack',
     interactiveType: 'git_telemetry',
     metrics: [
       { label: 'Telemetry', value: 'Raw Git Plumbing' },
@@ -212,7 +211,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'MLOps headless conectando VS Code, Git e Kaggle API para despachar jobs de treinamento autonomamente e validar inferência local via Apple Silicon Metal (MPS) com latência de ~0,19s.'
       ],
       techStack: ['PyTorch', 'DistributedDataParallel (DDP)', 'CUDA', 'RoPE', 'FlashAttention', 'Kaggle API', 'Apple Metal (MPS)'],
-      githubUrl: 'https://github.com/juliocrfilho/cir-engine',
+      githubUrl: 'https://github.com/JulioCRFilho/cir-jev',
       interactiveType: 'transformer_sim',
       metrics: [
         { label: 'Parâmetros', value: '503M' },
@@ -234,7 +233,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Publicado no npm para consumo global; assegura alinhamento rigoroso entre a especificação arquitetural e o código implementado.'
       ],
       techStack: ['TypeScript', 'Node.js', 'Mermaid.js', 'Parsing AST', 'Matrizes de Decisão', 'CLI', 'Clean Architecture'],
-      githubUrl: 'https://github.com/juliocrfilho/mddd-cli',
+      githubUrl: 'https://github.com/JulioCRFilho/mermaid-diagram-driven-development',
       packageUrl: 'https://www.npmjs.com/package/mddd-cli',
       interactiveType: 'mermaid_demo',
       metrics: [
@@ -257,7 +256,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Ferramenta open-source para visibilidade arquitetural transparente entre equipes de engenharia distribuídas.'
       ],
       techStack: ['Go', 'TypeScript', 'Parsing AST', 'Mermaid.js', 'Documentação Viva', 'Git Hooks', 'CLI'],
-      githubUrl: 'https://github.com/juliocrfilho/mad-cli',
+      githubUrl: 'https://github.com/JulioCRFilho/mad',
       metrics: [
         { label: 'Motor de Sintaxe', value: 'Tags MAD' },
         { label: 'Ciclo de Sincronia', value: 'Código-para-Diagrama' },
@@ -314,7 +313,6 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Integração com pipelines de CI headless para diagnósticos de saúde da equipe.'
       ],
       techStack: ['Go', 'APIs Git Plumbing', 'CLI', 'SQLite', 'Analytics'],
-      githubUrl: 'https://github.com/juliocrfilho/gittrack',
       interactiveType: 'git_telemetry',
       metrics: [
         { label: 'Telemetria', value: 'Git Plumbing Direto' },

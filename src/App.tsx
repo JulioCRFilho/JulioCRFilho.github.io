@@ -529,7 +529,7 @@ export default function App() {
               </div>
             </div>
             <a
-              href="https://github.com/juliocrfilho/cir-engine"
+              href="https://github.com/JulioCRFilho/cir-jev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1"
