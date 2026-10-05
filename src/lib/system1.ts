@@ -198,6 +198,8 @@ export class RubiksCubeSim {
     return perms;
   }
 
+  scrambleBaseline = 54;
+
   reset() {
     this.state = new Int32Array(54);
     for (let f = 0; f < 6; f++) {
@@ -205,6 +207,7 @@ export class RubiksCubeSim {
     }
     this.lastAction = 'RESET';
     this.steps = 0;
+    this.scrambleBaseline = 54;
   }
 
   applyAtomic(moveName: string) {
@@ -258,9 +261,10 @@ export class RubiksCubeSim {
     for (let attempt = 0; attempt < 10; attempt++) {
       this.reset();
       const moves = mode === 'macro' ? this.scrambleMacro(depth) : this.scrambleAtomic(depth);
-      if (this.getAlignedCount() < 54) {
+      if (this.getRawAlignedCount() < 54) {
         this.lastAction = 'SCRAMBLED';
         this.steps = 0;
+        this.scrambleBaseline = this.getRawAlignedCount();
         return moves;
       }
     }
@@ -269,10 +273,11 @@ export class RubiksCubeSim {
     this.applyAtomic('U');
     this.lastAction = 'SCRAMBLED';
     this.steps = 0;
+    this.scrambleBaseline = this.getRawAlignedCount();
     return ['R', 'U'];
   }
 
-  getAlignedCount(): number {
+  getRawAlignedCount(): number {
     let count = 0;
     for (let f = 0; f < 6; f++) {
       const center = this.state[f * 9 + 4];
@@ -283,8 +288,26 @@ export class RubiksCubeSim {
     return count;
   }
 
+  getAlignedCount(): number {
+    if (this.isSolved()) return 54;
+    const raw = this.getRawAlignedCount();
+    const base = this.scrambleBaseline;
+    if (raw <= base) return 0;
+    const progress = (raw - base) / (54 - base);
+    return Math.min(54, Math.max(0, Math.round(progress * 54)));
+  }
+
+  getScorePct(): number {
+    if (this.isSolved()) return 100.0;
+    const raw = this.getRawAlignedCount();
+    const base = this.scrambleBaseline;
+    if (raw <= base) return 0.0;
+    const progress = (raw - base) / (54 - base);
+    return Math.min(100.0, Math.max(0.0, progress * 100));
+  }
+
   isSolved(): boolean {
-    return this.getAlignedCount() === 54;
+    return this.getRawAlignedCount() === 54;
   }
 
   getOneHot(): Float32Array {
@@ -313,7 +336,7 @@ export class RubiksCubeSim {
 
     // Cabeçalho
     const aligned = this.getAlignedCount();
-    const scorePct = (((aligned - 6) / 48) * 100).toFixed(1);
+    const scorePct = this.getScorePct().toFixed(1);
     ctx.fillStyle = '#38bdf8';
     ctx.font = 'bold 12px "JetBrains Mono", monospace';
     ctx.fillText('⚡ SYSTEM 1 HUD | CUBO MÁGICO 3X3', 20, 26);

@@ -273,7 +273,9 @@ export const RubiksCube3D: React.FC<RubiksCube3DProps> = ({
     }
   };
 
-  const scorePct = (((alignedCount - 6) / 48) * 100).toFixed(1);
+  const scorePct = isSolved
+    ? '100.0'
+    : Math.min(100, Math.max(0, (alignedCount / 54) * 100)).toFixed(1);
 
   return (
     <div

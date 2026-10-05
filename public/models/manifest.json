@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "updated_at": 1791235339.7535229,
-  "updated_at_str": "05/10/2026 18:22:19",
+  "updated_at": 1791236635.445802,
+  "updated_at_str": "05/10/2026 18:43:55",
   "models": {
     "acrobot": {
       "key": "acrobot",
@@ -16,8 +16,8 @@
       "file": "s1_acrobot_v1.onnx",
       "size_mb": 2.78,
       "size_bytes": 2919165,
-      "mtime": 1791235339.616166,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236634.991638,
+      "mtime_str": "05/10/2026 18:43:54"
     },
     "ant_v4": {
       "key": "ant_v4",
@@ -32,8 +32,8 @@
       "file": "s1_ant_v4.onnx",
       "size_mb": 2.82,
       "size_bytes": 2951758,
-      "mtime": 1791235339.749994,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236635.442282,
+      "mtime_str": "05/10/2026 18:43:55"
     },
     "ant_v5": {
       "key": "ant_v5",
@@ -48,8 +48,8 @@
       "file": "s1_ant_v5.onnx",
       "size_mb": 2.91,
       "size_bytes": 3051600,
-      "mtime": 1791235339.7148118,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236635.4038172,
+      "mtime_str": "05/10/2026 18:43:55"
     },
     "cartpole": {
       "key": "cartpole",
@@ -64,8 +64,8 @@
       "file": "s1_cartpole.onnx",
       "size_mb": 2.78,
       "size_bytes": 2915513,
-      "mtime": 1791235339.5824292,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236634.9519,
+      "mtime_str": "05/10/2026 18:43:54"
     },
     "lunarlander": {
       "key": "lunarlander",
@@ -80,8 +80,8 @@
       "file": "s1_lunarlander_v3.onnx",
       "size_mb": 2.79,
       "size_bytes": 2922817,
-      "mtime": 1791235339.6813931,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236635.1862588,
+      "mtime_str": "05/10/2026 18:43:55"
     },
     "mountaincar": {
       "key": "mountaincar",
@@ -96,8 +96,8 @@
       "file": "s1_mountaincar_v0.onnx",
       "size_mb": 2.78,
       "size_bytes": 2914045,
-      "mtime": 1791235339.6495652,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236635.0314379,
+      "mtime_str": "05/10/2026 18:43:55"
     },
     "rubiks_atomic": {
       "key": "rubiks_atomic",
@@ -113,8 +113,8 @@
       "file": "s1_rubiks_atomic.onnx",
       "size_mb": 3.18,
       "size_bytes": 3336041,
-      "mtime": 1791235339.5150602,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236634.8543005,
+      "mtime_str": "05/10/2026 18:43:54"
     },
     "rubiks_macro": {
       "key": "rubiks_macro",
@@ -129,8 +129,8 @@
       "file": "s1_rubiks_macro.onnx",
       "size_mb": 3.18,
       "size_bytes": 3336041,
-      "mtime": 1791235339.547153,
-      "mtime_str": "05/10/2026 18:22:19"
+      "mtime": 1791236634.9039266,
+      "mtime_str": "05/10/2026 18:43:54"
     }
   }
 }

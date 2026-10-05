@@ -42,10 +42,10 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     isSolved: boolean;
   }>({
     state: new Int32Array(54),
-    lastAction: 'RESET',
+    lastAction: 'SCRAMBLED',
     steps: 0,
-    alignedCount: 54,
-    isSolved: true,
+    alignedCount: 0,
+    isSolved: false,
   });
 
   const [isRunning, setIsRunning] = useState<boolean>(false);
