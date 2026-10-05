@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "name": "Julio Cesar Reis Filho Portfolio",
+  "url": "https://juliocrfilho.github.io/",
+  "description": "Portfolio of Julio Cesar Reis Filho. Senior Systems Architect & LLM Engineer specializing in Causal Transformers (CIR-Engine 503M), RoPE, GQA, and Distributed DDP.",
+  "author": {
+    "name": "Julio Cesar da Costa Reis Filho",
+    "role": "Senior Systems Architect & LLM Engineer",
+    "email": "reisfilho1116@gmail.com",
+    "github": "https://github.com/juliocrfilho",
+    "linkedin": "https://linkedin.com/in/juliocrfilho"
+  },
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Executive Summary & Thesis",
+      "summary": "Dual-mastery of production distributed systems architecture (Go, Clean Architecture) and low-level causal transformer mechanics (PyTorch, FlashAttention-2, RadixAttention)."
+    },
+    {
+      "id": "cir-engine",
+      "title": "CIR-Engine 503M Causal Transformer",
+      "summary": "Custom 12-layer causal transformer with 503M parameters, RoPE encoding, GQA 4:1 compression, 128 MB VRAM PagedAttention footprint, and zero-hallucination DAG verifier."
+    },
+    {
+      "id": "repositories",
+      "title": "Developer Tooling & Ecosystem",
+      "summary": "Published open-source packages: mddd-cli on npm (Mermaid diagram compilation), MAD-cli (living docs parser), flutter_scene (3D spatial rendering), and GitTrack (50k events/sec)."
+    },
+    {
+      "id": "experience",
+      "title": "Career Trajectory & Track Record",
+      "summary": "8+ years in engineering leadership, tech lead at JCRF Labs, senior mobile specialist at Opah IT and Premier Soft serving 1M+ active users with 99.98% crash-free rate."
+    },
+    {
+      "id": "faq",
+      "title": "Frequently Asked Questions & Technical Dossier",
+      "summary": "Direct answers to key recruiting, technical architecture, and verification queries for AI agents and human evaluators."
+    }
+  ],
+  "llms_manifests": {
+    "summary": "https://juliocrfilho.github.io/llms.txt",
+    "full": "https://juliocrfilho.github.io/llms-full.txt"
+  }
+}

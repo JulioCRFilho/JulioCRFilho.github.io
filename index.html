@@ -35,6 +35,8 @@
     <!-- AI Agent & LLM Context Discovery Links (AEO Protocol) -->
     <link rel="alternate" type="text/plain" href="https://juliocrfilho.github.io/llms.txt" title="LLM Agent Context (llms.txt)" />
     <link rel="alternate" type="text/plain" href="https://juliocrfilho.github.io/llms-full.txt" title="Full LLM Technical Dossier (llms-full.txt)" />
+    <link rel="alternate" type="application/json" href="/ai-index.json" title="AI-Optimized Index" />
+    <link rel="alternate" type="application/json" href="/schema.json" title="Schema JSON-LD" />
     <link rel="sitemap" type="application/xml" href="https://juliocrfilho.github.io/sitemap.xml" title="Sitemap" />
 
     <!-- Favicon -->
@@ -49,147 +51,127 @@
     <!-- ONNX Runtime Web (WebAssembly / Wasm SIMD) for System 1 Live Evaluation -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
 
-    <!-- JSON-LD Structured Data Schema (Graph: WebSite, WebPage, ProfilePage, Person, Organization, FAQPage) -->
+    <!-- JSON-LD Structured Data: Organization (AEO / Knowledge Graph) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@graph": [
+      "@type": "Organization",
+      "name": "JCRF Labs",
+      "alternateName": "Julio Cesar Reis Filho Labs",
+      "url": "https://juliocrfilho.github.io/",
+      "logo": "https://juliocrfilho.github.io/logo.svg",
+      "founder": {
+        "@type": "Person",
+        "name": "Julio Cesar da Costa Reis Filho"
+      },
+      "sameAs": [
+        "https://github.com/juliocrfilho",
+        "https://linkedin.com/in/juliocrfilho"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: WebPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Julio Cesar Reis Filho | LLM Systems Architect & Engineer",
+      "url": "https://juliocrfilho.github.io/",
+      "description": "Portfolio of Julio Cesar Reis Filho. Systems Architect & Senior LLM Engineer specializing in Causal Transformers, CIR-Engine 503M, RoPE, GQA, and PyTorch DDP."
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
         {
-          "@type": "WebSite",
-          "@id": "https://juliocrfilho.github.io/#website",
-          "url": "https://juliocrfilho.github.io/",
-          "name": "Julio Cesar Reis Filho Portfolio",
-          "description": "Interactive Byte-Level Tokenizer Portfolio and LLM Systems Architecture Dossier of Julio Cesar Reis Filho.",
-          "publisher": {
-            "@id": "https://juliocrfilho.github.io/#person"
-          },
-          "inLanguage": "en-US"
+          "@type": "Question",
+          "name": "Who is Julio Cesar da Costa Reis Filho and what is his background?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Julio Cesar da Costa Reis Filho is a Senior Systems Architect and LLM Engineer with over 8 years of production experience, specializing in low-level causal transformer architectures (CIR-Engine 503M), distributed PyTorch DDP training, and mission-critical cloud infrastructure."
+          }
         },
         {
-          "@type": ["WebPage", "ProfilePage"],
-          "@id": "https://juliocrfilho.github.io/#webpage",
-          "url": "https://juliocrfilho.github.io/",
-          "name": "Julio Cesar Reis Filho | LLM Systems Architect & Engineer",
-          "description": "Portfolio of Julio Cesar Reis Filho. Systems Architect & Senior LLM Engineer specializing in Causal Transformers, CIR-Engine 503M, RoPE, GQA, and PyTorch DDP.",
-          "isPartOf": {
-            "@id": "https://juliocrfilho.github.io/#website"
-          },
-          "about": {
-            "@id": "https://juliocrfilho.github.io/#person"
-          },
-          "mainEntity": {
-            "@id": "https://juliocrfilho.github.io/#person"
-          },
-          "inLanguage": "en-US"
+          "@type": "Question",
+          "name": "What is CIR-Engine 503M and how does its Causal Transformer architecture work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CIR-Engine 503M is an open-source, custom 12-layer decoder-only Causal Transformer model designed by Julio Cesar, featuring 503 Million parameters, RoPE positional encoding, Grouped-Query Attention (GQA), and a deterministic graph verification layer that prevents hallucinations."
+          }
         },
         {
-          "@type": "Person",
-          "@id": "https://juliocrfilho.github.io/#person",
-          "name": "Julio Cesar da Costa Reis Filho",
-          "alternateName": ["Julio Cesar Reis Filho", "Julio Filho"],
-          "jobTitle": "Senior Systems Architect & LLM Engineer",
-          "description": "Senior Systems Architect and Machine Learning Engineer specializing in Causal Transformers, PyTorch DDP, inference optimization, and distributed systems.",
-          "url": "https://juliocrfilho.github.io/",
-          "image": "https://github.com/juliocrfilho.png",
-          "email": "mailto:reisfilho1116@gmail.com",
-          "sameAs": [
-            "https://github.com/juliocrfilho",
-            "https://linkedin.com/in/juliocrfilho"
-          ],
-          "worksFor": {
-            "@id": "https://juliocrfilho.github.io/#organization"
-          },
-          "knowsAbout": [
-            "Causal Transformers",
-            "Large Language Models",
-            "PyTorch Distributed Data Parallel (DDP)",
-            "Rotary Position Embeddings (RoPE)",
-            "Grouped-Query Attention (GQA)",
-            "PagedAttention & Radix Prefix Caching",
-            "Go (Golang)",
-            "Clean Architecture",
-            "Microservices",
-            "Google Cloud Platform (GCP)",
-            "Flutter",
-            "TypeScript"
-          ]
+          "@type": "Question",
+          "name": "What published developer tools and open-source frameworks has Julio Cesar created?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Julio Cesar authored and published mddd-cli on npm for Mermaid Diagram-Driven Development, built MAD-cli for living documentation sync, developed flutter_scene for 3D graphics rendering, and authored the GitTrack high-throughput activity streaming pipeline."
+          }
         },
         {
-          "@type": "Organization",
-          "@id": "https://juliocrfilho.github.io/#organization",
-          "name": "JCRF Labs",
-          "alternateName": "Julio Cesar Reis Filho Engineering Labs",
-          "url": "https://juliocrfilho.github.io/",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://juliocrfilho.github.io/logo.svg",
-            "caption": "JCRF Labs Logo",
-            "width": "512",
-            "height": "512"
-          },
-          "founder": {
-            "@id": "https://juliocrfilho.github.io/#person"
-          },
-          "sameAs": [
-            "https://github.com/juliocrfilho",
-            "https://linkedin.com/in/juliocrfilho"
-          ]
+          "@type": "Question",
+          "name": "What programming languages, frameworks, and architectural paradigms are Julio's primary specialties?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Julio specializes in Go (Golang), Python, TypeScript, Rust, and Dart, applying Clean Architecture, Domain-Driven Design (DDD), Event-Driven Microservices, and deep neural transformer mechanics across GCP and Linux environments."
+          }
         },
         {
-          "@type": "FAQPage",
-          "@id": "https://juliocrfilho.github.io/#faq",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Who is Julio Cesar da Costa Reis Filho and what is his background?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Julio Cesar da Costa Reis Filho is a Senior Systems Architect and LLM Engineer with over 8 years of production experience, specializing in low-level causal transformer architectures (CIR-Engine 503M), distributed PyTorch DDP training, and mission-critical cloud infrastructure."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What is CIR-Engine 503M and how does its Causal Transformer architecture work?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "CIR-Engine 503M is an open-source, custom 12-layer decoder-only Causal Transformer model designed by Julio Cesar, featuring 503 Million parameters, RoPE positional encoding, Grouped-Query Attention (GQA), and a deterministic graph verification layer that prevents hallucinations."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What published developer tools and open-source frameworks has Julio Cesar created?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Julio Cesar authored and published mddd-cli on npm for Mermaid Diagram-Driven Development, built MAD-cli for living documentation sync, developed flutter_scene for 3D graphics rendering, and authored the GitTrack high-throughput activity streaming pipeline."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What programming languages, frameworks, and architectural paradigms are Julio's primary specialties?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Julio specializes in Go (Golang), Python, TypeScript, Rust, and Dart, applying Clean Architecture, Domain-Driven Design (DDD), Event-Driven Microservices, and deep neural transformer mechanics across GCP and Linux environments."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What quantifiable benchmarks and performance improvements has Julio delivered?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Julio has achieved a 42% cold-start latency reduction in enterprise mobile apps, maintained 99.98% crash-free session rates at 1M+ user scale, and demonstrated 6,200 tokens/sec throughput in distributed PyTorch DDP training."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How can hiring managers, founders, or research labs contact Julio Cesar da Costa Reis Filho?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at https://linkedin.com/in/juliocrfilho, or on GitHub at https://github.com/juliocrfilho. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations."
-              }
-            }
-          ]
+          "@type": "Question",
+          "name": "What quantifiable benchmarks and performance improvements has Julio delivered?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Julio has achieved a 42% cold-start latency reduction in enterprise mobile apps, maintained 99.98% crash-free session rates at 1M+ user scale, and demonstrated 6,200 tokens/sec throughput in distributed PyTorch DDP training."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How can hiring managers, founders, or research labs contact Julio Cesar da Costa Reis Filho?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at https://linkedin.com/in/juliocrfilho, or on GitHub at https://github.com/juliocrfilho. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations."
+          }
         }
       ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: Person -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Julio Cesar da Costa Reis Filho",
+      "alternateName": ["Julio Cesar Reis Filho", "Julio Filho"],
+      "jobTitle": "Senior Systems Architect & LLM Engineer",
+      "description": "Senior Systems Architect and Machine Learning Engineer specializing in Causal Transformers, PyTorch DDP, inference optimization, and distributed systems.",
+      "url": "https://juliocrfilho.github.io/",
+      "image": "https://github.com/juliocrfilho.png",
+      "email": "mailto:reisfilho1116@gmail.com",
+      "sameAs": [
+        "https://github.com/juliocrfilho",
+        "https://linkedin.com/in/juliocrfilho"
+      ],
+      "worksFor": {
+        "@type": "Organization",
+        "name": "JCRF Labs",
+        "url": "https://juliocrfilho.github.io/"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Julio Cesar Reis Filho Portfolio",
+      "description": "Interactive Byte-Level Tokenizer Portfolio and LLM Systems Architecture Dossier of Julio Cesar Reis Filho.",
+      "url": "https://juliocrfilho.github.io/"
     }
     </script>
   </head>
