@@ -302,7 +302,8 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           <a
             href="/llms.txt"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
+            download="llms.txt"
             className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-mono text-white border border-zinc-700 transition-colors"
           >
             /llms.txt
@@ -310,7 +311,8 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ lang }) => {
           <a
             href="/llms-full.txt"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
+            download="llms-full.txt"
             className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-mono text-zinc-300 border border-zinc-700 transition-colors"
           >
             /llms-full.txt

@@ -383,7 +383,8 @@ export const AgentViewModal: React.FC<AgentViewModalProps> = ({ isOpen, onClose,
             <a
               href="/llms.txt"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
+              download="llms.txt"
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs text-zinc-400 hover:text-white transition-colors"
               title={lang === 'pt' ? 'Abrir /llms.txt direto no navegador' : 'Open raw /llms.txt endpoint'}
             >
