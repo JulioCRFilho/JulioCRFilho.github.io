@@ -11,6 +11,9 @@ import {
 import {
   RubiksCubeSim,
   CartPoleSim,
+  LunarLanderSim,
+  MountainCarSim,
+  AcrobotSim,
   System1AgentWeb,
   ensureOnnxRuntime,
   type DecisionResult,
@@ -26,8 +29,10 @@ interface ActionLogItem {
   isUncertain: boolean;
 }
 
+export type DemoKey = 'rubiks' | 'lunarlander' | 'mountaincar' | 'cartpole' | 'acrobot';
+
 export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en' }) => {
-  const [activeDemo, setActiveDemo] = useState<'rubiks' | 'cartpole'>('rubiks');
+  const [activeDemo, setActiveDemo] = useState<DemoKey>('rubiks');
   const [cubeViewMode, setCubeViewMode] = useState<'3d' | '2d'>('3d');
   const [cubeState, setCubeState] = useState<{
     state: Int32Array;
@@ -63,7 +68,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const cubeScrambleDepth = 2;
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const simRef = useRef<RubiksCubeSim | CartPoleSim | null>(null);
+  const simRef = useRef<RubiksCubeSim | CartPoleSim | LunarLanderSim | MountainCarSim | AcrobotSim | null>(null);
   const agentRef = useRef<System1AgentWeb | null>(null);
   const animRef = useRef<number | null>(null);
   const lastStepTimeRef = useRef<number>(0);
@@ -74,11 +79,13 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const GITHUB_REPO = 'JulioCRFilho/system_one';
 
-  const DEMO_CONFIGS = useMemo(
+  const DEMO_CONFIGS: Record<DemoKey, any> = useMemo(
     () => ({
       rubiks: {
         id: 'rubiks',
         name: lang === 'pt' ? 'Cubo Mágico 3x3 (Macro / CFOP)' : "3x3 Rubik's Cube (Macro / CFOP)",
+        shortTitle: lang === 'pt' ? 'Cubo Mágico 3x3' : "Rubik's 3x3",
+        tag: 'Macro CFOP (12)',
         icon: '🎲',
         file: 's1_rubiks_macro.onnx',
         size: '~3.3 MB',
@@ -87,12 +94,46 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         obsSpace: '324-dim One-Hot Vector (54 stickers × 6 cores)',
         description:
           lang === 'pt'
-            ? 'Agente neural amortizado treinado com PPO e BPTT recorrente. Seleciona e executa macros algorítmicas diretamente sem árvore de busca combinatória (Tree Search).'
-            : 'Amortized neural policy trained with PPO and recurrent BPTT. Predicts macro moves directly without combinatorial tree search.',
+            ? 'Agente neural amortizado treinado com PPO e BPTT recorrente. Seleciona e executa macros algorítmicas diretamente em 3D sem busca combinatória em árvore.'
+            : 'Amortized neural policy trained with PPO and recurrent BPTT. Predicts macro moves directly in 3D without combinatorial tree search.',
+      },
+      lunarlander: {
+        id: 'lunarlander',
+        name: lang === 'pt' ? 'LunarLander-v3 (Pouso Espacial)' : 'LunarLander-v3 (Lunar Landing)',
+        shortTitle: 'LunarLander-v3',
+        tag: lang === 'pt' ? 'Pouso Lunar (4)' : 'Moon Landing (4)',
+        icon: '🚀',
+        file: 's1_lunarlander_v3.onnx',
+        size: '~2.9 MB',
+        envName: 'LunarLander-v3',
+        actionSpace: '4 Ações Discretas (Noop, Propulsor Esq, Principal, Dir)',
+        obsSpace: '8-dim Vetor de Estado [x, y, ẋ, ẏ, θ, θ̇, legL, legR]',
+        description:
+          lang === 'pt'
+            ? 'Módulo lunar controlando propulsores com física gravitacional, partículas de fogo e amortecimento de pouso sobre a plataforma.'
+            : 'Lunar lander controlling main and side thrusters with gravity physics, exhaust particles, and smooth landing contact.',
+      },
+      mountaincar: {
+        id: 'mountaincar',
+        name: lang === 'pt' ? 'MountainCar-v0 (Controle de Inércia)' : 'MountainCar-v0 (Inertia Control)',
+        shortTitle: 'MountainCar-v0',
+        tag: lang === 'pt' ? 'Inércia / Colina (3)' : 'Inertia Climb (3)',
+        icon: '🏎️',
+        file: 's1_mountaincar_v0.onnx',
+        size: '~2.9 MB',
+        envName: 'MountainCar-v0',
+        actionSpace: '3 Ações Discretas (Push Left, Coast, Push Right)',
+        obsSpace: '2-dim Cinemática [Posição, Velocidade]',
+        description:
+          lang === 'pt'
+            ? 'Problema clássico de recompensa esparsa. O carro precisa acumular energia potencial voltando de ré para vencer a gravidade e chegar à bandeira.'
+            : 'Sparse-reward classic task. The rover must build momentum by reversing up the opposite hill to climb and reach the goal flag.',
       },
       cartpole: {
         id: 'cartpole',
         name: lang === 'pt' ? 'CartPole-v1 (Controle Clássico)' : 'CartPole-v1 (Classic Control)',
+        shortTitle: 'CartPole-v1',
+        tag: lang === 'pt' ? 'Haste Invertida (2)' : 'Inverted Pole (2)',
         icon: '⚖️',
         file: 's1_cartpole.onnx',
         size: '~2.9 MB',
@@ -104,6 +145,22 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             ? 'Equilíbrio dinâmico de haste invertida com física contínua. Latência de inferência ultrabaixa para controle crítico sem jitter.'
             : 'Dynamic inverted pendulum balancing with continuous physics. Ultra-low latency inference for real-time control without jitter.',
       },
+      acrobot: {
+        id: 'acrobot',
+        name: lang === 'pt' ? 'Acrobot-v1 (Pêndulo Duplo)' : 'Acrobot-v1 (Double Pendulum)',
+        shortTitle: 'Acrobot-v1',
+        tag: lang === 'pt' ? 'Pêndulo Duplo (3)' : 'Double Pendulum (3)',
+        icon: '🤸',
+        file: 's1_acrobot_v1.onnx',
+        size: '~2.9 MB',
+        envName: 'Acrobot-v1',
+        actionSpace: '3 Ações Discretas (Torque -1, 0, +1)',
+        obsSpace: '6-dim Cinemática [cos, sin, cos, sin, θ̇₁, θ̇₂]',
+        description:
+          lang === 'pt'
+            ? 'Robô acrobático de duas juntas com motor atuando apenas na articulação do meio. O agente aprende balanço harmônico para ultrapassar a meta.'
+            : 'Two-link underactuated acrobat robot with torque only at the elbow joint. Learns harmonic resonance swing to reach the target line.',
+      },
     }),
     [lang]
   );
@@ -112,7 +169,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     isRunningRef.current = isRunning;
   }, [isRunning]);
 
-  const initSim = (demoKey: 'rubiks' | 'cartpole') => {
+  const initSim = (demoKey: DemoKey) => {
     if (demoKey === 'rubiks') {
       const cube = new RubiksCubeSim();
       cube.scramble(cubeScrambleDepth);
@@ -124,6 +181,15 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         alignedCount: cube.getAlignedCount(),
         isSolved: cube.isSolved(),
       });
+    } else if (demoKey === 'lunarlander') {
+      const lander = new LunarLanderSim();
+      simRef.current = lander;
+    } else if (demoKey === 'mountaincar') {
+      const car = new MountainCarSim();
+      simRef.current = car;
+    } else if (demoKey === 'acrobot') {
+      const acrobot = new AcrobotSim();
+      simRef.current = acrobot;
     } else {
       const cp = new CartPoleSim();
       simRef.current = cp;
@@ -144,7 +210,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     }
   }, [cubeViewMode, activeDemo]);
 
-  const loadModel = async (demoKey: 'rubiks' | 'cartpole') => {
+  const loadModel = async (demoKey: DemoKey) => {
     setIsLoading(true);
     setLoadError(null);
     setStatusDesc(lang === 'pt' ? 'Inicializando Wasm SIMD...' : 'Initializing Wasm SIMD...');
@@ -211,7 +277,15 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       lastFpsTimeRef.current = timestamp;
     }
 
-    const interval = activeDemo === 'rubiks' ? 250 : 30;
+    const interval =
+      activeDemo === 'rubiks'
+        ? 250
+        : activeDemo === 'lunarlander'
+        ? 35
+        : activeDemo === 'acrobot'
+        ? 35
+        : 30;
+
     if (timestamp - lastStepTimeRef.current >= interval) {
       lastStepTimeRef.current = timestamp;
 
@@ -221,10 +295,18 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
       if (sim && agent) {
         try {
-          const obs =
-            activeDemo === 'rubiks'
-              ? (sim as RubiksCubeSim).getOneHot()
-              : (sim as CartPoleSim).getState();
+          let obs: Float32Array;
+          if (activeDemo === 'rubiks') {
+            obs = (sim as RubiksCubeSim).getOneHot();
+          } else if (activeDemo === 'lunarlander') {
+            obs = (sim as LunarLanderSim).getState();
+          } else if (activeDemo === 'mountaincar') {
+            obs = (sim as MountainCarSim).getState();
+          } else if (activeDemo === 'acrobot') {
+            obs = (sim as AcrobotSim).getState();
+          } else {
+            obs = (sim as CartPoleSim).getState();
+          }
 
           const dec = await agent.actWithConfidence(obs);
 
@@ -262,6 +344,105 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               },
               ...prev.slice(0, 4),
             ]);
+          } else if (activeDemo === 'lunarlander') {
+            const lander = sim as LunarLanderSim;
+            const actionNames = ['ORBITANDO', 'PROP_ESQ ◀', 'PROP_PRINCIPAL ▲', 'PROP_DIR ▶'];
+            currentActionName = actionNames[dec.action] || `ACT_${dec.action}`;
+            const res = lander.step(dec.action);
+
+            if (res.done) {
+              lander.reset();
+              agent.resetMemory();
+            }
+
+            const now = performance.now();
+            if (now - lastUiUpdateTimeRef.current >= 100) {
+              lastUiUpdateTimeRef.current = now;
+              setDecision(dec);
+              setStatusDesc(
+                lander.isLanded
+                  ? (lang === 'pt' ? '🏆 POUSOU COM SUCESSO!' : '🏆 LANDED SAFELY!')
+                  : `${lang === 'pt' ? 'Passos' : 'Steps'}: ${res.steps}`
+              );
+
+              setActionLog((prev) => [
+                {
+                  id: Date.now() + Math.random(),
+                  name: currentActionName,
+                  confidence: dec.confidence,
+                  uncertainty: dec.uncertainty,
+                  latencyMs: dec.latencyMs,
+                  isUncertain: dec.isUncertain,
+                },
+                ...prev.slice(0, 4),
+              ]);
+            }
+          } else if (activeDemo === 'mountaincar') {
+            const car = sim as MountainCarSim;
+            const actionNames = ['PUSH_LEFT ◀', 'COAST', 'PUSH_RIGHT ▶'];
+            currentActionName = actionNames[dec.action] || `ACT_${dec.action}`;
+            const res = car.step(dec.action);
+
+            if (res.done) {
+              car.reset();
+              agent.resetMemory();
+            }
+
+            const now = performance.now();
+            if (now - lastUiUpdateTimeRef.current >= 100) {
+              lastUiUpdateTimeRef.current = now;
+              setDecision(dec);
+              setStatusDesc(
+                car.isGoalReached
+                  ? (lang === 'pt' ? '🏆 META ALCANÇADA!' : '🏆 GOAL REACHED!')
+                  : `${lang === 'pt' ? 'Passos' : 'Steps'}: ${res.steps}`
+              );
+
+              setActionLog((prev) => [
+                {
+                  id: Date.now() + Math.random(),
+                  name: currentActionName,
+                  confidence: dec.confidence,
+                  uncertainty: dec.uncertainty,
+                  latencyMs: dec.latencyMs,
+                  isUncertain: dec.isUncertain,
+                },
+                ...prev.slice(0, 4),
+              ]);
+            }
+          } else if (activeDemo === 'acrobot') {
+            const acrobot = sim as AcrobotSim;
+            const actionNames = ['TORQUE_ESQ ◀', 'SEM_TORQUE', 'TORQUE_DIR ▶'];
+            currentActionName = actionNames[dec.action] || `ACT_${dec.action}`;
+            const res = acrobot.step(dec.action);
+
+            if (res.done) {
+              acrobot.reset();
+              agent.resetMemory();
+            }
+
+            const now = performance.now();
+            if (now - lastUiUpdateTimeRef.current >= 100) {
+              lastUiUpdateTimeRef.current = now;
+              setDecision(dec);
+              setStatusDesc(
+                acrobot.isGoalReached
+                  ? (lang === 'pt' ? '🏆 SWING CONCLUÍDO!' : '🏆 SWING COMPLETED!')
+                  : `${lang === 'pt' ? 'Passos' : 'Steps'}: ${res.steps}`
+              );
+
+              setActionLog((prev) => [
+                {
+                  id: Date.now() + Math.random(),
+                  name: currentActionName,
+                  confidence: dec.confidence,
+                  uncertainty: dec.uncertainty,
+                  latencyMs: dec.latencyMs,
+                  isUncertain: dec.isUncertain,
+                },
+                ...prev.slice(0, 4),
+              ]);
+            }
           } else {
             const cp = sim as CartPoleSim;
             currentActionName = dec.action === 1 ? 'PUSH_RIGHT' : 'PUSH_LEFT';
@@ -272,7 +453,6 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               agent.resetMemory();
             }
 
-            // Atualização de telemetria estabilizada a ~10 Hz (a cada 100ms) para evitar trepidação visual na UI
             const now = performance.now();
             if (now - lastUiUpdateTimeRef.current >= 100) {
               lastUiUpdateTimeRef.current = now;
@@ -654,33 +834,36 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             </h4>
 
             <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setActiveDemo('rubiks')}
-                className={`p-2.5 rounded-xl border text-left text-xs font-mono transition cursor-pointer flex flex-col gap-1 ${
-                  activeDemo === 'rubiks'
-                    ? 'bg-cyan-950/40 border-cyan-500/80 text-white shadow'
-                    : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700'
-                }`}
-              >
-                <span className="text-base">🎲</span>
-                <span className="font-bold">Cubo Mágico 3x3</span>
-                <span className="text-[10px] text-zinc-500">Macro CFOP (12)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveDemo('cartpole')}
-                className={`p-2.5 rounded-xl border text-left text-xs font-mono transition cursor-pointer flex flex-col gap-1 ${
-                  activeDemo === 'cartpole'
-                    ? 'bg-cyan-950/40 border-cyan-500/80 text-white shadow'
-                    : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700'
-                }`}
-              >
-                <span className="text-base">⚖️</span>
-                <span className="font-bold">CartPole-v1</span>
-                <span className="text-[10px] text-zinc-500">Física 4D (Push)</span>
-              </button>
+              {(['rubiks', 'lunarlander', 'mountaincar', 'cartpole', 'acrobot'] as DemoKey[]).map((key, idx) => {
+                const cfg = DEMO_CONFIGS[key];
+                const isSelected = activeDemo === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveDemo(key)}
+                    className={`p-2.5 rounded-xl border text-left text-xs font-mono transition cursor-pointer flex flex-col gap-1 relative overflow-hidden ${
+                      idx === 4 ? 'col-span-2' : ''
+                    } ${
+                      isSelected
+                        ? 'bg-cyan-950/50 border-cyan-400 text-white shadow-lg shadow-cyan-950/50 ring-1 ring-cyan-500/50'
+                        : 'bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700 hover:bg-zinc-900/90'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-base">{cfg.icon}</span>
+                      {isSelected && (
+                        <span className="flex h-2 w-2 relative">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-bold truncate text-[12px]">{cfg.shortTitle}</span>
+                    <span className="text-[10px] text-zinc-500 truncate">{cfg.tag}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* Descrição do Ambiente Ativo */}

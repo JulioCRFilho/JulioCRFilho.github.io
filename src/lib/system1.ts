@@ -395,6 +395,661 @@ export class CartPoleSim {
 }
 
 // =====================================================================
+// SIMULADOR LUNARLANDER-V3 (POUSO ESPACIAL)
+// =====================================================================
+
+export class LunarLanderSim {
+  groundY = 0.18;
+  x = 0;
+  y = 1.3;
+  vx = 0;
+  vy = 0;
+  angle = 0;
+  v_angle = 0;
+  leftContact = 0;
+  rightContact = 0;
+  steps = 0;
+  fuel = 100;
+  lastAction = 0;
+  isLanded = false;
+  isCrashed = false;
+  particles: Array<{ x: number; y: number; vx: number; vy: number; life: number; color: string }> = [];
+
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.x = (Math.random() - 0.5) * 0.4;
+    this.y = 1.3 + Math.random() * 0.1;
+    this.vx = (Math.random() - 0.5) * 0.2;
+    this.vy = -(0.02 + Math.random() * 0.04);
+    this.angle = (Math.random() - 0.5) * 0.1;
+    this.v_angle = (Math.random() - 0.5) * 0.05;
+    this.leftContact = 0;
+    this.rightContact = 0;
+    this.steps = 0;
+    this.fuel = 100;
+    this.lastAction = 0;
+    this.isLanded = false;
+    this.isCrashed = false;
+    this.particles = [];
+  }
+
+  getState(): Float32Array {
+    return new Float32Array([
+      this.x,
+      this.y,
+      this.vx,
+      this.vy,
+      this.angle,
+      this.v_angle,
+      this.leftContact,
+      this.rightContact,
+    ]);
+  }
+
+  step(action: number): { done: boolean; steps: number } {
+    this.lastAction = action;
+    this.steps++;
+
+    const dt = 0.02;
+    const gravity = -3.2; // Gravidade lunar adaptada
+    const mainThrust = 9.0;
+    const sideThrust = 2.4;
+
+    let thrustX = 0;
+    let thrustY = gravity;
+    let torque = 0;
+
+    // Ações: 0=Noop, 1=Propulsor Esquerdo, 2=Principal, 3=Propulsor Direito
+    if (action === 2 && this.fuel > 0) {
+      thrustX -= Math.sin(this.angle) * mainThrust;
+      thrustY += Math.cos(this.angle) * mainThrust;
+      this.fuel = Math.max(0, this.fuel - 0.12);
+
+      for (let i = 0; i < 3; i++) {
+        this.particles.push({
+          x: this.x - Math.sin(this.angle) * 0.08,
+          y: this.y - Math.cos(this.angle) * 0.08,
+          vx: -Math.sin(this.angle) * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.3,
+          vy: -Math.cos(this.angle) * (1.2 + Math.random()) + (Math.random() - 0.5) * 0.3,
+          life: 1.0,
+          color: Math.random() > 0.4 ? '#f59e0b' : '#ef4444',
+        });
+      }
+    } else if (action === 1 && this.fuel > 0) {
+      torque -= sideThrust;
+      thrustX += Math.cos(this.angle) * 0.6;
+      this.fuel = Math.max(0, this.fuel - 0.06);
+
+      for (let i = 0; i < 2; i++) {
+        this.particles.push({
+          x: this.x - Math.cos(this.angle) * 0.06,
+          y: this.y + Math.sin(this.angle) * 0.06,
+          vx: -Math.cos(this.angle) * 0.7,
+          vy: Math.sin(this.angle) * 0.7,
+          life: 0.8,
+          color: '#38bdf8',
+        });
+      }
+    } else if (action === 3 && this.fuel > 0) {
+      torque += sideThrust;
+      thrustX -= Math.cos(this.angle) * 0.6;
+      this.fuel = Math.max(0, this.fuel - 0.06);
+
+      for (let i = 0; i < 2; i++) {
+        this.particles.push({
+          x: this.x + Math.cos(this.angle) * 0.06,
+          y: this.y - Math.sin(this.angle) * 0.06,
+          vx: Math.cos(this.angle) * 0.7,
+          vy: -Math.sin(this.angle) * 0.7,
+          life: 0.8,
+          color: '#38bdf8',
+        });
+      }
+    }
+
+    this.vx += thrustX * dt;
+    this.vy += thrustY * dt;
+    this.v_angle += torque * dt;
+
+    this.vx *= 0.998;
+    this.v_angle *= 0.96;
+
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    this.angle += this.v_angle * dt;
+
+    // Atualiza partículas
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt * 2.5;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+
+    let done = false;
+
+    if (this.y <= this.groundY) {
+      this.y = this.groundY;
+      const speed = Math.hypot(this.vx, this.vy);
+      const angleDeg = Math.abs((this.angle * 180) / Math.PI);
+      const onPad = Math.abs(this.x) < 0.28;
+
+      if (speed < 0.45 && angleDeg < 15 && onPad) {
+        this.isLanded = true;
+        this.leftContact = 1;
+        this.rightContact = 1;
+        this.vx = 0;
+        this.vy = 0;
+        this.v_angle = 0;
+        done = true;
+      } else {
+        this.isCrashed = true;
+        done = true;
+      }
+    }
+
+    if (Math.abs(this.x) > 1.3 || this.y > 1.9) {
+      done = true;
+    }
+
+    return { done, steps: this.steps };
+  }
+
+  render(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Céu Espacial Noturno
+    ctx.fillStyle = '#06080e';
+    ctx.fillRect(0, 0, w, h);
+
+    // Estrelas de fundo
+    ctx.fillStyle = '#64748b';
+    for (let i = 0; i < 30; i++) {
+      const sx = (Math.sin(i * 12.3) * 0.5 + 0.5) * w;
+      const sy = (Math.cos(i * 7.7) * 0.5 + 0.5) * (h * 0.65);
+      ctx.fillRect(sx, sy, 1.5, 1.5);
+    }
+
+    // Superfície Lunar & Plataforma de Pouso
+    const groundScreenY = h - 55;
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    ctx.lineTo(0, groundScreenY + 15);
+    ctx.lineTo(w * 0.35, groundScreenY + 5);
+    ctx.lineTo(w * 0.4, groundScreenY);
+    ctx.lineTo(w * 0.6, groundScreenY);
+    ctx.lineTo(w * 0.65, groundScreenY + 8);
+    ctx.lineTo(w, groundScreenY + 12);
+    ctx.lineTo(w, h);
+    ctx.fill();
+
+    // Plataforma de pouso verde neon
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(w * 0.38, groundScreenY);
+    ctx.lineTo(w * 0.62, groundScreenY);
+    ctx.stroke();
+
+    // Bandeiras da plataforma
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(w * 0.38, groundScreenY - 14, 2, 14);
+    ctx.fillRect(w * 0.38 + 2, groundScreenY - 14, 8, 6);
+    ctx.fillRect(w * 0.62, groundScreenY - 14, 2, 14);
+    ctx.fillRect(w * 0.62 + 2, groundScreenY - 14, 8, 6);
+
+    // Mapeamento de coordenadas
+    const toScreenX = (valX: number) => w / 2 + valX * (w * 0.42);
+    const toScreenY = (valY: number) => groundScreenY - valY * (h * 0.45);
+
+    // Renderiza partículas de propulsão
+    for (const p of this.particles) {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.beginPath();
+      ctx.arc(toScreenX(p.x), toScreenY(p.y), 3 * p.life, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+
+    // Renderiza Módulo Lunar
+    const lx = toScreenX(this.x);
+    const ly = toScreenY(this.y);
+
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(this.angle);
+
+    // Pernas de pouso
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Esquerda
+    ctx.moveTo(-10, 6);
+    ctx.lineTo(-18, 18);
+    ctx.lineTo(-24, 18);
+    // Direita
+    ctx.moveTo(10, 6);
+    ctx.lineTo(18, 18);
+    ctx.lineTo(24, 18);
+    ctx.stroke();
+
+    // Corpo do Módulo (Hexágono espacial)
+    ctx.fillStyle = this.isLanded ? '#22c55e' : this.isCrashed ? '#ef4444' : '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(-12, 6);
+    ctx.lineTo(12, 6);
+    ctx.lineTo(16, -6);
+    ctx.lineTo(8, -16);
+    ctx.lineTo(-8, -16);
+    ctx.lineTo(-16, -6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Janela do cockpit
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(0, -6, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.stroke();
+
+    ctx.restore();
+
+    // Moldura Cyber & Cabeçalho
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6, 6, w - 12, h - 12);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
+    ctx.fillText('⚡ SYSTEM 1 HUD | LUNARLANDER-V3', 20, 26);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px "JetBrains Mono", monospace';
+    const alt = Math.max(0, (this.y - this.groundY) * 100).toFixed(0);
+    const vel = (Math.hypot(this.vx, this.vy) * 10).toFixed(1);
+    ctx.fillText(`Passos: ${this.steps} | Altitude: ${alt}m | Vel: ${vel}m/s | Combustível: ${this.fuel.toFixed(0)}%`, 20, 42);
+
+    // Rodapé
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    if (this.isLanded) {
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('STATUS: POUSO PERFEITO 🏆', 20, h - 16);
+    } else if (this.isCrashed) {
+      ctx.fillStyle = '#ef4444';
+      ctx.fillText('STATUS: IMPACTO CRÍTICO 💥 (REINICIANDO)', 20, h - 16);
+    } else {
+      ctx.fillStyle = '#e2e8f0';
+      const actionNames = ['ORBITANDO (NOOP)', 'PROPULSOR ESQUERDO ◀', 'PROPULSOR PRINCIPAL ▲', 'PROPULSOR DIREITO ▶'];
+      ctx.fillText(`AÇÃO: ${actionNames[this.lastAction] || 'IDLE'}`, 20, h - 16);
+    }
+  }
+}
+
+// =====================================================================
+// SIMULADOR MOUNTAINCAR-V0 (CONTROLE NÃO-LINEAR DE INÉRCIA)
+// =====================================================================
+
+export class MountainCarSim {
+  minPosition = -1.2;
+  maxPosition = 0.6;
+  maxSpeed = 0.07;
+  goalPosition = 0.5;
+  power = 0.0015;
+  gravity = 0.0025;
+
+  position = -0.5;
+  velocity = 0;
+  steps = 0;
+  lastAction = 1;
+  isGoalReached = false;
+
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.position = -0.6 + Math.random() * 0.2;
+    this.velocity = 0;
+    this.steps = 0;
+    this.lastAction = 1;
+    this.isGoalReached = false;
+  }
+
+  getState(): Float32Array {
+    return new Float32Array([this.position, this.velocity]);
+  }
+
+  step(action: number): { done: boolean; steps: number } {
+    this.lastAction = action;
+    this.steps++;
+
+    // Ações: 0=Acelera Esquerda (-1), 1=Neutro (0), 2=Acelera Direita (+1)
+    const force = action === 0 ? -1 : action === 2 ? 1 : 0;
+    this.velocity += force * this.power + Math.cos(3 * this.position) * -this.gravity;
+    this.velocity = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.velocity));
+
+    this.position += this.velocity;
+    this.position = Math.max(this.minPosition, Math.min(this.maxPosition, this.position));
+
+    if (this.position === this.minPosition && this.velocity < 0) {
+      this.velocity = 0;
+    }
+
+    const done = this.position >= this.goalPosition;
+    if (done) this.isGoalReached = true;
+
+    return { done, steps: this.steps };
+  }
+
+  render(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.fillStyle = '#07090e';
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6, 6, w - 12, h - 12);
+
+    // Mapeamento de posições
+    const toScreenX = (pos: number) => {
+      return ((pos - this.minPosition) / (this.maxPosition - this.minPosition)) * (w - 60) + 30;
+    };
+
+    const toScreenY = (pos: number) => {
+      const heightNorm = Math.sin(3 * pos); // [-1, 1]
+      return h - 70 - heightNorm * 80;
+    };
+
+    // Desenha o vale montanhoso sinusoidal
+    ctx.beginPath();
+    ctx.moveTo(30, h - 30);
+    for (let px = this.minPosition; px <= this.maxPosition; px += 0.02) {
+      ctx.lineTo(toScreenX(px), toScreenY(px));
+    }
+    ctx.lineTo(w - 30, h - 30);
+    ctx.closePath();
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+
+    // Linha de contorno neon do relevo
+    ctx.beginPath();
+    for (let px = this.minPosition; px <= this.maxPosition; px += 0.02) {
+      const sx = toScreenX(px);
+      const sy = toScreenY(px);
+      if (px === this.minPosition) ctx.moveTo(sx, sy);
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Bandeira de objetivo (Meta x = 0.5)
+    const goalX = toScreenX(this.goalPosition);
+    const goalY = toScreenY(this.goalPosition);
+
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(goalX, goalY);
+    ctx.lineTo(goalX, goalY - 32);
+    ctx.stroke();
+
+    ctx.fillStyle = '#eab308';
+    ctx.beginPath();
+    ctx.moveTo(goalX, goalY - 32);
+    ctx.lineTo(goalX + 16, goalY - 24);
+    ctx.lineTo(goalX, goalY - 16);
+    ctx.closePath();
+    ctx.fill();
+
+    // Renderiza o Carro / Rover
+    const carX = toScreenX(this.position);
+    const carY = toScreenY(this.position);
+    const slope = Math.cos(3 * this.position);
+    const carAngle = Math.atan(slope);
+
+    ctx.save();
+    ctx.translate(carX, carY);
+    ctx.rotate(carAngle);
+
+    // Chassi do carro
+    ctx.fillStyle = this.isGoalReached ? '#22c55e' : '#38bdf8';
+    ctx.fillRect(-15, -12, 30, 10);
+
+    // Rodas
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.arc(-10, -2, 4, 0, Math.PI * 2);
+    ctx.arc(10, -2, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Luz / Farol do Rover
+    ctx.fillStyle = '#facc15';
+    ctx.fillRect(13, -10, 3, 5);
+
+    ctx.restore();
+
+    // Cabeçalho
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
+    ctx.fillText('⚡ SYSTEM 1 HUD | MOUNTAINCAR-V0', 20, 26);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px "JetBrains Mono", monospace';
+    const energyKin = (0.5 * this.velocity * this.velocity * 1000).toFixed(1);
+    ctx.fillText(`Passos: ${this.steps} | Posição: ${this.position.toFixed(2)} | Inércia: ${energyKin}J`, 20, 42);
+
+    // Rodapé
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    if (this.isGoalReached) {
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('STATUS: OBJETIVO ALCANÇADO 🏆 (TOPO DO VALE)', 20, h - 16);
+    } else {
+      ctx.fillStyle = '#e2e8f0';
+      const actNames = ['IMPULSO ESQUERDA ◀', 'EMBALO LIVRE (NEUTRO)', 'IMPULSO DIREITA ▶'];
+      ctx.fillText(`AÇÃO: ${actNames[this.lastAction] || 'IDLE'}`, 20, h - 16);
+    }
+  }
+}
+
+// =====================================================================
+// SIMULADOR ACROBOT-V1 (PÊNDULO DUPLO ACROBÁTICO)
+// =====================================================================
+
+export class AcrobotSim {
+  th1 = 0;
+  th2 = 0;
+  dth1 = 0;
+  dth2 = 0;
+  steps = 0;
+  lastAction = 1;
+  isGoalReached = false;
+  trail: Array<{ x: number; y: number }> = [];
+
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.th1 = (Math.random() - 0.5) * 0.2;
+    this.th2 = (Math.random() - 0.5) * 0.2;
+    this.dth1 = (Math.random() - 0.5) * 0.1;
+    this.dth2 = (Math.random() - 0.5) * 0.1;
+    this.steps = 0;
+    this.lastAction = 1;
+    this.isGoalReached = false;
+    this.trail = [];
+  }
+
+  getState(): Float32Array {
+    return new Float32Array([
+      Math.cos(this.th1),
+      Math.sin(this.th1),
+      Math.cos(this.th2),
+      Math.sin(this.th2),
+      this.dth1,
+      this.dth2,
+    ]);
+  }
+
+  step(action: number): { done: boolean; steps: number } {
+    this.lastAction = action;
+    this.steps++;
+
+    const dt = 0.05;
+    const torque = action === 0 ? -1.0 : action === 2 ? 1.0 : 0.0;
+    const g = 9.8;
+
+    // Física simplificada e estável do duplo pêndulo
+    const dth1_acc = -g * Math.sin(this.th1) * 0.5 + torque * 0.4;
+    const dth2_acc = -g * Math.sin(this.th1 + this.th2) * 0.5 - torque * 0.8;
+
+    this.dth1 += dth1_acc * dt;
+    this.dth2 += dth2_acc * dt;
+
+    this.dth1 *= 0.995;
+    this.dth2 *= 0.995;
+
+    this.th1 += this.dth1 * dt;
+    this.th2 += this.dth2 * dt;
+
+    // Meta: ponta atinge acima da linha de altura 1.0 (ou cos(th1) + cos(th1 + th2) < -1.0)
+    const tipHeight = -(Math.cos(this.th1) + Math.cos(this.th1 + this.th2));
+    const done = tipHeight > 1.0;
+    if (done) this.isGoalReached = true;
+
+    return { done, steps: this.steps };
+  }
+
+  render(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.fillStyle = '#07090e';
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(6, 6, w - 12, h - 12);
+
+    const pivotX = w / 2;
+    const pivotY = h / 2 + 30;
+    const l1 = 55;
+    const l2 = 55;
+
+    const jointX = pivotX + l1 * Math.sin(this.th1);
+    const jointY = pivotY + l1 * Math.cos(this.th1);
+
+    const tipX = jointX + l2 * Math.sin(this.th1 + this.th2);
+    const tipY = jointY + l2 * Math.cos(this.th1 + this.th2);
+
+    // Rastro da ponta
+    this.trail.push({ x: tipX, y: tipY });
+    if (this.trail.length > 25) this.trail.shift();
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i < this.trail.length; i++) {
+      const p = this.trail[i];
+      ctx.globalAlpha = (i + 1) / this.trail.length * 0.6;
+      if (i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // Linha de Meta (Altura de corte superior)
+    const goalLineY = pivotY - l1;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(40, goalLineY);
+    ctx.lineTo(w - 40, goalLineY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillText('META (SWING ACIMA DA LINHA)', 45, goalLineY - 6);
+
+    // Primeiro braço
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(pivotX, pivotY);
+    ctx.lineTo(jointX, jointY);
+    ctx.stroke();
+
+    // Articulação intermediária
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.arc(jointX, jointY, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Segundo braço
+    ctx.strokeStyle = '#a3e635';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(jointX, jointY);
+    ctx.lineTo(tipX, tipY);
+    ctx.stroke();
+
+    // Ponta final
+    ctx.fillStyle = this.isGoalReached ? '#4ade80' : '#22c55e';
+    ctx.beginPath();
+    ctx.arc(tipX, tipY, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pivô base
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.arc(pivotX, pivotY, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cabeçalho
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 12px "JetBrains Mono", monospace';
+    ctx.fillText('⚡ SYSTEM 1 HUD | ACROBOT-V1', 20, 26);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px "JetBrains Mono", monospace';
+    ctx.fillText(`Passos Acrobáticos: ${this.steps}`, 20, 42);
+
+    // Rodapé
+    ctx.font = 'bold 11px "JetBrains Mono", monospace';
+    if (this.isGoalReached) {
+      ctx.fillStyle = '#4ade80';
+      ctx.fillText('STATUS: META ATINGIDA 🏆 (SWING COMPLETO)', 20, h - 16);
+    } else {
+      ctx.fillStyle = '#e2e8f0';
+      const torques = ['TORQUE ANTI-HORÁRIO ◀', 'SEM TORQUE (LIVRE)', 'TORQUE HORÁRIO ▶'];
+      ctx.fillText(`AÇÃO: ${torques[this.lastAction] || 'IDLE'}`, 20, h - 16);
+    }
+  }
+}
+
+// =====================================================================
 // AGENTE NEURAL SYSTEM 1 (ONNX RUNTIME WEB)
 // =====================================================================
 
