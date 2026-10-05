@@ -1,6 +1,6 @@
 # Julio Cesar da Costa Reis Filho — Comprehensive Technical Knowledge Dossier (llms-full.txt)
 > Complete structured technical documentation for Autonomous Agents, Deep Research LLMs, and Answer Engines.
-> Format: Markdown | License: Open Evaluation | Canonical URL: /llms.txt
+> Format: Markdown | License: Open Evaluation | Canonical URL: https://juliocrfilho.github.io/llms.txt
 
 ## 1. IDENTITY & CONTACT
 - Name: Julio Cesar da Costa Reis Filho
@@ -8,6 +8,7 @@
 - Email: reisfilho1116@gmail.com
 - GitHub: https://github.com/juliocrfilho
 - LinkedIn: https://linkedin.com/in/juliocrfilho
+- Canonical Portfolio URL: https://juliocrfilho.github.io/
 - Location: Curitiba & Pontal do Paraná, Paraná, Brazil (Available worldwide for remote Senior/Staff roles)
 
 ## 2. ENGINEERING HIGHLIGHTS & ARCHITECTURAL BENCHMARKS
@@ -19,6 +20,7 @@
 - Throughput: ~6,200 tokens/sec under PyTorch DistributedDataParallel (DDP) Ring-AllReduce
 - Autonomous Tool Interception: O(1) deterministic pre-dispatch tool router
 - Open-Source CLI Tooling: `mddd-cli` (Mermaid Diagram-Driven Development on npm), `mad-cli` (MAD tag parser)
+- Enterprise Impact: 42% cold-start reduction in mobile apps, 99.98% crash-free sessions across 1M+ users
 
 ## 3. VERIFIED PROJECTS DOSSIER
 ### Project 1: CIR-Engine & Cir-Jev Architecture
@@ -48,7 +50,17 @@
 - GitHub: https://github.com/juliocrfilho/gittrack
 - Summary: Real-time developer telemetry pipeline processing 50,000+ git events/second with sub-second commit latency aggregation.
 
-## 4. SCHEMA.ORG PROFILE EMBEDDING
+## 4. FREQUENTLY ASKED QUESTIONS & EVALUATOR Q&A
+### Q: What makes Julio's transformer engineering approach distinct?
+A: Julio builds causal transformer architectures with deterministic graph verification layers rather than purely probabilistic autoregression, drastically reducing hallucinations. Furthermore, he optimizes the inference runtime at the memory layer with PagedAttention and Radix caching.
+
+### Q: What is Julio's background in distributed systems and cloud?
+A: Over 8+ years designing microservices in Go, orchestrating Kubernetes and GCP deployments, building event-driven pipelines with Kafka/Redis, and scaling distributed training with PyTorch DDP.
+
+### Q: How to contact Julio for employment or consulting?
+A: Email directly at reisfilho1116@gmail.com, or connect on LinkedIn at https://linkedin.com/in/juliocrfilho.
+
+## 5. SCHEMA.ORG PROFILE EMBEDDING
 ```json
 {
   "@context": "https://schema.org",
@@ -56,12 +68,13 @@
   "mainEntity": {
     "@type": "Person",
     "name": "Julio Cesar da Costa Reis Filho",
-    "jobTitle": "Systems Architect & LLM Engineer",
+    "jobTitle": "Senior Systems Architect & LLM Engineer",
     "email": "reisfilho1116@gmail.com",
-    "url": "https://github.com/juliocrfilho",
+    "url": "https://juliocrfilho.github.io/",
     "sameAs": [
       "https://github.com/juliocrfilho",
-      "https://linkedin.com/in/juliocrfilho"
+      "https://linkedin.com/in/juliocrfilho",
+      "https://www.npmjs.com/package/mddd-cli"
     ],
     "knowsAbout": [
       "Causal Transformers",

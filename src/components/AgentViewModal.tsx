@@ -20,7 +20,7 @@ location: Curitiba & Pontal do Paraná, Brazil (Available Globally / Remote)
 email: reisfilho1116@gmail.com
 github: https://github.com/juliocrfilho
 linkedin: https://linkedin.com/in/juliocrfilho
-portfolio_url: https://github.com/juliocrfilho
+portfolio_url: https://juliocrfilho.github.io/
 token_efficiency: ~1800 tokens (Context-optimized for Gemini 1.5/2.0, Claude 3.5 Sonnet, GPT-4o)
 ---
 

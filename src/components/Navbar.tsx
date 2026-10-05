@@ -15,6 +15,7 @@ import {
   FlaskConical,
   Boxes,
   Zap,
+  HelpCircle,
 } from 'lucide-react';
 import { TokenAssemblyStage } from './TokenInteractiveText';
 
@@ -136,11 +137,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       tag: '05',
     },
     {
+      href: '#faq',
+      label: lang === 'pt' ? 'Perguntas Frequentes (FAQ)' : 'Technical FAQ (AEO)',
+      desc: lang === 'pt' ? 'Dossiê Técnico & Otimização AEO/GEO' : 'AEO Technical Dossier & Q&A',
+      icon: HelpCircle,
+      tag: '06',
+    },
+    {
       href: '#contact',
       label: lang === 'pt' ? 'Console de Transmissão' : 'Dispatch Console',
       desc: lang === 'pt' ? 'Contato Direto, Parcerias e Propostas' : 'Direct Inquiry & Proposals',
       icon: Send,
-      tag: '06',
+      tag: '07',
     },
   ];
 

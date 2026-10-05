@@ -6,6 +6,7 @@ import { CirEngineArchitecture } from './components/CirEngineArchitecture';
 import { ProjectShowcase } from './components/ProjectShowcase';
 import { InteractiveToolDemos } from './components/InteractiveToolDemos';
 import { ExperienceTimeline } from './components/ExperienceTimeline';
+import { FaqSection } from './components/FaqSection';
 import { ContactPromptConsole } from './components/ContactPromptConsole';
 import { TerminalModal } from './components/TerminalModal';
 import { AgentViewModal } from './components/AgentViewModal';
@@ -284,7 +285,7 @@ export default function App() {
                 progress={scrollProgress}
                 stage={assemblyStage}
                 size="hero"
-                as="span"
+                as="h1"
                 lang={lang}
               />
             </div>
@@ -629,8 +630,11 @@ export default function App() {
           <ExperienceTimeline lang={lang} />
         </section>
 
-        {/* SECTION 5: CONTACT / CTA */}
-        <section className="p-8 sm:p-12 bg-zinc-950/80 border border-zinc-800 rounded-3xl relative overflow-hidden">
+        {/* SECTION 5: FREQUENTLY ASKED QUESTIONS & AEO DOSSIER */}
+        <FaqSection lang={lang} />
+
+        {/* SECTION 6: CONTACT / CTA */}
+        <section id="contact" className="p-8 sm:p-12 bg-zinc-950/80 border border-zinc-800 rounded-3xl relative overflow-hidden">
           <div className="relative z-10 max-w-4xl space-y-6">
             <span className="text-xs font-mono text-[#adff2f] uppercase tracking-wider">
               {lang === 'pt' ? '[INICIAR_SEQUÊNCIA_DE_CONTATO]' : '[INITIATE_CONTACT_SEQUENCE]'}
