@@ -11,6 +11,7 @@ interface RubiksCube3DProps {
   isSolved: boolean;
   isRunning: boolean;
   lang?: 'en' | 'pt';
+  scrambleSequence?: string;
 }
 
 // Mapeamento matemático de posições para índices de adesivos em RubiksCubeSim
@@ -45,6 +46,7 @@ export const RubiksCube3D: React.FC<RubiksCube3DProps> = ({
   alignedCount,
   isSolved,
   lang = 'en',
+  scrambleSequence,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -154,20 +156,27 @@ export const RubiksCube3D: React.FC<RubiksCube3DProps> = ({
     };
     animate();
 
-    // Redimensionamento
+    // Redimensionamento reativo garantindo sincronia com transições de visibilidade
     const handleResize = () => {
       if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
-      const w = containerRef.current.clientWidth || 480;
+      const w = containerRef.current.clientWidth;
+      if (!w) return;
       cameraRef.current.aspect = w / height;
       cameraRef.current.updateProjectionMatrix();
       rendererRef.current.setSize(w, height);
     };
 
     window.addEventListener('resize', handleResize);
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      resizeObserver = new ResizeObserver(() => handleResize());
+      resizeObserver.observe(containerRef.current);
+    }
 
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      resizeObserver?.disconnect();
       geom.dispose();
       cubies.forEach((c) => c.materials.forEach((m) => m.dispose()));
       renderer.dispose();
@@ -298,8 +307,8 @@ export const RubiksCube3D: React.FC<RubiksCube3DProps> = ({
           </div>
           <span className="text-[10px] font-mono text-zinc-400">
             {lang === 'pt'
-              ? `Passos: ${steps} | Alinhamento: ${alignedCount}/54 (${scorePct}%)`
-              : `Steps: ${steps} | Alignment: ${alignedCount}/54 (${scorePct}%)`}
+              ? `Passos: ${steps} | Alinhamento: ${alignedCount}/54 (${scorePct}%)${scrambleSequence && steps === 0 ? ` | Scramble: ${scrambleSequence}` : ''}`
+              : `Steps: ${steps} | Alignment: ${alignedCount}/54 (${scorePct}%)${scrambleSequence && steps === 0 ? ` | Scramble: ${scrambleSequence}` : ''}`}
           </span>
         </div>
 

@@ -198,6 +198,13 @@ export class RubiksCubeSim {
     return perms;
   }
 
+  static AXES_MOVES: Record<string, string[]> = {
+    X: ['R', 'R_prime', 'L', 'L_prime'],
+    Y: ['U', 'U_prime', 'D', 'D_prime'],
+    Z: ['F', 'F_prime', 'B', 'B_prime'],
+  };
+
+  scrambleSequence: string[] = [];
   scrambleBaseline = 54;
 
   reset() {
@@ -206,6 +213,7 @@ export class RubiksCubeSim {
       for (let i = 0; i < 9; i++) this.state[f * 9 + i] = f;
     }
     this.lastAction = 'RESET';
+    this.scrambleSequence = [];
     this.steps = 0;
     this.scrambleBaseline = 54;
   }
@@ -226,17 +234,21 @@ export class RubiksCubeSim {
     this.steps++;
   }
 
-  scrambleAtomic(depth = 3): string[] {
+  scrambleAtomic(depth = 4): string[] {
     const moves: string[] = [];
-    let lastMove: string | null = null;
-    while (moves.length < depth) {
-      const move = RubiksCubeSim.ATOMIC_MOVES[Math.floor(Math.random() * RubiksCubeSim.ATOMIC_MOVES.length)];
-      if (lastMove && RubiksCubeSim.INVERSE_ATOMIC[move] === lastMove) {
-        continue;
-      }
+    let lastAxis: string | null = null;
+    const targetDepth = Math.max(1, depth);
+    const axes: string[] = ['X', 'Y', 'Z'];
+
+    while (moves.length < targetDepth) {
+      const availableAxes: string[] = lastAxis ? axes.filter((a) => a !== lastAxis) : axes;
+      const axis: string = availableAxes[Math.floor(Math.random() * availableAxes.length)];
+      const choices: string[] = RubiksCubeSim.AXES_MOVES[axis] || RubiksCubeSim.ATOMIC_MOVES;
+      const move = choices[Math.floor(Math.random() * choices.length)];
+
       this.applyAtomic(move);
       moves.push(move);
-      lastMove = move;
+      lastAxis = axis;
     }
     return moves;
   }
@@ -245,11 +257,15 @@ export class RubiksCubeSim {
     const moves: string[] = [];
     let lastMove: string | null = null;
     const candidates = RubiksCubeSim.SCRAMBLE_MACRO_NAMES;
-    while (moves.length < depth) {
-      const act = candidates[Math.floor(Math.random() * candidates.length)];
-      if (lastMove && RubiksCubeSim.INVERSE_MACROS[act] === lastMove) {
-        continue;
-      }
+    const targetDepth = Math.max(1, depth);
+    let attempts = 0;
+
+    while ((moves.length < targetDepth || this.isSolved()) && attempts < 60) {
+      attempts++;
+      const filtered = candidates.filter(
+        (m) => m !== RubiksCubeSim.INVERSE_MACROS[lastMove || ''] && m !== lastMove
+      );
+      const act = filtered[Math.floor(Math.random() * filtered.length)] || candidates[0];
       this.applyMacro(act);
       moves.push(act);
       lastMove = act;
@@ -257,24 +273,26 @@ export class RubiksCubeSim {
     return moves;
   }
 
-  scramble(depth = 2, mode = 'atomic'): string[] {
-    for (let attempt = 0; attempt < 10; attempt++) {
+  scramble(depth = 4, mode = 'atomic'): string[] {
+    for (let attempt = 0; attempt < 20; attempt++) {
       this.reset();
       const moves = mode === 'macro' ? this.scrambleMacro(depth) : this.scrambleAtomic(depth);
-      if (this.getRawAlignedCount() < 54) {
-        this.lastAction = 'SCRAMBLED';
+      if (this.getRawAlignedCount() < 54 && !this.isSolved()) {
+        this.lastAction = 'EMBARALHADO';
+        this.scrambleSequence = moves;
         this.steps = 0;
         this.scrambleBaseline = this.getRawAlignedCount();
         return moves;
       }
     }
     this.reset();
-    this.applyAtomic('R');
-    this.applyAtomic('U');
-    this.lastAction = 'SCRAMBLED';
+    const fallback = ['R', 'U', 'F_prime', 'L'];
+    for (const m of fallback) this.applyAtomic(m);
+    this.lastAction = 'EMBARALHADO';
+    this.scrambleSequence = fallback;
     this.steps = 0;
     this.scrambleBaseline = this.getRawAlignedCount();
-    return ['R', 'U'];
+    return fallback;
   }
 
   getRawAlignedCount(): number {
@@ -343,9 +361,13 @@ export class RubiksCubeSim {
 
     ctx.fillStyle = '#94a3b8';
     ctx.font = '11px "JetBrains Mono", monospace';
-    ctx.fillText(`Passos: ${this.steps} | Alinhamento: ${aligned}/54 (${scorePct}%)`, 20, 42);
+    let statusLine = `Passos: ${this.steps} | Alinhamento: ${aligned}/54 (${scorePct}%)`;
+    if (this.scrambleSequence && this.scrambleSequence.length > 0 && this.steps === 0) {
+      statusLine += ` | Scramble: ${this.scrambleSequence.join(' ')}`;
+    }
+    ctx.fillText(statusLine, 20, 42);
 
-    // Desenho das 6 faces em Cruz
+    // Desenho das 6 faces em Cruz (desdobramento sincronizado com o modelo 3D)
     for (const [fIdxStr, { x: fx, y: fy }] of Object.entries(RubiksCubeSim.FACE_LAYOUT)) {
       const fIdx = parseInt(fIdxStr, 10);
       for (let r = 0; r < 3; r++) {
@@ -353,8 +375,10 @@ export class RubiksCubeSim {
           const stickerIdx = fIdx * 9 + (r * 3 + c);
           const colId = this.state[stickerIdx];
           ctx.fillStyle = RubiksCubeSim.PALETTE[colId] || '#ffffff';
+          // U (Face 0) e D (Face 1): invertem linha para que a borda com F fique adjacente no plano
+          const drawRow = (fIdx === 0 || fIdx === 1) ? (2 - r) : r;
           const x1 = fx + c * 24;
-          const y1 = fy + r * 24;
+          const y1 = fy + drawRow * 24;
           ctx.fillRect(x1, y1, 22, 22);
           ctx.strokeStyle = '#0f172a';
           ctx.lineWidth = 1;

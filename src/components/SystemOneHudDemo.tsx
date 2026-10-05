@@ -65,7 +65,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const [actionLog, setActionLog] = useState<ActionLogItem[]>([]);
   const [fps, setFps] = useState<number>(60);
-  const cubeScrambleDepth = 2;
+  const [cubeScrambleDepth, setCubeScrambleDepth] = useState<number>(4);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const simRef = useRef<RubiksCubeSim | CartPoleSim | LunarLanderSim | MountainCarSim | AcrobotSim | null>(null);
@@ -189,10 +189,11 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     isRunningRef.current = isRunning;
   }, [isRunning]);
 
-  const initSim = (demoKey: DemoKey) => {
+  const initSim = (demoKey: DemoKey, depthOverride?: number) => {
     if (isRubiksDemo(demoKey)) {
       const cube = new RubiksCubeSim();
-      cube.scramble(cubeScrambleDepth, demoKey === 'rubiks' ? 'macro' : 'atomic');
+      const depth = depthOverride ?? (demoKey === 'rubiks' ? 2 : (cubeScrambleDepth || 4));
+      cube.scramble(depth, demoKey === 'rubiks' ? 'macro' : 'atomic');
       simRef.current = cube;
       setCubeState({
         state: new Int32Array(cube.state),
@@ -215,7 +216,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       simRef.current = cp;
     }
 
-    if (canvasRef.current && simRef.current && (!isRubiksDemo(demoKey) || cubeViewMode === '2d')) {
+    if (canvasRef.current && simRef.current) {
       simRef.current.render(canvasRef.current);
     }
 
@@ -227,7 +228,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   };
 
   useEffect(() => {
-    if (isRubiksDemo(activeDemo) && cubeViewMode === '2d' && canvasRef.current && simRef.current) {
+    if (isRubiksDemo(activeDemo) && canvasRef.current && simRef.current) {
       simRef.current.render(canvasRef.current);
     }
   }, [cubeViewMode, activeDemo]);
@@ -281,7 +282,15 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   useEffect(() => {
     stopEvaluation();
-    initSim(activeDemo);
+    let effectiveDepth = cubeScrambleDepth;
+    if (activeDemo === 'rubiks' && cubeScrambleDepth > 4) {
+      effectiveDepth = 2;
+      setCubeScrambleDepth(2);
+    } else if (activeDemo === 'rubiks_atomic' && cubeScrambleDepth < 3) {
+      effectiveDepth = 4;
+      setCubeScrambleDepth(4);
+    }
+    initSim(activeDemo, effectiveDepth);
     loadModel(activeDemo);
 
     return () => {
@@ -344,7 +353,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
           if (isRubiksDemo(activeDemo)) {
             const cube = sim as RubiksCubeSim;
-            const prevAligned = cube.getAlignedCount();
+            const prevRaw = cube.getRawAlignedCount();
             if (activeDemo === 'rubiks_atomic') {
               currentActionName = RubiksCubeSim.ATOMIC_MOVES[dec.action] || `MOVE_${dec.action}`;
               cube.applyAtomic(currentActionName);
@@ -352,8 +361,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               currentActionName = RubiksCubeSim.MACRO_NAMES[dec.action] || `ACT_${dec.action}`;
               cube.applyMacro(currentActionName);
             }
-            const currAligned = cube.getAlignedCount();
-            lastRewardRef.current = (currAligned - prevAligned) * 0.1 + (cube.isSolved() ? 10.0 : -0.01);
+            const currRaw = cube.getRawAlignedCount();
+            const deltaRaw = currRaw - prevRaw;
+            lastRewardRef.current = (deltaRaw / 48.0) * 5.0 - 0.02 + (cube.isSolved() ? 10.0 : 0.0);
 
             setCubeState({
               state: new Int32Array(cube.state),
@@ -511,7 +521,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             }
           }
 
-          if (canvas && (!isRubiksDemo(activeDemo) || cubeViewMode === '2d')) {
+          if (canvas) {
             sim.render(canvas);
           }
         } catch (e) {
@@ -535,11 +545,12 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     else startEvaluation();
   };
 
-  const scrambleEnv = () => {
+  const scrambleEnv = (depthOverride?: number) => {
     if (isRubiksDemo(activeDemo) && simRef.current) {
       const cube = simRef.current as RubiksCubeSim;
-      cube.scramble(cubeScrambleDepth, activeDemo === 'rubiks' ? 'macro' : 'atomic');
-      if (canvasRef.current && cubeViewMode === '2d') {
+      const depth = depthOverride ?? cubeScrambleDepth;
+      const moves = cube.scramble(depth, activeDemo === 'rubiks' ? 'macro' : 'atomic');
+      if (canvasRef.current) {
         cube.render(canvasRef.current);
       }
       setCubeState({
@@ -552,14 +563,22 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       actionHistoryRef.current = [];
       lastRewardRef.current = 0.0;
       if (agentRef.current) agentRef.current.resetMemory();
-      setStatusDesc(lang === 'pt' ? 'Cubo reembaralhado' : 'Cube scrambled');
+      const moveStr =
+        moves.length <= 4
+          ? ` [${moves.join(' ')}]`
+          : ` (${moves.length} ${activeDemo === 'rubiks' ? 'macros' : 'giros'})`;
+      setStatusDesc(
+        lang === 'pt'
+          ? `Cubo embaralhado${moveStr}`
+          : `Cube scrambled${moveStr}`
+      );
     }
   };
 
   const resetEnv = () => {
     if (simRef.current) {
       simRef.current.reset();
-      if (canvasRef.current && (!isRubiksDemo(activeDemo) || cubeViewMode === '2d')) {
+      if (canvasRef.current) {
         simRef.current.render(canvasRef.current);
       }
       if (isRubiksDemo(activeDemo)) {
@@ -673,9 +692,13 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               </div>
             </div>
 
-            {/* Viewport: 3D Rubik's Cube (WebGL) OR 2D Canvas */}
-            {isRubiksDemo(activeDemo) && cubeViewMode === '3d' ? (
-              <div className="relative rounded-xl overflow-hidden min-h-[320px]">
+            {/* Viewport 3D Rubik's Cube (WebGL) */}
+            {isRubiksDemo(activeDemo) && (
+              <div
+                className={`relative rounded-xl overflow-hidden min-h-[320px] ${
+                  cubeViewMode === '3d' ? 'block' : 'hidden'
+                }`}
+              >
                 <RubiksCube3D
                   state={cubeState.state}
                   lastAction={cubeState.lastAction}
@@ -684,6 +707,11 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                   isSolved={cubeState.isSolved}
                   isRunning={isRunning}
                   lang={lang}
+                  scrambleSequence={
+                    simRef.current && isRubiksDemo(activeDemo)
+                      ? (simRef.current as RubiksCubeSim).scrambleSequence?.join(' ')
+                      : undefined
+                  }
                 />
 
                 {/* Loader Overlay */}
@@ -712,42 +740,47 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="relative bg-[#07090e] rounded-xl overflow-hidden border border-zinc-800/80 flex items-center justify-center min-h-[320px]">
-                <canvas
-                  ref={canvasRef}
-                  width={480}
-                  height={320}
-                  className="w-full h-auto max-h-[320px] object-contain block"
-                />
-
-                {/* Loader Overlay */}
-                {isLoading && (
-                  <div className="absolute inset-0 bg-[#07090e]/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-xs font-mono text-cyan-400 z-10">
-                    <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                    <span>
-                      {lang === 'pt'
-                        ? 'Carregando pesos neurais ONNX (Wasm SIMD)...'
-                        : 'Loading ONNX neural weights (Wasm SIMD)...'}
-                    </span>
-                    <span className="text-[10px] text-zinc-500">{currentCfg.file}</span>
-                  </div>
-                )}
-
-                {/* Error Overlay */}
-                {loadError && (
-                  <div className="absolute inset-0 bg-[#07090e]/90 flex flex-col items-center justify-center gap-2 p-4 text-center z-10">
-                    <span className="text-red-400 text-xs font-mono">⚠️ {loadError}</span>
-                    <button
-                      onClick={() => loadModel(activeDemo)}
-                      className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono rounded text-zinc-200 border border-zinc-700 transition"
-                    >
-                      {lang === 'pt' ? 'Tentar novamente' : 'Retry'}
-                    </button>
-                  </div>
-                )}
-              </div>
             )}
+
+            {/* Viewport 2D Canvas (desdobramento em cruz sincronizado ou simulação física clássica) */}
+            <div
+              className={`relative bg-[#07090e] rounded-xl overflow-hidden border border-zinc-800/80 flex items-center justify-center min-h-[320px] ${
+                !isRubiksDemo(activeDemo) || cubeViewMode === '2d' ? 'block' : 'hidden'
+              }`}
+            >
+              <canvas
+                ref={canvasRef}
+                width={480}
+                height={320}
+                className="w-full h-auto max-h-[320px] object-contain block"
+              />
+
+              {/* Loader Overlay */}
+              {isLoading && (
+                <div className="absolute inset-0 bg-[#07090e]/85 backdrop-blur-sm flex flex-col items-center justify-center gap-3 text-xs font-mono text-cyan-400 z-10">
+                  <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                  <span>
+                    {lang === 'pt'
+                      ? 'Carregando pesos neurais ONNX (Wasm SIMD)...'
+                      : 'Loading ONNX neural weights (Wasm SIMD)...'}
+                  </span>
+                  <span className="text-[10px] text-zinc-500">{currentCfg.file}</span>
+                </div>
+              )}
+
+              {/* Error Overlay */}
+              {loadError && (
+                <div className="absolute inset-0 bg-[#07090e]/90 flex flex-col items-center justify-center gap-2 p-4 text-center z-10">
+                  <span className="text-red-400 text-xs font-mono">⚠️ {loadError}</span>
+                  <button
+                    onClick={() => loadModel(activeDemo)}
+                    className="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono rounded text-zinc-200 border border-zinc-700 transition"
+                  >
+                    {lang === 'pt' ? 'Tentar novamente' : 'Retry'}
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Interactive Control Buttons */}
             <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
@@ -767,15 +800,49 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </button>
 
                 {isRubiksDemo(activeDemo) && (
-                  <button
-                    type="button"
-                    onClick={scrambleEnv}
-                    disabled={isLoading}
-                    className="px-3 py-1.5 text-xs font-medium font-mono rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-zinc-700 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  >
-                    <Dices className="w-3.5 h-3.5" />
-                    <span>{lang === 'pt' ? 'Embaralhar' : 'Scramble'}</span>
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => scrambleEnv()}
+                      disabled={isLoading}
+                      className="px-3 py-1.5 text-xs font-medium font-mono rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-300 border border-zinc-700 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      title={lang === 'pt' ? 'Embaralha o cubo com rotações ortogonais reais' : 'Scramble cube with real orthogonal rotations'}
+                    >
+                      <Dices className="w-3.5 h-3.5" />
+                      <span>{lang === 'pt' ? 'Embaralhar' : 'Scramble'}</span>
+                    </button>
+
+                    <select
+                      value={cubeScrambleDepth}
+                      onChange={(e) => {
+                        const newDepth = Number(e.target.value);
+                        setCubeScrambleDepth(newDepth);
+                        scrambleEnv(newDepth);
+                      }}
+                      disabled={isLoading}
+                      className="bg-zinc-900 text-[11px] font-mono border border-zinc-700 rounded-lg px-2 py-1.5 text-amber-300 focus:outline-none focus:border-amber-500 cursor-pointer transition shadow-sm"
+                      title={lang === 'pt' ? 'Profundidade do embaralhamento' : 'Scramble depth'}
+                    >
+                      {activeDemo === 'rubiks_atomic' ? (
+                        <>
+                          <option value={1}>{lang === 'pt' ? '1 giro (Reflexo)' : '1 move (Reflex)'}</option>
+                          <option value={2}>{lang === 'pt' ? '2 giros (Rápido)' : '2 moves (Quick)'}</option>
+                          <option value={3}>{lang === 'pt' ? '3 giros (Padrão)' : '3 moves (Standard)'}</option>
+                          <option value={4}>{lang === 'pt' ? '4 giros (Avançado)' : '4 moves (Advanced)'}</option>
+                          <option value={5}>{lang === 'pt' ? '5 giros (Desafio)' : '5 moves (Challenge)'}</option>
+                          <option value={6}>{lang === 'pt' ? '6 giros (Expert)' : '6 moves (Expert)'}</option>
+                          <option value={8}>{lang === 'pt' ? '8 giros (Complexo)' : '8 moves (Complex)'}</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value={1}>{lang === 'pt' ? '1 macro (Reflexo)' : '1 macro (Reflex)'}</option>
+                          <option value={2}>{lang === 'pt' ? '2 macros (Padrão)' : '2 macros (Standard)'}</option>
+                          <option value={3}>{lang === 'pt' ? '3 macros (Desafio)' : '3 macros (Challenge)'}</option>
+                          <option value={4}>{lang === 'pt' ? '4 macros (Complexo)' : '4 macros (Complex)'}</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
                 )}
 
                 <button
