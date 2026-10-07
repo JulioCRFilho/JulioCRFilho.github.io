@@ -59,9 +59,13 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     action: 0,
     confidence: 0,
     uncertainty: 0,
+    calibration: 0.0,
     isUncertain: false,
     latencyMs: 0,
   });
+
+  const [isAutoCalibrate, setIsAutoCalibrate] = useState<boolean>(true);
+  const [calibrationValue, setCalibrationValue] = useState<number>(0.5);
 
   const [actionLog, setActionLog] = useState<ActionLogItem[]>([]);
   const [fps, setFps] = useState<number>(60);
@@ -345,7 +349,11 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             if (last2[0] === last2[1]) avoidAct = last2[0];
           }
 
-          const dec = await agent.actWithConfidence(obs, lastRewardRef.current, { avoidAction: avoidAct });
+          const dec = await agent.actWithConfidence(obs, lastRewardRef.current, {
+            calibration: isAutoCalibrate ? 'auto' : calibrationValue,
+            autoCalibrate: isAutoCalibrate,
+            avoidAction: (!isAutoCalibrate && calibrationValue === 0.0) ? avoidAct : -1,
+          });
           actionHistoryRef.current.push(dec.action);
           if (actionHistoryRef.current.length > 20) actionHistoryRef.current.shift();
 
@@ -862,14 +870,14 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             </div>
           </div>
 
-          {/* Real Telemetry Cards (3-Grid) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Real Telemetry Cards (4-Grid) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {/* Latência de Inferência */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
+            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
                 <div className="h-5 flex items-center justify-between">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
-                    {lang === 'pt' ? 'LATÊNCIA INFERÊNCIA' : 'INFERENCE LATENCY'}
+                    {lang === 'pt' ? 'LATÊNCIA' : 'LATENCY'}
                   </span>
                 </div>
                 <div className="text-xl font-bold font-mono tabular-nums text-cyan-400 mt-1 flex items-baseline gap-1">
@@ -878,16 +886,16 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </div>
               </div>
               <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
-                {lang === 'pt' ? 'Sub-milissegundo CPU (≤ 800µs budget)' : 'Sub-millisecond CPU (≤ 800µs budget)'}
+                {lang === 'pt' ? 'Sub-milissegundo CPU' : 'Sub-millisecond CPU'}
               </span>
             </div>
 
             {/* Confiança Top-1 */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
+            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
                 <div className="h-5 flex items-center justify-between">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
-                    {lang === 'pt' ? 'CONFIANÇA (TOP-1)' : 'CONFIDENCE (TOP-1)'}
+                    {lang === 'pt' ? 'CONFIANÇA' : 'CONFIDENCE'}
                   </span>
                 </div>
                 <div className="text-xl font-bold font-mono tabular-nums text-emerald-400 mt-1 flex items-baseline gap-1">
@@ -896,19 +904,19 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </div>
               </div>
               <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
-                {lang === 'pt' ? 'Certeza do reflexo amortizado' : 'Amortized reflex policy certainty'}
+                {lang === 'pt' ? 'Certeza do reflexo' : 'Amortized reflex certainty'}
               </span>
             </div>
 
-            {/* Incerteza / Gating System 2 */}
-            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
+            {/* Incerteza / Gating */}
+            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
               <div>
                 <div className="h-5 flex items-center justify-between gap-1">
                   <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
-                    {lang === 'pt' ? 'INCERTEZA (GATING)' : 'UNCERTAINTY (GATING)'}
+                    {lang === 'pt' ? 'INCERTEZA' : 'UNCERTAINTY'}
                   </span>
                   <span
-                    className={`text-[8px] font-mono px-1.5 py-0.5 rounded border font-bold transition-opacity duration-150 shrink-0 ${
+                    className={`text-[8px] font-mono px-1 py-0.2 rounded border font-bold transition-opacity duration-150 shrink-0 ${
                       decision.isUncertain
                         ? 'bg-red-950/80 text-red-300 border-red-800 opacity-100'
                         : 'opacity-0 pointer-events-none'
@@ -923,7 +931,30 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                 </div>
               </div>
               <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
-                {lang === 'pt' ? 'Entropia normalizada (Disparo System 2)' : 'Shannon entropy (System 2 trigger)'}
+                {lang === 'pt' ? 'Entropia Shannon' : 'Shannon entropy'}
+              </span>
+            </div>
+
+            {/* Calibração / Homeostase */}
+            <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 shadow-md flex flex-col justify-between h-[116px] min-h-[116px] overflow-hidden select-none">
+              <div>
+                <div className="h-5 flex items-center justify-between">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider whitespace-nowrap truncate">
+                    {lang === 'pt' ? 'CALIBRAÇÃO' : 'CALIBRATION'}
+                  </span>
+                  <span className="text-[9px] font-mono text-purple-400">
+                    {isAutoCalibrate ? (decision.calibration > 0.05 ? '🔥 Inovando' : '⚡ Foco') : 'Fixo'}
+                  </span>
+                </div>
+                <div className="text-xl font-bold font-mono tabular-nums text-purple-400 mt-1 flex items-baseline gap-1">
+                  <span className="w-16 inline-block">{(decision.calibration ?? 0.0).toFixed(2)}</span>
+                  <span className="text-xs text-purple-500 font-normal">T</span>
+                </div>
+              </div>
+              <span className="text-[9px] text-zinc-500 font-mono mt-1 whitespace-nowrap truncate block">
+                {isAutoCalibrate
+                  ? (lang === 'pt' ? 'Homeostase S1' : 'S1 Homeostasis')
+                  : (lang === 'pt' ? 'Amostragem Estática' : 'Static Sampling')}
               </span>
             </div>
           </div>
@@ -975,6 +1006,79 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             <p className="text-[11px] text-zinc-400 leading-relaxed bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-850">
               {currentCfg.description}
             </p>
+
+            {/* Calibração Estocástica & Homeostase */}
+            <div className="pt-2 border-t border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-zinc-300 font-semibold flex items-center gap-1.5">
+                  <span>⚡</span>
+                  <span>{lang === 'pt' ? 'Calibração Estocástica' : 'Stochastic Calibration'}</span>
+                </span>
+                <span className="text-[11px] text-cyan-400 font-mono">
+                  {isAutoCalibrate ? '⚡ Auto (Homeostase)' : `${calibrationValue.toFixed(2)} [Fixo]`}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsAutoCalibrate(true)}
+                  className={`px-2 py-1 text-[10px] font-mono rounded border transition cursor-pointer ${
+                    isAutoCalibrate
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-700 font-bold shadow'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                  }`}
+                >
+                  ⚡ Auto
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsAutoCalibrate(false); setCalibrationValue(0.0); }}
+                  className={`px-2 py-1 text-[10px] font-mono rounded border transition cursor-pointer ${
+                    !isAutoCalibrate && calibrationValue === 0.0
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-700 font-bold shadow'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                  }`}
+                >
+                  0.0 [Det]
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsAutoCalibrate(false); setCalibrationValue(0.5); }}
+                  className={`px-2 py-1 text-[10px] font-mono rounded border transition cursor-pointer ${
+                    !isAutoCalibrate && calibrationValue === 0.5
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-700 font-bold shadow'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                  }`}
+                >
+                  0.5 [Calib]
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setIsAutoCalibrate(false); setCalibrationValue(1.0); }}
+                  className={`px-2 py-1 text-[10px] font-mono rounded border transition cursor-pointer ${
+                    !isAutoCalibrate && calibrationValue === 1.0
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-700 font-bold shadow'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white'
+                  }`}
+                >
+                  1.0 [Estoc]
+                </button>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={isAutoCalibrate ? (decision.calibration ?? 0.5) : calibrationValue}
+                  onChange={(e) => {
+                    setIsAutoCalibrate(false);
+                    setCalibrationValue(parseFloat(e.target.value));
+                  }}
+                  className="w-full accent-cyan-500 cursor-pointer"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Arquitetura Universal System 1 */}
@@ -999,7 +1103,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               <div className="flex items-start gap-1.5">
                 <span className="text-cyan-400">•</span>
                 <span>
-                  <strong className="text-zinc-200">Confidence Gating:</strong> Disparo autônomo do System 2 (árvore/raciocínio lento) quando a entropia atinge limiar crítico.
+                  <strong className="text-zinc-200">Homeostase Termodinâmica:</strong> Auto-regulação da temperatura de amostragem por momentum de recompensa (System 1 puro).
                 </span>
               </div>
             </div>

@@ -1168,8 +1168,11 @@ export interface DecisionResult {
   action: number;
   confidence: number;
   uncertainty: number;
+  calibration: number;
   isUncertain: boolean;
   latencyMs: number;
+  ranked?: { action: number; prob: number; logit: number }[];
+  value?: number;
 }
 
 export class System1AgentWeb {
@@ -1179,6 +1182,9 @@ export class System1AgentWeb {
   prevObs: Float32Array | null = null;
   prevAction: number = 0;
   prevReward: number = 0.0;
+  dynamicCalibration: number = 0.0;
+  stagnationCount: number = 0;
+  rewardEma: number = 0.0;
 
   constructor(session: any, ortInstance: any) {
     this.session = session;
@@ -1190,27 +1196,36 @@ export class System1AgentWeb {
     this.prevObs = null;
     this.prevAction = 0;
     this.prevReward = 0.0;
+    this.dynamicCalibration = 0.0;
+    this.stagnationCount = 0;
+    this.rewardEma = 0.0;
   }
 
   async actWithConfidence(
     obsArr: Float32Array,
     stepReward = 0.0,
-    options: { avoidAction?: number; temperature?: number } = {}
+    options: {
+      avoidAction?: number;
+      temperature?: number;
+      calibration?: number | 'auto';
+      autoCalibrate?: boolean;
+      deterministic?: boolean;
+    } = {}
   ): Promise<DecisionResult> {
-    const { avoidAction = -1, temperature = 1.0 } = options;
     const obsDim = obsArr.length;
-    const deltaArr = new Float32Array(obsDim);
+    let deltaArr = new Float32Array(obsDim);
     if (this.prevObs) {
       for (let i = 0; i < obsDim; i++) deltaArr[i] = obsArr[i] - this.prevObs[i];
     }
     this.prevObs = new Float32Array(obsArr);
+    this.prevReward = typeof stepReward === 'number' ? stepReward : 0.0;
 
     const t0 = performance.now();
 
     const tObs = new this.ort.Tensor('float32', obsArr, [1, 1, obsDim]);
     const tDelta = new this.ort.Tensor('float32', deltaArr, [1, 1, obsDim]);
     const tAct = new this.ort.Tensor('int64', BigInt64Array.from([BigInt(this.prevAction)]), [1, 1]);
-    const tRew = new this.ort.Tensor('float32', new Float32Array([stepReward]), [1, 1, 1]);
+    const tRew = new this.ort.Tensor('float32', new Float32Array([this.prevReward]), [1, 1, 1]);
     const tHx = new this.ort.Tensor('float32', this.hx, [1, 1, 256]);
 
     const feeds = {
@@ -1227,44 +1242,100 @@ export class System1AgentWeb {
     const logits = results.logits.data;
     this.hx.set(results.next_hx.data);
 
-    // Softmax & Entropia de Shannon com penalidade de ciclo (anti-loop)
+    // Softmax & Entropia de Shannon (Gating nos logits originais)
     let maxLogit = -Infinity;
     for (let i = 0; i < logits.length; i++) {
-      let l = logits[i] / (temperature || 1.0);
-      if (i === avoidAction) l -= 2.0;
-      if (l > maxLogit) maxLogit = l;
+      if (logits[i] > maxLogit) maxLogit = logits[i];
     }
 
     let sumExp = 0;
     const probs = new Float32Array(logits.length);
     for (let i = 0; i < logits.length; i++) {
-      let l = logits[i] / (temperature || 1.0);
-      if (i === avoidAction) l -= 2.0;
-      probs[i] = Math.exp(l - maxLogit);
+      probs[i] = Math.exp(logits[i] - maxLogit);
       sumExp += probs[i];
     }
 
     let entropy = 0;
     let bestAction = 0;
     let maxProb = 0;
+    const ranked: { action: number; prob: number; logit: number }[] = [];
     for (let i = 0; i < probs.length; i++) {
       probs[i] /= sumExp;
+      ranked.push({ action: i, prob: probs[i], logit: logits[i] });
       if (probs[i] > maxProb) { maxProb = probs[i]; bestAction = i; }
       if (probs[i] > 1e-9) entropy -= probs[i] * Math.log(probs[i]);
+    }
+    ranked.sort((a, b) => b.prob - a.prob);
+
+    // Calibração Contínua de Ação [0.0 = Determinístico/argmax, 1.0 = Estocástico Total] ou Auto-Calibração Homeostática
+    let calib = 0.5;
+    if (options.autoCalibrate || options.calibration === 'auto') {
+      const r = this.prevReward;
+      const deltaR = r - this.rewardEma;
+      this.rewardEma = 0.9 * this.rewardEma + 0.1 * r;
+
+      if (r > 0.01 || deltaR > 0.01) {
+        this.stagnationCount = 0;
+        this.dynamicCalibration = Math.max(0.0, this.dynamicCalibration - 0.20);
+      } else {
+        this.stagnationCount++;
+        if (this.stagnationCount >= 2) {
+          this.dynamicCalibration = Math.min(0.80, this.dynamicCalibration + 0.10);
+        }
+      }
+      calib = this.dynamicCalibration;
+    } else {
+      const calibration = options.calibration !== undefined 
+        ? options.calibration 
+        : (options.temperature !== undefined ? options.temperature : (options.deterministic ? 0.0 : 0.5));
+      calib = Math.min(1.0, Math.max(0.0, typeof calibration === 'number' ? calibration : 0.5));
+    }
+
+    let chosenAction = bestAction;
+    if (calib > 0.01) {
+      const T = Math.max(0.05, calib);
+      let maxScaled = -Infinity;
+      for (let i = 0; i < logits.length; i++) {
+        if (logits[i] / T > maxScaled) maxScaled = logits[i] / T;
+      }
+      let sumExpT = 0;
+      const sampledProbs = new Float32Array(logits.length);
+      for (let i = 0; i < logits.length; i++) {
+        sampledProbs[i] = Math.exp((logits[i] / T) - maxScaled);
+        sumExpT += sampledProbs[i];
+      }
+      for (let i = 0; i < logits.length; i++) sampledProbs[i] /= sumExpT;
+
+      const r = Math.random();
+      let cum = 0;
+      for (let i = 0; i < sampledProbs.length; i++) {
+        cum += sampledProbs[i];
+        if (r <= cum || i === sampledProbs.length - 1) {
+          chosenAction = i;
+          break;
+        }
+      }
+    }
+
+    // Fallback defensivo de cycle breaking se avoidAction for especificado explicitamente
+    if (options.avoidAction !== undefined && options.avoidAction >= 0 && options.avoidAction === chosenAction && ranked.length > 1) {
+      chosenAction = ranked[1].action;
     }
 
     const maxEntropy = Math.log(logits.length);
     const uncertainty = Math.min(1.0, Math.max(0.0, entropy / maxEntropy));
 
-    this.prevAction = bestAction;
-    this.prevReward = stepReward;
+    this.prevAction = chosenAction;
 
     return {
-      action: bestAction,
+      action: chosenAction,
       confidence: maxProb,
       uncertainty,
-      isUncertain: uncertainty > 0.75,
+      calibration: calib,
+      isUncertain: uncertainty > 0.70 || maxProb < 0.50,
       latencyMs,
+      ranked,
+      value: results.value ? results.value.data[0] : 0.0,
     };
   }
 }
