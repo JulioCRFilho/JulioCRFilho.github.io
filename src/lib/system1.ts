@@ -218,18 +218,34 @@ export class RubiksCubeSim {
     this.scrambleBaseline = 54;
   }
 
-  applyAtomic(moveName: string) {
+  applyAtomic(moveName: string, countStep: boolean = true) {
     const perm = this.permutations[moveName];
     if (!perm) return;
     const nextState = new Int32Array(54);
     for (let i = 0; i < 54; i++) nextState[i] = this.state[perm[i]];
     this.state = nextState;
+    if (countStep) {
+      this.lastAction = moveName;
+      this.steps++;
+    }
+  }
+
+  predictStateHash(moveName: string): string {
+    const perm = this.permutations[moveName];
+    if (!perm) return '';
+    const nextState = new Int32Array(54);
+    for (let i = 0; i < 54; i++) nextState[i] = this.state[perm[i]];
+    return nextState.join('');
+  }
+
+  getStateHash(): string {
+    return this.state.join('');
   }
 
   applyMacro(macroName: string) {
     const seq = RubiksCubeSim.MACRO_ACTIONS[macroName];
     if (!seq) return;
-    for (const m of seq) this.applyAtomic(m);
+    for (const m of seq) this.applyAtomic(m, false);
     this.lastAction = macroName;
     this.steps++;
   }
@@ -246,7 +262,7 @@ export class RubiksCubeSim {
       const choices: string[] = RubiksCubeSim.AXES_MOVES[axis] || RubiksCubeSim.ATOMIC_MOVES;
       const move = choices[Math.floor(Math.random() * choices.length)];
 
-      this.applyAtomic(move);
+      this.applyAtomic(move, false);
       moves.push(move);
       lastAxis = axis;
     }
@@ -1207,7 +1223,7 @@ export class System1AgentWeb {
     obsArr: Float32Array,
     stepReward = 0.0,
     options: {
-      avoidAction?: number;
+      avoidAction?: number | number[];
       temperature?: number;
       calibration?: number | 'auto';
       autoCalibrate?: boolean;
@@ -1294,27 +1310,28 @@ export class System1AgentWeb {
       calib = Math.min(1.0, Math.max(0.0, typeof calibration === 'number' ? calibration : 0.5));
     }
 
-    // Resolução de ação a evitar / quebra de ciclos
-    let cycleAvoidAction = (options.avoidAction !== undefined && options.avoidAction >= 0)
-      ? options.avoidAction
-      : -1;
-
-    const hist = this.actionHistory || [];
-    if (cycleAvoidAction === -1 && isAuto && this.stagnationCount >= 2) {
-      if (hist.length >= 3 && hist[hist.length - 1] === hist[hist.length - 3]) {
-        // Oscilação A -> B -> A sob estagnação: evita B para romper o ciclo vicioso
-        cycleAvoidAction = hist[hist.length - 2];
-      } else if (hist.length >= 3 && hist[hist.length - 1] === hist[hist.length - 2] && hist[hist.length - 2] === hist[hist.length - 3]) {
-        cycleAvoidAction = hist[hist.length - 1];
+    // Resolução do conjunto de ações a evitar / quebra de ciclos
+    const avoidSet = new Set<number>();
+    if (options.avoidAction !== undefined) {
+      if (Array.isArray(options.avoidAction)) {
+        options.avoidAction.forEach((a) => { if (typeof a === 'number' && a >= 0) avoidSet.add(a); });
+      } else if (typeof options.avoidAction === 'number' && options.avoidAction >= 0) {
+        avoidSet.add(options.avoidAction);
       }
     }
 
-    // Inverso atômico em cubo mágico (apenas sob estagnação em auto-calibração)
-    if (cycleAvoidAction === -1 && isAuto && this.stagnationCount >= 2 && hist.length >= 1 && logits.length === 12) {
-      const last = hist[hist.length - 1];
-      const inv = (last % 2 === 0) ? last + 1 : last - 1;
-      if (bestAction === inv) {
-        cycleAvoidAction = inv;
+    const hist = this.actionHistory || [];
+    if (isAuto && this.stagnationCount >= 2) {
+      if (hist.length >= 3 && hist[hist.length - 1] === hist[hist.length - 3]) {
+        // Oscilação A -> B -> A sob estagnação: evita B para romper o ciclo vicioso
+        avoidSet.add(hist[hist.length - 2]);
+      } else if (hist.length >= 3 && hist[hist.length - 1] === hist[hist.length - 2] && hist[hist.length - 2] === hist[hist.length - 3]) {
+        avoidSet.add(hist[hist.length - 1]);
+      }
+      if (hist.length >= 1 && logits.length === 12) {
+        const last = hist[hist.length - 1];
+        const inv = (last % 2 === 0) ? last + 1 : last - 1;
+        avoidSet.add(inv);
       }
     }
 
@@ -1350,8 +1367,8 @@ export class System1AgentWeb {
     }
 
     // Quebra estrita de ciclos (Cycle Breaker):
-    if (cycleAvoidAction >= 0 && chosenAction === cycleAvoidAction && ranked.length > 1) {
-      const alt = ranked.find(item => item.action !== cycleAvoidAction);
+    if (avoidSet.size > 0 && avoidSet.has(chosenAction) && ranked.length > 1) {
+      const alt = ranked.find((item) => !avoidSet.has(item.action));
       chosenAction = alt ? alt.action : ranked[1].action;
     }
 

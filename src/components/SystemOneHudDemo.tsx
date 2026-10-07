@@ -83,6 +83,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const lastRewardRef = useRef<number>(0.0);
   const actionHistoryRef = useRef<number[]>([]);
   const peakRawRef = useRef<number>(0);
+  const visitedStatesRef = useRef<string[]>([]);
 
   const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
@@ -227,7 +228,8 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
     actionHistoryRef.current = [];
     lastRewardRef.current = 0.0;
-    peakRawRef.current = 0;
+    peakRawRef.current = isRubiksDemo(demoKey) && simRef.current ? (simRef.current as RubiksCubeSim).getRawAlignedCount() : 0;
+    visitedStatesRef.current = isRubiksDemo(demoKey) && simRef.current ? [(simRef.current as RubiksCubeSim).getStateHash()] : [];
     if (agentRef.current) {
       agentRef.current.resetMemory();
     }
@@ -345,18 +347,42 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             obs = (sim as CartPoleSim).getState();
           }
 
-          let avoidAct = -1;
+          const avoidList: number[] = [];
           const aHist = actionHistoryRef.current;
+
+          if (isRubiksDemo(activeDemo)) {
+            const cube = sim as RubiksCubeSim;
+            // 1. Inibição de inverso atômico imediato (evita no-op de 2 passos)
+            if (activeDemo === 'rubiks_atomic' && aHist.length >= 1) {
+              const last = aHist[aHist.length - 1];
+              const inv = (last % 2 === 0) ? last + 1 : last - 1;
+              avoidList.push(inv);
+            }
+            // 2. Prevenção de retorno a configurações recentemente visitadas
+            const recentStates = visitedStatesRef.current;
+            if (recentStates.length > 0) {
+              const moves = activeDemo === 'rubiks_atomic' 
+                ? RubiksCubeSim.ATOMIC_MOVES 
+                : RubiksCubeSim.MACRO_NAMES;
+              for (let i = 0; i < moves.length; i++) {
+                const nextH = cube.predictStateHash(moves[i]);
+                if (recentStates.includes(nextH)) {
+                  avoidList.push(i);
+                }
+              }
+            }
+          }
+
           if (aHist.length >= 3 && aHist[aHist.length - 1] === aHist[aHist.length - 3]) {
-            avoidAct = aHist[aHist.length - 2];
+            avoidList.push(aHist[aHist.length - 2]);
           } else if (aHist.length >= 2 && aHist[aHist.length - 1] === aHist[aHist.length - 2]) {
-            avoidAct = aHist[aHist.length - 1];
+            avoidList.push(aHist[aHist.length - 1]);
           }
 
           const dec = await agent.actWithConfidence(obs, lastRewardRef.current, {
             calibration: isAutoCalibrate ? 'auto' : calibrationValue,
             autoCalibrate: isAutoCalibrate,
-            avoidAction: avoidAct >= 0 ? avoidAct : undefined,
+            avoidAction: avoidList.length > 0 ? avoidList : undefined,
           });
           actionHistoryRef.current.push(dec.action);
           if (actionHistoryRef.current.length > 20) actionHistoryRef.current.shift();
@@ -365,19 +391,29 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
           if (isRubiksDemo(activeDemo)) {
             const cube = sim as RubiksCubeSim;
-            const prevRaw = cube.getRawAlignedCount();
             if (activeDemo === 'rubiks_atomic') {
               currentActionName = RubiksCubeSim.ATOMIC_MOVES[dec.action] || `MOVE_${dec.action}`;
-              cube.applyAtomic(currentActionName);
+              cube.applyAtomic(currentActionName, true);
             } else {
               currentActionName = RubiksCubeSim.MACRO_NAMES[dec.action] || `ACT_${dec.action}`;
               cube.applyMacro(currentActionName);
             }
+
+            visitedStatesRef.current.push(cube.getStateHash());
+            if (visitedStatesRef.current.length > 24) visitedStatesRef.current.shift();
+
             const currRaw = cube.getRawAlignedCount();
-            const deltaRaw = currRaw - prevRaw;
             const isNewPeak = currRaw > peakRawRef.current;
-            if (isNewPeak) peakRawRef.current = currRaw;
-            lastRewardRef.current = (deltaRaw / 48.0) * 5.0 - 0.02 + (isNewPeak ? 1.0 : 0.0) + (cube.isSolved() ? 10.0 : 0.0);
+            let stepReward = -0.02;
+            if (isNewPeak) {
+              const deltaPeak = currRaw - peakRawRef.current;
+              peakRawRef.current = currRaw;
+              stepReward = (deltaPeak / 48.0) * 10.0 + 1.0;
+            }
+            if (cube.isSolved()) {
+              stepReward += 15.0;
+            }
+            lastRewardRef.current = stepReward;
 
             setCubeState({
               state: new Int32Array(cube.state),
@@ -391,7 +427,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               stopEvaluation();
               setStatusDesc(lang === 'pt' ? '🏆 CUBO RESOLVIDO!' : '🏆 CUBE SOLVED!');
             } else {
-              setStatusDesc(`${lang === 'pt' ? 'Ação' : 'Action'}: ${currentActionName}`);
+              setStatusDesc(
+                `${lang === 'pt' ? 'Passos' : 'Steps'}: ${cube.steps} | ${lang === 'pt' ? 'Ação' : 'Action'}: ${currentActionName}`
+              );
             }
 
             setDecision(dec);
