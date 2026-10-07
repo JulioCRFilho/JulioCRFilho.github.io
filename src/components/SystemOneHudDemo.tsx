@@ -82,6 +82,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const isRunningRef = useRef<boolean>(false);
   const lastRewardRef = useRef<number>(0.0);
   const actionHistoryRef = useRef<number[]>([]);
+  const peakRawRef = useRef<number>(0);
 
   const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
@@ -226,6 +227,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
     actionHistoryRef.current = [];
     lastRewardRef.current = 0.0;
+    peakRawRef.current = 0;
     if (agentRef.current) {
       agentRef.current.resetMemory();
     }
@@ -344,15 +346,17 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
           }
 
           let avoidAct = -1;
-          if (isRubiksDemo(activeDemo) && actionHistoryRef.current.length >= 2) {
-            const last2 = actionHistoryRef.current.slice(-2);
-            if (last2[0] === last2[1]) avoidAct = last2[0];
+          const aHist = actionHistoryRef.current;
+          if (aHist.length >= 3 && aHist[aHist.length - 1] === aHist[aHist.length - 3]) {
+            avoidAct = aHist[aHist.length - 2];
+          } else if (aHist.length >= 2 && aHist[aHist.length - 1] === aHist[aHist.length - 2]) {
+            avoidAct = aHist[aHist.length - 1];
           }
 
           const dec = await agent.actWithConfidence(obs, lastRewardRef.current, {
             calibration: isAutoCalibrate ? 'auto' : calibrationValue,
             autoCalibrate: isAutoCalibrate,
-            avoidAction: (!isAutoCalibrate && calibrationValue === 0.0) ? avoidAct : -1,
+            avoidAction: avoidAct >= 0 ? avoidAct : undefined,
           });
           actionHistoryRef.current.push(dec.action);
           if (actionHistoryRef.current.length > 20) actionHistoryRef.current.shift();
@@ -371,7 +375,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             }
             const currRaw = cube.getRawAlignedCount();
             const deltaRaw = currRaw - prevRaw;
-            lastRewardRef.current = (deltaRaw / 48.0) * 5.0 - 0.02 + (cube.isSolved() ? 10.0 : 0.0);
+            const isNewPeak = currRaw > peakRawRef.current;
+            if (isNewPeak) peakRawRef.current = currRaw;
+            lastRewardRef.current = (deltaRaw / 48.0) * 5.0 - 0.02 + (isNewPeak ? 1.0 : 0.0) + (cube.isSolved() ? 10.0 : 0.0);
 
             setCubeState({
               state: new Int32Array(cube.state),
