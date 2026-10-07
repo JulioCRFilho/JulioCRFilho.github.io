@@ -641,6 +641,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         });
       }
       if (agentRef.current) agentRef.current.resetMemory();
+      setActionLog([]);
       setStatusDesc(lang === 'pt' ? 'Ambiente reiniciado' : 'Environment reset');
     }
   };
