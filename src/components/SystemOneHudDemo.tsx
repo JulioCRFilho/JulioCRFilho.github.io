@@ -69,7 +69,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const [actionLog, setActionLog] = useState<ActionLogItem[]>([]);
   const [fps, setFps] = useState<number>(60);
-  const [cubeScrambleDepth, setCubeScrambleDepth] = useState<number>(4);
+  const [cubeScrambleDepth, setCubeScrambleDepth] = useState<number>(2);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const simRef = useRef<RubiksCubeSim | CartPoleSim | LunarLanderSim | MountainCarSim | AcrobotSim | null>(null);
@@ -294,9 +294,6 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
     if (activeDemo === 'rubiks' && cubeScrambleDepth > 4) {
       effectiveDepth = 2;
       setCubeScrambleDepth(2);
-    } else if (activeDemo === 'rubiks_atomic' && cubeScrambleDepth < 3) {
-      effectiveDepth = 4;
-      setCubeScrambleDepth(4);
     }
     initSim(activeDemo, effectiveDepth);
     loadModel(activeDemo);
