@@ -1,0 +1,8 @@
+# Smithery configuration for Julio Cesar Reis Filho Portfolio MCP
+startCommand:
+  type: stdio
+  config:
+    command: npx
+    args:
+      - -y
+      - juliocrfilho-portfolio-mcp

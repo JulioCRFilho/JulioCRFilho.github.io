@@ -27,6 +27,7 @@ import {
   CheckCircle2,
   ArrowRight,
   Bot,
+  Blocks,
 } from 'lucide-react';
 
 /**
@@ -145,6 +146,7 @@ export default function App() {
   const [lang, setLang] = useState<'en' | 'pt'>('en');
   const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
   const [isAgentModalOpen, setIsAgentModalOpen] = useState<boolean>(false);
+  const [agentModalInitialTab, setAgentModalInitialTab] = useState<'llmstxt' | 'jsonld' | 'prompt' | 'mcp'>('llmstxt');
 
   // Keyboard shortcut Alt+A to toggle Agent Mode
   useEffect(() => {
@@ -491,6 +493,21 @@ export default function App() {
               <span>predict_contact_method()</span>
             </button>
 
+            <button
+              onClick={() => {
+                setAgentModalInitialTab('mcp');
+                setIsAgentModalOpen(true);
+              }}
+              className="px-5 py-2.5 bg-zinc-900 hover:bg-zinc-850 text-white text-xs font-mono rounded-lg border border-purple-500/40 hover:border-purple-400 transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-purple-500/10"
+              title={lang === 'pt' ? 'Conectar portfólio via Model Context Protocol (MCP)' : 'Connect portfolio via Model Context Protocol (MCP)'}
+            >
+              <Blocks className="w-4 h-4 text-purple-400" />
+              <span>{lang === 'pt' ? 'Servidor MCP' : 'MCP Server'}</span>
+              <span className="px-1.5 py-0.5 text-[9px] bg-purple-500/20 text-purple-300 rounded border border-purple-500/30 font-bold">
+                npx
+              </span>
+            </button>
+
             <a
               href="https://github.com/juliocrfilho"
               target="_blank"
@@ -758,6 +775,7 @@ export default function App() {
         isOpen={isAgentModalOpen}
         onClose={() => setIsAgentModalOpen(false)}
         lang={lang}
+        initialTab={agentModalInitialTab}
       />
     </div>
   );

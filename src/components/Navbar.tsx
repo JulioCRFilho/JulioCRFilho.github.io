@@ -381,19 +381,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="font-bold text-[#adff2f]">{lang.toUpperCase()}</span>
           </button>
 
-          {/* Accessible AI Agent Version Button (llms.txt) */}
+          {/* Accessible AI Agent Version Button (llms.txt & MCP) */}
           <button
             type="button"
             onClick={onOpenAgentView}
             aria-haspopup="dialog"
-            aria-label={lang === 'pt' ? 'Abrir versão estruturada para agentes de IA (llms.txt)' : 'Open machine-readable AI agent version (llms.txt)'}
+            aria-label={lang === 'pt' ? 'Abrir versão estruturada para agentes de IA e Servidor MCP (llms.txt & MCP)' : 'Open machine-readable AI agent version & MCP server (llms.txt & MCP)'}
             className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700/80 hover:border-[#adff2f] text-xs font-mono text-zinc-200 hover:text-white transition-all cursor-pointer focus:ring-2 focus:ring-[#adff2f] focus:outline-hidden group"
-            title={lang === 'pt' ? 'Versão para Agentes de IA & LLMs (llms.txt)' : 'AI Agent & LLM Ingestion View (llms.txt)'}
+            title={lang === 'pt' ? 'Versão para Agentes de IA & Servidor MCP (llms.txt & MCP)' : 'AI Agent & MCP Server View (llms.txt & MCP)'}
           >
             <Bot className="w-3.5 h-3.5 text-[#adff2f] group-hover:scale-110 transition-transform" />
-            <span className="font-semibold">{lang === 'pt' ? 'Agentes' : 'Agents'}</span>
+            <span className="font-semibold">{lang === 'pt' ? 'Agentes & MCP' : 'Agents & MCP'}</span>
             <span className="text-[9px] px-1 py-0.2 rounded bg-zinc-800 text-[#adff2f] hidden lg:inline">
-              llms.txt
+              MCP
             </span>
           </button>
 

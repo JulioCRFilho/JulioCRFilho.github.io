@@ -1,0 +1,29 @@
+{
+  "name": "juliocrfilho-portfolio-mcp",
+  "version": "1.0.0",
+  "description": "Official Model Context Protocol (MCP) server for Julio Cesar Reis Filho - LLM Systems Architect & Engineer portfolio dossier.",
+  "main": "index.mjs",
+  "type": "module",
+  "bin": {
+    "juliocrfilho-portfolio-mcp": "./index.mjs"
+  },
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "portfolio",
+    "llm",
+    "ai-agent",
+    "claude",
+    "cursor",
+    "smithery"
+  ],
+  "author": "Julio Cesar da Costa Reis Filho <reisfilho1116@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^3.24.2"
+  }
+}
