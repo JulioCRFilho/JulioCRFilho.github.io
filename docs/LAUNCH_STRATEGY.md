@@ -17,7 +17,7 @@ Show HN: Interactive Byte-Level Tokenizer, 503M Transformer & Browser Neural HUD
 
 ### URL:
 ```text
-https://juliocrfilho.github.io
+https://byte-od.github.io
 ```
 
 ### Texto / Primeiro Comentário (em Inglês):
@@ -29,13 +29,13 @@ Over the past months, I trained a 503M-parameter causal autoregressive Transform
 Instead of a static portfolio, I built an interactive technical dossier in React 19 + Three.js featuring:
 1. **Byte-Level Tokenizer Sandbox**: Interactive UTF-8 byte decomposition with color-coded token IDs and sub-word merge steps.
 2. **Live Neural HUD (ONNX WebAssembly SIMD)**: Real-time policy evaluation loops running reinforcement learning agents (LunarLander, MountainCar, Acrobot) entirely client-side.
-3. **Model Context Protocol (MCP) Server**: You can connect my engineering portfolio directly into Claude Desktop or Cursor via `npx -y juliocrfilho-portfolio-mcp` to inspect model specs or run automated job-fit matching.
+3. **Model Context Protocol (MCP) Server**: You can connect my engineering portfolio directly into Claude Desktop or Cursor via `npx -y byte-od-portfolio-mcp` to inspect model specs or run automated job-fit matching.
 4. **Machine-Readable Dossier (`llms.txt`)**: Standardized context endpoint at `/llms.txt` designed for zero-drift LLM ingestion.
 
 Would love any architectural feedback on the causal graph verification layer and the browser ONNX inference loops!
 
-Live Demo: https://juliocrfilho.github.io
-GitHub: https://github.com/JulioCRFilho
+Live Demo: https://byte-od.github.io
+GitHub: https://github.com/byte-od
 ```
 
 ---
@@ -63,9 +63,9 @@ I wanted to share my findings training **CIR-Engine (503M parameters)** complete
 - **Inference Companion**: Coupled with a sub-10ms fast-path heuristic engine (`system_one`) for dual-process cognitive routing.
 
 ### Live Demos & Tooling:
-- **Interactive Web Sandbox**: https://juliocrfilho.github.io (features byte-level tokenizer playground + client-side ONNX Runtime Web evaluation).
-- **Model Context Protocol (MCP)**: If you use Claude Desktop or Cursor, you can query the entire architectural dossier with `npx -y juliocrfilho-portfolio-mcp`.
-- **llms.txt endpoint**: https://juliocrfilho.github.io/llms.txt
+- **Interactive Web Sandbox**: https://byte-od.github.io (features byte-level tokenizer playground + client-side ONNX Runtime Web evaluation).
+- **Model Context Protocol (MCP)**: If you use Claude Desktop or Cursor, you can query the entire architectural dossier with `npx -y byte-od-portfolio-mcp`.
+- **llms.txt endpoint**: https://byte-od.github.io/llms.txt
 
 Happy to discuss training stability, SFT prompt loss masking (labels = -100), and KV-cache radix optimizations in the comments!
 ```
@@ -80,7 +80,7 @@ Lançamento: Portfólio Interativo de Engenharia de LLMs & Servidor MCP Oficial 
 
 Nas últimas semanas, unifiquei minha experiência de 8+ anos em arquitetura de sistemas distribuídos e modelos generativos em um projeto interativo:
 
-🌐 https://juliocrfilho.github.io
+🌐 https://byte-od.github.io
 
 Diferente de um currículo estático, construí uma plataforma que demonstra na prática o funcionamento de IA de baixo nível:
 
@@ -88,12 +88,12 @@ Diferente de um currículo estático, construí uma plataforma que demonstra na 
 🧩 Tokenizer Sandbox: Playground interativo de decomposição byte-level em tempo real no navegador.
 🎮 Neural HUD (ONNX Wasm SIMD): Avaliação ao vivo de agentes de RL (LunarLander, MountainCar) rodando 100% no client-side.
 🤖 Servidor MCP Integrável: Se você utiliza Claude Desktop ou Cursor, pode conectar meu portfólio como ferramenta de contexto via:
-👉 npx -y juliocrfilho-portfolio-mcp
+👉 npx -y byte-od-portfolio-mcp
 
 Aberto para posições de Staff/Principal Systems Architect, Senior LLM Engineer e liderança técnica de IA.
 
-Link direto: https://juliocrfilho.github.io
-llms.txt para agentes de IA: https://juliocrfilho.github.io/llms.txt
+Link direto: https://byte-od.github.io
+llms.txt para agentes de IA: https://byte-od.github.io/llms.txt
 
 #ArtificialIntelligence #LLM #MachineLearning #PyTorch #ModelContextProtocol #SystemsArchitecture #SoftwareEngineering
 ```

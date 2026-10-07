@@ -52,14 +52,14 @@ jobs:
           curl -s -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json; charset=utf-8" \
             -d '{
-              "host": "juliocrfilho.github.io",
+              "host": "byte-od.github.io",
               "key": "97f2b184918e47268d37449265e3170a",
-              "keyLocation": "https://juliocrfilho.github.io/97f2b184918e47268d37449265e3170a.txt",
+              "keyLocation": "https://byte-od.github.io/97f2b184918e47268d37449265e3170a.txt",
               "urlList": [
-                "https://juliocrfilho.github.io/",
-                "https://juliocrfilho.github.io/llms.txt",
-                "https://juliocrfilho.github.io/llms-full.txt",
-                "https://juliocrfilho.github.io/ai-index.json",
-                "https://juliocrfilho.github.io/sitemap.xml"
+                "https://byte-od.github.io/",
+                "https://byte-od.github.io/llms.txt",
+                "https://byte-od.github.io/llms-full.txt",
+                "https://byte-od.github.io/ai-index.json",
+                "https://byte-od.github.io/sitemap.xml"
               ]
             }'

@@ -1,13 +1,13 @@
 {
   "version": "1.0.0",
   "name": "Julio Cesar Reis Filho Portfolio",
-  "url": "https://juliocrfilho.github.io/",
+  "url": "https://byte-od.github.io/",
   "description": "Portfolio of Julio Cesar Reis Filho. Senior Systems Architect & LLM Engineer specializing in Causal Transformers (CIR-Engine 503M), RoPE, GQA, and Distributed DDP.",
   "author": {
     "name": "Julio Cesar da Costa Reis Filho",
     "role": "Senior Systems Architect & LLM Engineer",
     "email": "reisfilho1116@gmail.com",
-    "github": "https://github.com/juliocrfilho",
+    "github": "https://github.com/byte-od",
     "linkedin": "https://linkedin.com/in/juliocrfilho"
   },
   "sections": [
@@ -38,7 +38,7 @@
     }
   ],
   "llms_manifests": {
-    "summary": "https://juliocrfilho.github.io/llms.txt",
-    "full": "https://juliocrfilho.github.io/llms-full.txt"
+    "summary": "https://byte-od.github.io/llms.txt",
+    "full": "https://byte-od.github.io/llms-full.txt"
   }
 }

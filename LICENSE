@@ -1,0 +1,53 @@
+PROPRIETARY LICENSE & INTELLECTUAL PROPERTY NOTICE
+All Rights Reserved (Todos os Direitos Reservados)
+
+Copyright (c) 2019-2026 Julio Cesar da Costa Reis Filho (byte-od)
+Official Domain: https://byte-od.github.io
+Official GitHub: https://github.com/byte-od
+Contact: reisfilho1116@gmail.com
+
+================================================================================
+1. PROHIBITION OF COPYING, CLONING, AND UNAUTHORIZED USE
+================================================================================
+The source code, user interface designs, visual layouts, interactive tokenizers,
+neural network evaluation runtimes (ONNX models and weights), machine-readable dossiers
+(llms.txt), architectural diagrams, curricula vitae, and all associated intellectual
+property contained within this repository are the proprietary work and exclusive
+intellectual property of Julio Cesar da Costa Reis Filho ("the Author").
+
+WITHOUT PRIOR EXPRESS WRITTEN CONSENT FROM THE AUTHOR, YOU ARE STRICTLY PROHIBITED FROM:
+a) Copying, duplicating, cloning, forking for republication, or redistributing this
+   repository, software, or any portion thereof.
+b) Re-hosting, mirroring, or deploying this website, its design, or its interactive
+   modules on any other domain, subdomain, IP address, or hosting provider.
+c) Claiming authorship, ownership, or creation of the CIR-Engine 503M Causal Transformer,
+   system_one heuristic engine, mddd-cli, MAD parser, or any related projects.
+d) Commercial or non-commercial reuse of the source code or visual styling for personal
+   portfolios, client projects, or promotional materials.
+
+================================================================================
+2. PERMITTED FAIR USE (USO PERMITIDO)
+================================================================================
+The following actions are explicitly permitted:
+a) Viewing and interacting with the live website for evaluation, hiring, recruiting,
+   and benchmarking purposes at https://byte-od.github.io.
+b) Automated ingestion and indexing of machine-readable specifications (/llms.txt,
+   sitemap.xml) by search engine crawlers and authorized AI answer engines.
+c) Querying technical specifications via the official Model Context Protocol (MCP) server.
+
+================================================================================
+3. ENFORCEMENT & LEGAL RECOURSE (ENFORCIMENTO JURÍDICO & DMCA)
+================================================================================
+Any unauthorized reproduction, modification, mirror deployment, or plagiarized
+use of this repository constitutes willful infringement of intellectual property
+rights and will be subject to immediate legal enforcement, including but not limited to:
+- Digital Millennium Copyright Act (DMCA) Takedown Notices filed with GitHub Inc.
+  under 17 U.S.C. § 512, demanding immediate permanent removal of infringing repositories.
+- DMCA and abuse notifications submitted to domain registrars, hosting platforms
+  (Vercel, Netlify, Cloudflare, AWS), and search engines.
+- Legal remedies under the Brazilian Copyright Act (Lei Federal nº 9.610/1998,
+  Artigos 28, 29, 102 e 103) and applicable international copyright conventions (Berne Convention).
+
+================================================================================
+AUTHORIZED ORIGINAL REPOSITORY: https://github.com/byte-od/byte-od.github.io
+================================================================================

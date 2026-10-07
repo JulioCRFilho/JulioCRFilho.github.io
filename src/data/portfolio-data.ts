@@ -30,12 +30,12 @@ export interface SkillCategory {
 
 export const PORTFOLIO_INFO = {
   name: 'Julio Cesar da Costa Reis Filho',
-  handle: 'juliocrfilho',
+  handle: 'byte-od',
   title: 'Senior Systems Architect & LLM Engineer',
   location: 'Curitiba, Paraná, Brazil (Open to Remote & Relocation)',
   email: 'reisfilho1116@gmail.com',
   phone: '+55 41 9 9626 8203',
-  github: 'https://github.com/juliocrfilho',
+  github: 'https://github.com/byte-od',
   linkedin: 'https://linkedin.com/in/juliocrfilho',
   languages: [
     { name: 'English', level: 'Proficient C2 (EF SET 75/100)' },
@@ -80,7 +80,7 @@ export const PROJECTS: ProjectData[] = [
       'Headless MLOps linking VS Code, Git, and Kaggle API to autonomously dispatch training jobs and evaluate local inference via Apple Silicon Metal Performance Shaders (MPS) at ~0.19s latency.'
     ],
     techStack: ['PyTorch', 'DistributedDataParallel (DDP)', 'CUDA', 'RoPE', 'FlashAttention', 'Kaggle API', 'Apple Metal (MPS)'],
-    githubUrl: 'https://github.com/JulioCRFilho/cir-jev',
+    githubUrl: 'https://github.com/byte-od/cir-jev',
     interactiveType: 'transformer_sim',
     metrics: [
       { label: 'Parameters', value: '503M' },
@@ -102,7 +102,7 @@ export const PROJECTS: ProjectData[] = [
       'Published on npm for global developer consumption; guarantees mathematical alignment between architecture specs and production code.'
     ],
     techStack: ['TypeScript', 'Node.js', 'Mermaid.js', 'AST Parsing', 'Decision Matrices', 'CLI', 'Clean Architecture'],
-    githubUrl: 'https://github.com/JulioCRFilho/mermaid-diagram-driven-development',
+    githubUrl: 'https://github.com/byte-od/mermaid-diagram-driven-development',
     packageUrl: 'https://www.npmjs.com/package/mddd-cli',
     interactiveType: 'mermaid_demo',
     metrics: [
@@ -125,7 +125,7 @@ export const PROJECTS: ProjectData[] = [
       'Published open-source developer tooling for clean architectural visibility across distributed teams.'
     ],
     techStack: ['Go', 'TypeScript', 'AST Parsing', 'Mermaid.js', 'Living Documentation', 'Git Hooks', 'CLI'],
-    githubUrl: 'https://github.com/JulioCRFilho/mad',
+    githubUrl: 'https://github.com/byte-od/mad',
     metrics: [
       { label: 'Syntax Engine', value: 'MAD Tags' },
       { label: 'Sync Loop', value: 'Code-to-Diagram' },
@@ -145,7 +145,7 @@ export const PROJECTS: ProjectData[] = [
       'Integrates with CIR-Engine KV-cache and canonical grammar loops for seamless token handoff.'
     ],
     techStack: ['Python', 'PyTorch', 'Quantization (INT8/FP8)', 'Vector Embeddings', 'Apple MPS / CUDA', 'Inference Optimization'],
-    githubUrl: 'https://github.com/juliocrfilho/system_one',
+    githubUrl: 'https://github.com/byte-od/system_one',
     metrics: [
       { label: 'Latency', value: '<10ms Local' },
       { label: 'Architecture', value: 'System 1 Fast-Path' },
@@ -164,7 +164,7 @@ export const PROJECTS: ProjectData[] = [
       'Demonstrates deep fluency in low-level rendering (C++, shaders) seamlessly unified with high-level mobile applications (Dart/Flutter).'
     ],
     techStack: ['Dart', 'C++', 'Flutter Scene', 'Metal/Vulkan', 'GLSL/MSL Shaders', 'Scene Animations'],
-    githubUrl: 'https://github.com/juliocrfilho/flutter_scene',
+    githubUrl: 'https://github.com/byte-od/flutter_scene',
     interactiveType: 'graphics_demo',
     metrics: [
       { label: 'Target', value: '60-120 FPS' },
@@ -217,7 +217,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'MLOps headless conectando VS Code, Git e Kaggle API para despachar jobs de treinamento autonomamente e validar inferência local via Apple Silicon Metal (MPS) com latência de ~0,19s.'
       ],
       techStack: ['PyTorch', 'DistributedDataParallel (DDP)', 'CUDA', 'RoPE', 'FlashAttention', 'Kaggle API', 'Apple Metal (MPS)'],
-      githubUrl: 'https://github.com/JulioCRFilho/cir-jev',
+      githubUrl: 'https://github.com/byte-od/cir-jev',
       interactiveType: 'transformer_sim',
       metrics: [
         { label: 'Parâmetros', value: '503M' },
@@ -239,7 +239,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Publicado no npm para consumo global; assegura alinhamento rigoroso entre a especificação arquitetural e o código implementado.'
       ],
       techStack: ['TypeScript', 'Node.js', 'Mermaid.js', 'Parsing AST', 'Matrizes de Decisão', 'CLI', 'Clean Architecture'],
-      githubUrl: 'https://github.com/JulioCRFilho/mermaid-diagram-driven-development',
+      githubUrl: 'https://github.com/byte-od/mermaid-diagram-driven-development',
       packageUrl: 'https://www.npmjs.com/package/mddd-cli',
       interactiveType: 'mermaid_demo',
       metrics: [
@@ -262,7 +262,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Ferramenta open-source para visibilidade arquitetural transparente entre equipes de engenharia distribuídas.'
       ],
       techStack: ['Go', 'TypeScript', 'Parsing AST', 'Mermaid.js', 'Documentação Viva', 'Git Hooks', 'CLI'],
-      githubUrl: 'https://github.com/JulioCRFilho/mad',
+      githubUrl: 'https://github.com/byte-od/mad',
       metrics: [
         { label: 'Motor de Sintaxe', value: 'Tags MAD' },
         { label: 'Ciclo de Sincronia', value: 'Código-para-Diagrama' },
@@ -282,7 +282,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Integração direta com o KV-cache do CIR-Engine e loops de gramática canônica para repasse contínuo de tokens.'
       ],
       techStack: ['Python', 'PyTorch', 'Quantização (INT8/FP8)', 'Embeddings Vetoriais', 'Apple MPS / CUDA', 'Otimização de Inferência'],
-      githubUrl: 'https://github.com/juliocrfilho/system_one',
+      githubUrl: 'https://github.com/byte-od/system_one',
       metrics: [
         { label: 'Latência', value: '<10ms Local' },
         { label: 'Arquitetura', value: 'Sistema 1 Fast-Path' },
@@ -301,7 +301,7 @@ export function getProjects(lang: 'en' | 'pt' = 'en'): ProjectData[] {
         'Demonstra fluência profunda em renderização de baixo nível (C++, shaders) unificada de forma transparente a aplicações mobile de alto nível (Dart/Flutter).'
       ],
       techStack: ['Dart', 'C++', 'Flutter Scene', 'Metal/Vulkan', 'Shaders GLSL/MSL', 'Animações de Scenes'],
-      githubUrl: 'https://github.com/juliocrfilho/flutter_scene',
+      githubUrl: 'https://github.com/byte-od/flutter_scene',
       interactiveType: 'graphics_demo',
       metrics: [
         { label: 'Alvo', value: '60-120 FPS' },

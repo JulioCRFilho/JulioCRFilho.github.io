@@ -86,7 +86,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
-  const GITHUB_REPO = 'JulioCRFilho/system_one';
+  const GITHUB_REPO = 'byte-od/system_one';
 
   const DEMO_CONFIGS: Record<DemoKey, any> = useMemo(
     () => ({

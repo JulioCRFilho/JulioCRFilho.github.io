@@ -12,20 +12,20 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 
 const server = new McpServer({
-  name: 'juliocrfilho-portfolio-mcp',
+  name: 'byte-od-portfolio-mcp',
   version: '1.0.0',
 });
 
 const PROFILE_DATA = {
   name: 'Julio Cesar da Costa Reis Filho',
-  handle: 'juliocrfilho',
+  handle: 'byte-od',
   title: 'Senior Systems Architect & LLM Engineer',
   location: 'Curitiba & Pontal do Paraná, Brazil (Available Globally / Remote & Relocation)',
   email: 'reisfilho1116@gmail.com',
   phone: '+55 41 9 9626 8203',
-  github: 'https://github.com/JulioCRFilho',
+  github: 'https://github.com/byte-od',
   linkedin: 'https://linkedin.com/in/juliocrfilho',
-  portfolio_url: 'https://juliocrfilho.github.io/',
+  portfolio_url: 'https://byte-od.github.io/',
   status: 'Open to Staff/Principal Systems Architect, Senior LLM Engineer, & Technical Leadership roles',
   languages: [
     { language: 'English', proficiency: 'Proficient C2 (EF SET 75/100)' },
@@ -47,7 +47,7 @@ const PROJECTS_DATA = [
     title: 'CIR-Engine & Cir-Jev (503M Causal Transformer)',
     badge: 'Core ML Architecture & Distributed Training',
     category: 'ml_ai',
-    repository: 'https://github.com/JulioCRFilho/cir-jev',
+    repository: 'https://github.com/byte-od/cir-jev',
     specs: '503M Parameters · 16 Layers · 1536 Hidden Dim · 12 Heads (4 KV Heads / GQA)',
     summary: 'Proprietary 503M-parameter causal autoregressive Transformer designed, trained, and benchmarked from scratch in PyTorch without pre-baked high-level wrappers.',
     benchmarks: {
@@ -72,7 +72,7 @@ const PROJECTS_DATA = [
     title: 'system_one (Fast-Path Heuristic Engine)',
     badge: 'Dual-Process AI & Sub-10ms Inference',
     category: 'ml_ai',
-    repository: 'https://github.com/JulioCRFilho/system_one',
+    repository: 'https://github.com/byte-od/system_one',
     specs: 'Sub-10ms Inference · Dual-Process Cognitive Layer · Fast-Path Routing',
     summary: 'Fast-path heuristic inference kernel operating as the low-latency companion layer (System 1 reactive vs System 2 deliberative) to the 503M CIR-Engine.',
     benchmarks: {
@@ -91,7 +91,7 @@ const PROJECTS_DATA = [
     title: 'mddd-cli (Spec-Driven Dev via Diagrams & Matrices)',
     badge: 'Developer Tooling & NPM Package',
     category: 'developer_tooling',
-    repository: 'https://github.com/JulioCRFilho/mermaid-diagram-driven-development',
+    repository: 'https://github.com/byte-od/mermaid-diagram-driven-development',
     package_url: 'https://www.npmjs.com/package/mddd-cli',
     specs: 'Spec-Driven Development (SDD) · Executable Diagrams & Decision Matrices · NPM Tool',
     summary: 'Framework CLI that elevates formal architectural diagrams and decision matrices—rather than ambiguous pure text—as executable specifications to compile production Clean Architecture codebases.',
@@ -110,7 +110,7 @@ const PROJECTS_DATA = [
     title: 'MAD-cli (Mermaid Auto-Doccing)',
     badge: 'Living Documentation & Architecture Parser',
     category: 'developer_tooling',
-    repository: 'https://github.com/JulioCRFilho/mad',
+    repository: 'https://github.com/byte-od/mad',
     specs: 'Code-to-Mermaid Living Docs · MAD Tags Parser',
     summary: 'Bidirectional engine that parses code comment tags (<!-- MAD:... -->, @mad) in Go, Dart, TypeScript, and Python to auto-update living Mermaid architecture diagrams on git commits.',
     benchmarks: {
@@ -127,7 +127,7 @@ const PROJECTS_DATA = [
     title: 'flutter_scene (High-Performance 3D Scene Graph)',
     badge: 'Computer Graphics & Low-Latency Rendering',
     category: 'mobile_graphics',
-    repository: 'https://github.com/JulioCRFilho/flutter_scene',
+    repository: 'https://github.com/byte-od/flutter_scene',
     specs: '3D Scene Graph · Custom Metal / Vulkan Shader Pipeline',
     summary: 'Low-latency 3D graphics and shader compilation engine fork for mobile and spatial interactive experiences.',
     benchmarks: {

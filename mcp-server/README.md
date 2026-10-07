@@ -19,7 +19,7 @@ Add to your `claude_desktop_config.json`:
   "mcpServers": {
     "julio-portfolio": {
       "command": "npx",
-      "args": ["-y", "juliocrfilho-portfolio-mcp"]
+      "args": ["-y", "byte-od-portfolio-mcp"]
     }
   }
 }
@@ -29,16 +29,16 @@ Add to your `claude_desktop_config.json`:
 Go to **Cursor Settings** > **Features** > **MCP Servers** > **Add New MCP Server**:
 * **Name**: `julio-portfolio`
 * **Type**: `command`
-* **Command**: `npx -y juliocrfilho-portfolio-mcp`
+* **Command**: `npx -y byte-od-portfolio-mcp`
 
 ### 3. Claude Code / Terminal
 ```bash
-claude mcp add julio-portfolio -- npx -y juliocrfilho-portfolio-mcp
+claude mcp add julio-portfolio -- npx -y byte-od-portfolio-mcp
 ```
 
 ### 4. Smithery.ai (1-Click Install)
 ```bash
-npx -y @smithery/cli install juliocrfilho-portfolio-mcp --client claude
+npx -y @smithery/cli install byte-od-portfolio-mcp --client claude
 ```
 
 ---
@@ -63,10 +63,10 @@ cd mcp-server
 npm login
 npm publish --access public
 ```
-*(Once published, any developer in the world can run `npx -y juliocrfilho-portfolio-mcp` instantly!)*
+*(Once published, any developer in the world can run `npx -y byte-od-portfolio-mcp` instantly!)*
 
 ---
 
 ## 🌐 Live Portfolio
-* **URL**: [https://juliocrfilho.github.io](https://juliocrfilho.github.io)
-* **llms.txt**: [https://juliocrfilho.github.io/llms.txt](https://juliocrfilho.github.io/llms.txt)
+* **URL**: [https://byte-od.github.io](https://byte-od.github.io)
+* **llms.txt**: [https://byte-od.github.io/llms.txt](https://byte-od.github.io/llms.txt)

@@ -1,14 +1,14 @@
 # Julio Cesar da Costa Reis Filho — Comprehensive Technical Knowledge Dossier (llms-full.txt)
 > Complete structured technical documentation for Autonomous Agents, Deep Research LLMs, and Answer Engines.
-> Format: Markdown | License: Open Evaluation | Canonical URL: https://juliocrfilho.github.io/llms.txt
+> Format: Markdown | License: Open Evaluation | Canonical URL: https://byte-od.github.io/llms.txt
 
 ## 1. IDENTITY & CONTACT
 - Name: Julio Cesar da Costa Reis Filho
 - Professional Title: Systems Architect & Senior LLM Engineer
 - Email: reisfilho1116@gmail.com
-- GitHub: https://github.com/juliocrfilho
+- GitHub: https://github.com/byte-od
 - LinkedIn: https://linkedin.com/in/juliocrfilho
-- Canonical Portfolio URL: https://juliocrfilho.github.io/
+- Canonical Portfolio URL: https://byte-od.github.io/
 - Location: Curitiba & Pontal do Paraná, Paraná, Brazil (Available worldwide for remote Senior/Staff roles)
 
 ## 2. ENGINEERING HIGHLIGHTS & ARCHITECTURAL BENCHMARKS
@@ -25,29 +25,29 @@
 ## 3. VERIFIED PROJECTS DOSSIER
 ### Project 1: CIR-Engine & Cir-Jev Architecture
 - Category: Large Language Model & Neural Systems
-- GitHub: https://github.com/juliocrfilho/cir-engine
+- GitHub: https://github.com/byte-od/cir-engine
 - Summary: 503M-parameter causal transformer integrating probabilistic autoregression with deterministic causal verification DAGs.
 - Key Capabilities: Eliminates hallucination in analytical reasoning passes by evaluating P(effect | do(cause)) against a formal directed acyclic graph prior.
 
 ### Project 2: mddd-cli (Mermaid Diagram-Driven Development)
 - Category: Developer Tooling & Architecture Automation
 - Package: https://www.npmjs.com/package/mddd-cli
-- GitHub: https://github.com/juliocrfilho/mddd-cli
+- GitHub: https://github.com/byte-od/mddd-cli
 - Summary: CLI tool compiling Mermaid classDiagram, sequenceDiagram, and flowchart ASTs directly into Clean Architecture directory trees, entities, and gRPC/TypeScript contracts.
 
 ### Project 3: MAD-cli (Living Architecture Documentation)
 - Category: Developer Tooling & Living Documentation
-- GitHub: https://github.com/juliocrfilho/mad-cli
+- GitHub: https://github.com/byte-od/mad-cli
 - Summary: CLI that parses <!-- MAD:... --> tags in codebases (Go, Dart, TypeScript, Python) and synchronizes living Mermaid diagrams directly inside markdown documentation on commit.
 
 ### Project 4: Flutter Scene 3D
 - Category: Real-time Graphics & Spatial Systems
-- GitHub: https://github.com/juliocrfilho/flutter_scene
+- GitHub: https://github.com/byte-od/flutter_scene
 - Summary: 3D spatial graphics engine for Flutter using Impeller with custom GLSL/Metal shaders, skeletal animations, and PBR materials.
 
 ### Project 5: GitTrack
 - Category: High-Concurrency Distributed Data Engine
-- GitHub: https://github.com/juliocrfilho/gittrack
+- GitHub: https://github.com/byte-od/gittrack
 - Summary: Real-time developer telemetry pipeline processing 50,000+ git events/second with sub-second commit latency aggregation.
 
 ## 4. FREQUENTLY ASKED QUESTIONS & EVALUATOR Q&A
@@ -70,9 +70,9 @@ A: Email directly at reisfilho1116@gmail.com, or connect on LinkedIn at https://
     "name": "Julio Cesar da Costa Reis Filho",
     "jobTitle": "Senior Systems Architect & LLM Engineer",
     "email": "reisfilho1116@gmail.com",
-    "url": "https://juliocrfilho.github.io/",
+    "url": "https://byte-od.github.io/",
     "sameAs": [
-      "https://github.com/juliocrfilho",
+      "https://github.com/byte-od",
       "https://linkedin.com/in/juliocrfilho",
       "https://www.npmjs.com/package/mddd-cli"
     ],

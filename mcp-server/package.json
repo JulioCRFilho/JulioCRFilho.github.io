@@ -1,11 +1,11 @@
 {
-  "name": "juliocrfilho-portfolio-mcp",
+  "name": "byte-od-portfolio-mcp",
   "version": "1.0.0",
   "description": "Official Model Context Protocol (MCP) server for Julio Cesar Reis Filho - LLM Systems Architect & Engineer portfolio dossier.",
   "main": "index.mjs",
   "type": "module",
   "bin": {
-    "juliocrfilho-portfolio-mcp": "./index.mjs"
+    "byte-od-portfolio-mcp": "./index.mjs"
   },
   "scripts": {
     "start": "node index.mjs"

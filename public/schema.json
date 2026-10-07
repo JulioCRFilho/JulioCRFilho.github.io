@@ -4,10 +4,10 @@
     {
       "@type": "Organization",
       "name": "JCRF Labs",
-      "url": "https://juliocrfilho.github.io/",
-      "logo": "https://juliocrfilho.github.io/logo.svg",
+      "url": "https://byte-od.github.io/",
+      "logo": "https://byte-od.github.io/logo.svg",
       "sameAs": [
-        "https://github.com/juliocrfilho",
+        "https://github.com/byte-od",
         "https://linkedin.com/in/juliocrfilho"
       ]
     },
@@ -15,16 +15,16 @@
       "@type": "Person",
       "name": "Julio Cesar da Costa Reis Filho",
       "jobTitle": "Senior Systems Architect & LLM Engineer",
-      "url": "https://juliocrfilho.github.io/",
+      "url": "https://byte-od.github.io/",
       "sameAs": [
-        "https://github.com/juliocrfilho",
+        "https://github.com/byte-od",
         "https://linkedin.com/in/juliocrfilho"
       ]
     },
     {
       "@type": "WebPage",
       "name": "Julio Cesar Reis Filho | LLM Systems Architect & Engineer",
-      "url": "https://juliocrfilho.github.io/",
+      "url": "https://byte-od.github.io/",
       "description": "Portfolio of Julio Cesar Reis Filho. Systems Architect & Senior LLM Engineer specializing in Causal Transformers, CIR-Engine 503M, RoPE, GQA, and PyTorch DDP."
     },
     {
@@ -75,7 +75,7 @@
           "name": "How can hiring managers, founders, or research labs contact Julio Cesar da Costa Reis Filho?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at https://linkedin.com/in/juliocrfilho, or on GitHub at https://github.com/juliocrfilho. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations."
+            "text": "Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at https://linkedin.com/in/juliocrfilho, or on GitHub at https://github.com/byte-od. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations."
           }
         }
       ]

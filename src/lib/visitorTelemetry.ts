@@ -27,8 +27,8 @@ const STORAGE_KEY = 'jcrf_telemetry_real_v2';
 const SESSION_KEY = 'jcrf_session_counted_v2';
 
 const API_BASE = 'https://countapi.mileshilliard.com/api/v1';
-const KEY_HUMANS = 'juliocrfilho-portfolio-humans';
-const KEY_AGENTS = 'juliocrfilho-portfolio-agents';
+const KEY_HUMANS = 'byteod-portfolio-humans';
+const KEY_AGENTS = 'byteod-portfolio-agents';
 
 // Known AI agent / crawler user agents & signatures
 const AGENT_SIGNATURES = [

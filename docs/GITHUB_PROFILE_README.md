@@ -6,8 +6,8 @@
 </p>
 
 <p align="left">
-  <a href="https://juliocrfilho.github.io">
-    <img src="https://img.shields.io/badge/Live_Portfolio-juliocrfilho.github.io-adff2f?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Live Portfolio" />
+  <a href="https://byte-od.github.io">
+    <img src="https://img.shields.io/badge/Live_Portfolio-byte-od.github.io-adff2f?style=for-the-badge&logo=google-chrome&logoColor=black" alt="Live Portfolio" />
   </a>
   <a href="https://linkedin.com/in/juliocrfilho">
     <img src="https://img.shields.io/badge/LinkedIn-Julio_Cesar-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
@@ -21,17 +21,17 @@
 
 ### 🌐 Live Portfolio & Interactive Neural HUD
 > Explore interactive byte-level tokenizers, ONNX SIMD neural game evaluations (LunarLander, MountainCar, Acrobot), and 3D graphics at:  
-> **👉 [https://juliocrfilho.github.io](https://juliocrfilho.github.io)**
+> **👉 [https://byte-od.github.io](https://byte-od.github.io)**
 
 ---
 
 ### 🚀 Key Projects & Systems
 
-- **[cir-jev](https://github.com/JulioCRFilho/cir-jev)** — Proprietary 503M-parameter causal autoregressive Transformer built from scratch in PyTorch with RoPE, GQA, and distributed PyTorch DDP (~6,200 tokens/sec throughput).
-- **[system_one](https://github.com/JulioCRFilho/system_one)** — Fast-path heuristic inference kernel (<10ms local evaluation) operating as the low-latency companion layer to deliberate causal reasoning.
-- **[mermaid-diagram-driven-development (mddd-cli)](https://github.com/JulioCRFilho/mermaid-diagram-driven-development)** — Spec-Driven Development (SDD) framework compiling architectural diagrams and decision matrices into production Clean Architecture ([npm package](https://www.npmjs.com/package/mddd-cli)).
-- **[mad](https://github.com/JulioCRFilho/mad)** — Living documentation engine synchronizing code comment tags (`<!-- MAD:... -->`) with auto-updating Mermaid diagrams on git commits.
-- **[flutter_scene](https://github.com/JulioCRFilho/flutter_scene)** — High-performance 3D fork with contributions focused on scene animation pipelines, keyframes, and custom shader optimizations.
+- **[cir-jev](https://github.com/byte-od/cir-jev)** — Proprietary 503M-parameter causal autoregressive Transformer built from scratch in PyTorch with RoPE, GQA, and distributed PyTorch DDP (~6,200 tokens/sec throughput).
+- **[system_one](https://github.com/byte-od/system_one)** — Fast-path heuristic inference kernel (<10ms local evaluation) operating as the low-latency companion layer to deliberate causal reasoning.
+- **[mermaid-diagram-driven-development (mddd-cli)](https://github.com/byte-od/mermaid-diagram-driven-development)** — Spec-Driven Development (SDD) framework compiling architectural diagrams and decision matrices into production Clean Architecture ([npm package](https://www.npmjs.com/package/mddd-cli)).
+- **[mad](https://github.com/byte-od/mad)** — Living documentation engine synchronizing code comment tags (`<!-- MAD:... -->`) with auto-updating Mermaid diagrams on git commits.
+- **[flutter_scene](https://github.com/byte-od/flutter_scene)** — High-performance 3D fork with contributions focused on scene animation pipelines, keyframes, and custom shader optimizations.
 
 ---
 

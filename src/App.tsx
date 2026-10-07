@@ -13,6 +13,7 @@ import { AgentViewModal } from './components/AgentViewModal';
 import { VisitorTelemetryBadge } from './components/VisitorTelemetryBadge';
 import { FloatingTokenMonitor } from './components/FloatingTokenMonitor';
 import { AmbientTensorCanvas } from './components/AmbientTensorCanvas';
+import { HostIntegrityBanner } from './components/HostIntegrityBanner';
 import {
   Github,
   Mail,
@@ -238,6 +239,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#07080a] text-zinc-100 selection:bg-[#adff2f] selection:text-black">
+      {/* Host Integrity & Anti-Cloning Banner (renders only if on unauthorized mirror) */}
+      <HostIntegrityBanner />
+
       {/* Background Subtle Grid Texture */}
       <div className="fixed inset-0 pointer-events-none bg-grid-pattern opacity-40 z-0" />
 
@@ -509,11 +513,11 @@ export default function App() {
             </button>
 
             <a
-              href="https://github.com/juliocrfilho"
+              href="https://github.com/byte-od"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg border border-zinc-800 transition-colors"
-              title={lang === 'pt' ? 'Perfil no GitHub (juliocrfilho)' : 'GitHub Profile (juliocrfilho)'}
+              title={lang === 'pt' ? 'Perfil no GitHub (byte-od)' : 'GitHub Profile (byte-od)'}
             >
               <Github className="w-4 h-4" />
             </a>
@@ -546,7 +550,7 @@ export default function App() {
               </div>
             </div>
             <a
-              href="https://github.com/JulioCRFilho/cir-jev"
+              href="https://github.com/byte-od/cir-jev"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1"
@@ -604,12 +608,12 @@ export default function App() {
               </div>
             </div>
             <a
-              href="https://github.com/juliocrfilho"
+              href="https://github.com/byte-od"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-mono text-zinc-400 hover:text-white flex items-center gap-1"
             >
-              <span>github.com/juliocrfilho</span>
+              <span>github.com/byte-od</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -710,13 +714,13 @@ export default function App() {
               </a>
 
               <a
-                href="https://github.com/juliocrfilho"
+                href="https://github.com/byte-od"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-zinc-900 hover:bg-zinc-850 text-zinc-300 hover:text-white font-mono text-xs rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2"
               >
                 <Github className="w-4 h-4" />
-                <span>GitHub @juliocrfilho</span>
+                <span>GitHub @byte-od</span>
               </a>
             </div>
           </div>
@@ -750,7 +754,7 @@ export default function App() {
               <Linkedin className="w-3.5 h-3.5 text-[#0a66c2]" />
               <span>LinkedIn</span>
             </a>
-            <a href="https://github.com/juliocrfilho" target="_blank" rel="noopener noreferrer" className="hover:text-[#adff2f] transition-colors">
+            <a href="https://github.com/byte-od" target="_blank" rel="noopener noreferrer" className="hover:text-[#adff2f] transition-colors">
               GitHub
             </a>
             <a href="mailto:reisfilho1116@gmail.com" className="hover:text-[#adff2f] transition-colors">

@@ -3,7 +3,7 @@
  * Portado para TypeScript para execução interativa no Portfólio.
  * Suporta Cubo Mágico 3x3 (Macro/CFOP) e CartPole-v1 com inferência via ONNX Runtime Web.
  * 
- * GitHub: https://github.com/JulioCRFilho/system_one
+ * GitHub: https://github.com/byte-od/system_one
  */
 
 // Interface para declaração do ONNX Runtime no escopo global

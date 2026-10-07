@@ -1,4 +1,4 @@
-# robots.txt for https://juliocrfilho.github.io/
+# robots.txt for https://byte-od.github.io/
 # Search Engine Optimization (SEO) & Answer Engine Optimization (AEO/GEO)
 # Explicitly grants access to general web crawlers, search engines, and all major AI bots.
 
@@ -92,4 +92,4 @@ User-agent: PetalBot
 Allow: /
 
 # Sitemaps & Machine-Readable AI Dossiers
-Sitemap: https://juliocrfilho.github.io/sitemap.xml
+Sitemap: https://byte-od.github.io/sitemap.xml

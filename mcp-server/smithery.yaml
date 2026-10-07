@@ -5,4 +5,4 @@ startCommand:
     command: npx
     args:
       - -y
-      - juliocrfilho-portfolio-mcp
+      - byte-od-portfolio-mcp

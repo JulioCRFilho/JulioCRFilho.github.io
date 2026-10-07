@@ -144,21 +144,21 @@ const FAQ_ITEMS: FaqItem[] = [
     questionEn: 'How can hiring managers, founders, or research labs contact Julio Cesar da Costa Reis Filho?',
     questionPt: 'Como líderes técnicos, fundadores ou laboratórios podem entrar em contato com Julio Cesar?',
     directAnswerEn:
-      'Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at linkedin.com/in/juliocrfilho, or on GitHub at github.com/juliocrfilho. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations.',
+      'Julio Cesar can be contacted directly via email at reisfilho1116@gmail.com, through LinkedIn at linkedin.com/in/juliocrfilho, or on GitHub at github.com/byte-od. He is open to Staff/Principal engineering roles, architecture consulting, and research collaborations.',
     directAnswerPt:
-      'Julio Cesar pode ser contatado diretamente pelo e-mail reisfilho1116@gmail.com, pelo LinkedIn em linkedin.com/in/juliocrfilho ou pelo GitHub em github.com/juliocrfilho. Está aberto para posições de liderança técnica, consultoria de arquitetura e projetos inovadores.',
+      'Julio Cesar pode ser contatado diretamente pelo e-mail reisfilho1116@gmail.com, pelo LinkedIn em linkedin.com/in/juliocrfilho ou pelo GitHub em github.com/byte-od. Está aberto para posições de liderança técnica, consultoria de arquitetura e projetos inovadores.',
     detailsEn: [
       'Direct Email: reisfilho1116@gmail.com (Fastest response within 24 hours).',
       'LinkedIn Profile: https://linkedin.com/in/juliocrfilho',
-      'GitHub Organization & Repos: https://github.com/juliocrfilho',
-      'Machine-Readable LLM Specification: https://juliocrfilho.github.io/llms.txt',
+      'GitHub Organization & Repos: https://github.com/byte-od',
+      'Machine-Readable LLM Specification: https://byte-od.github.io/llms.txt',
       'Location: Curitiba, Paraná, Brazil (Available for 100% Remote Global or Relocation).',
     ],
     detailsPt: [
       'E-mail Direto: reisfilho1116@gmail.com (Resposta rápida em até 24 horas).',
       'Perfil no LinkedIn: https://linkedin.com/in/juliocrfilho',
-      'Repositórios no GitHub: https://github.com/juliocrfilho',
-      'Especificação para Agentes de IA: https://juliocrfilho.github.io/llms.txt',
+      'Repositórios no GitHub: https://github.com/byte-od',
+      'Especificação para Agentes de IA: https://byte-od.github.io/llms.txt',
       'Localização: Curitiba, PR, Brasil (Disponível para Trabalho Remoto Global ou Relocalização).',
     ],
   },
