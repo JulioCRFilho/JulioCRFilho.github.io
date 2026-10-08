@@ -335,6 +335,11 @@ export class RubiksCubeSim {
     return Math.min(54, Math.max(0, Math.round(progress * 54)));
   }
 
+  getScore(): number {
+    const raw = this.getRawAlignedCount();
+    return Math.max(0.0, Math.min(1.0, (raw - 6) / 48.0));
+  }
+
   getScorePct(): number {
     if (this.isSolved()) return 100.0;
     const raw = this.getRawAlignedCount();

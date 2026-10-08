@@ -90,6 +90,15 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
+  const getCubeScore = (c: any): number => {
+    if (!c) return 0.0;
+    if (typeof c.getScore === 'function') return c.getScore();
+    if (typeof c.getRawAlignedCount === 'function') {
+      return Math.max(0.0, Math.min(1.0, (c.getRawAlignedCount() - 6) / 48.0));
+    }
+    return 0.0;
+  };
+
   const GITHUB_REPO = 'JulioCRFilho/system_one';
 
   useEffect(() => {
@@ -261,7 +270,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
     actionHistoryRef.current = [];
     lastRewardRef.current = 0.0;
-    prevScoreRef.current = isRubiksDemo(demoKey) && simRef.current ? (simRef.current as RubiksCubeSim).getScore() : 0.0;
+    prevScoreRef.current = isRubiksDemo(demoKey) && simRef.current ? getCubeScore(simRef.current) : 0.0;
     peakRawRef.current = isRubiksDemo(demoKey) && simRef.current ? (simRef.current as RubiksCubeSim).getRawAlignedCount() : 0;
     visitedStatesRef.current = isRubiksDemo(demoKey) && simRef.current ? [(simRef.current as RubiksCubeSim).getStateHash()] : [];
     if (agentRef.current) {
@@ -426,7 +435,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             visitedStatesRef.current.push(cube.getStateHash());
             if (visitedStatesRef.current.length > 24) visitedStatesRef.current.shift();
 
-            const curScore = cube.getScore();
+            const curScore = getCubeScore(cube);
             const deltaScore = curScore - prevScoreRef.current;
             prevScoreRef.current = curScore;
             let stepReward = deltaScore * 5.0 - 0.02;
@@ -612,7 +621,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       visitedStatesRef.current = [cube.getStateHash()];
       actionHistoryRef.current = [];
       lastRewardRef.current = 0.0;
-      prevScoreRef.current = cube.getScore();
+      prevScoreRef.current = getCubeScore(cube);
       if (agentRef.current) agentRef.current.resetMemory();
     }
     setIsRunning(true);
@@ -642,7 +651,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       });
       actionHistoryRef.current = [];
       lastRewardRef.current = 0.0;
-      prevScoreRef.current = cube.getScore();
+      prevScoreRef.current = getCubeScore(cube);
       visitedStatesRef.current = [cube.getStateHash()];
       if (agentRef.current) agentRef.current.resetMemory();
       const moveStr =
