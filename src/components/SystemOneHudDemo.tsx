@@ -71,6 +71,8 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const [fps, setFps] = useState<number>(60);
   const [cubeScrambleDepth, setCubeScrambleDepth] = useState<number>(2);
 
+  const [manifestData, setManifestData] = useState<Record<string, any>>({});
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const simRef = useRef<RubiksCubeSim | CartPoleSim | LunarLanderSim | MountainCarSim | AcrobotSim | null>(null);
   const agentRef = useRef<System1AgentWeb | null>(null);
@@ -87,7 +89,25 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const isRubiksDemo = (k: DemoKey) => k === 'rubiks' || k === 'rubiks_atomic';
 
-  const GITHUB_REPO = 'byte-od/system_one';
+  const GITHUB_REPO = 'JulioCRFilho/system_one';
+
+  useEffect(() => {
+    const fetchManifest = async () => {
+      try {
+        const baseUrl = import.meta.env.BASE_URL?.endsWith('/')
+          ? import.meta.env.BASE_URL
+          : `${import.meta.env.BASE_URL || ''}/`;
+        const res = await fetch(`${baseUrl}models/manifest.json?v=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.models) {
+            setManifestData(data.models);
+          }
+        }
+      } catch (_) {}
+    };
+    fetchManifest();
+  }, []);
 
   const DEMO_CONFIGS: Record<DemoKey, any> = useMemo(
     () => ({
@@ -98,7 +118,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: '100% Solve (12)',
         icon: '🎲',
         file: 's1_rubiks_atomic.onnx',
-        size: '~3.3 MB',
+        checkpointSource: 's1_rubikscube_v0_trained_v1.pt',
+        checkpointVersion: 'v1 (4M passos)',
+        size: '~3.2 MB',
         envName: 'RubiksCube-v0',
         actionSpace: "12 Giros Atômicos (U, U', D, D', F, F', B, B', R, R', L, L')",
         obsSpace: '324-dim One-Hot Vector (54 stickers × 6 cores)',
@@ -114,7 +136,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: 'Macro CFOP (12)',
         icon: '🧩',
         file: 's1_rubiks_macro.onnx',
-        size: '~3.3 MB',
+        checkpointSource: 's1_rubikscubemacro_v0_trained.pt',
+        checkpointVersion: 'v1 (CFOP)',
+        size: '~3.2 MB',
         envName: 'RubiksCubeMacro-v0',
         actionSpace: '12 Macro Actions (CFOP: Sune, T-Perm, Sexy Move)',
         obsSpace: '324-dim One-Hot Vector (54 stickers × 6 cores)',
@@ -130,7 +154,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: lang === 'pt' ? 'Pouso Lunar (4)' : 'Moon Landing (4)',
         icon: '🚀',
         file: 's1_lunarlander_v3.onnx',
-        size: '~2.9 MB',
+        checkpointSource: 's1_lunarlander_v3_trained.pt',
+        checkpointVersion: 'v1',
+        size: '~2.8 MB',
         envName: 'LunarLander-v3',
         actionSpace: '4 Ações Discretas (Noop, Propulsor Esq, Principal, Dir)',
         obsSpace: '8-dim Vetor de Estado [x, y, ẋ, ẏ, θ, θ̇, legL, legR]',
@@ -146,7 +172,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: lang === 'pt' ? 'Inércia / Colina (3)' : 'Inertia Climb (3)',
         icon: '🏎️',
         file: 's1_mountaincar_v0.onnx',
-        size: '~2.9 MB',
+        checkpointSource: 's1_mountaincar_v0_trained.pt',
+        checkpointVersion: 'v1',
+        size: '~2.8 MB',
         envName: 'MountainCar-v0',
         actionSpace: '3 Ações Discretas (Push Left, Coast, Push Right)',
         obsSpace: '2-dim Cinemática [Posição, Velocidade]',
@@ -162,7 +190,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: lang === 'pt' ? 'Haste Invertida (2)' : 'Inverted Pole (2)',
         icon: '⚖️',
         file: 's1_cartpole.onnx',
-        size: '~2.9 MB',
+        checkpointSource: 's1_cartpole_v1_trained.pt',
+        checkpointVersion: 'v1',
+        size: '~2.8 MB',
         envName: 'CartPole-v1',
         actionSpace: '2 Ações Discretas (Push Left / Right)',
         obsSpace: '4-dim Física Contínua [x, ẋ, θ, θ̇]',
@@ -178,7 +208,9 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
         tag: lang === 'pt' ? 'Pêndulo Duplo (3)' : 'Double Pendulum (3)',
         icon: '🤸',
         file: 's1_acrobot_v1.onnx',
-        size: '~2.9 MB',
+        checkpointSource: 's1_acrobot_v1_trained.pt',
+        checkpointVersion: 'v1',
+        size: '~2.8 MB',
         envName: 'Acrobot-v1',
         actionSpace: '3 Ações Discretas (Torque -1, 0, +1)',
         obsSpace: '6-dim Cinemática [cos, sin, cos, sin, θ̇₁, θ̇₂]',
@@ -253,7 +285,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       const baseUrl = import.meta.env.BASE_URL?.endsWith('/')
         ? import.meta.env.BASE_URL
         : `${import.meta.env.BASE_URL || ''}/`;
-      const localUrl = `${baseUrl}models/${cfg.file}`;
+      const localUrl = `${baseUrl}models/${cfg.file}?v=${Date.now()}`;
       const cdnUrl = `https://cdn.jsdelivr.net/gh/${GITHUB_REPO}@master/web/models/${cfg.file}`;
 
       let session: any = null;
@@ -1196,12 +1228,22 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
               <span className="text-cyan-400 font-bold">ONNX Runtime Web (Wasm SIMD)</span>
             </div>
             <div className="flex justify-between">
-              <span>Checkpoint:</span>
+              <span>Modelo Wasm:</span>
               <span className="text-white truncate max-w-[160px]">{currentCfg.file}</span>
             </div>
             <div className="flex justify-between">
-              <span>Origem dos Pesos:</span>
-              <span className="text-emerald-400 truncate max-w-[160px]">system_one@master</span>
+              <span>Checkpoint (.pt):</span>
+              <span className="text-emerald-400 font-semibold truncate max-w-[185px]">
+                {manifestData[activeDemo]?.checkpoint_source || currentCfg.checkpointSource || `${currentCfg.file.replace('.onnx', '')}_trained.pt`}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Versão / Treino:</span>
+              <span className="text-purple-400 truncate max-w-[160px]">
+                {manifestData[activeDemo]?.checkpoint_version === 'v1' && activeDemo === 'rubiks_atomic'
+                  ? 'v1 (4M passos)'
+                  : (manifestData[activeDemo]?.checkpoint_version || currentCfg.checkpointVersion || 'v1 (Amortizado)')}
+              </span>
             </div>
           </div>
 
