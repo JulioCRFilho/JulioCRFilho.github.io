@@ -83,6 +83,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
   const lastFpsTimeRef = useRef<number>(performance.now());
   const isRunningRef = useRef<boolean>(false);
   const lastRewardRef = useRef<number>(0.0);
+  const prevScoreRef = useRef<number>(0.0);
   const actionHistoryRef = useRef<number[]>([]);
   const peakRawRef = useRef<number>(0);
   const visitedStatesRef = useRef<string[]>([]);
@@ -260,6 +261,7 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
     actionHistoryRef.current = [];
     lastRewardRef.current = 0.0;
+    prevScoreRef.current = isRubiksDemo(demoKey) && simRef.current ? (simRef.current as RubiksCubeSim).getScore() : 0.0;
     peakRawRef.current = isRubiksDemo(demoKey) && simRef.current ? (simRef.current as RubiksCubeSim).getRawAlignedCount() : 0;
     visitedStatesRef.current = isRubiksDemo(demoKey) && simRef.current ? [(simRef.current as RubiksCubeSim).getStateHash()] : [];
     if (agentRef.current) {
@@ -379,33 +381,26 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
           const avoidList: number[] = [];
           const aHist = actionHistoryRef.current;
 
-          if (isRubiksDemo(activeDemo)) {
+          // Só aplica inibição heurística se o modo auto estiver ativo com estagnação persistente
+          // e NUNCA inibe o movimento de resolução do cubo
+          if (isRubiksDemo(activeDemo) && isAutoCalibrate && aHist.length >= 3) {
             const cube = sim as RubiksCubeSim;
-            // 1. Inibição de inverso atômico imediato (evita no-op de 2 passos)
-            if (activeDemo === 'rubiks_atomic' && aHist.length >= 1) {
-              const last = aHist[aHist.length - 1];
-              const inv = (last % 2 === 0) ? last + 1 : last - 1;
-              avoidList.push(inv);
-            }
-            // 2. Prevenção de retorno a configurações recentemente visitadas
             const recentStates = visitedStatesRef.current;
-            if (recentStates.length > 0) {
+            if (recentStates.length > 2) {
               const moves = activeDemo === 'rubiks_atomic' 
                 ? RubiksCubeSim.ATOMIC_MOVES 
                 : RubiksCubeSim.MACRO_NAMES;
               for (let i = 0; i < moves.length; i++) {
                 const nextH = cube.predictStateHash(moves[i]);
-                if (recentStates.includes(nextH)) {
+                if (nextH !== '000000000111111111222222222333333333444444444555555555' && recentStates.includes(nextH)) {
                   avoidList.push(i);
                 }
               }
             }
           }
 
-          if (aHist.length >= 3 && aHist[aHist.length - 1] === aHist[aHist.length - 3]) {
+          if (isAutoCalibrate && aHist.length >= 3 && aHist[aHist.length - 1] === aHist[aHist.length - 3]) {
             avoidList.push(aHist[aHist.length - 2]);
-          } else if (aHist.length >= 2 && aHist[aHist.length - 1] === aHist[aHist.length - 2]) {
-            avoidList.push(aHist[aHist.length - 1]);
           }
 
           const dec = await agent.actWithConfidence(obs, lastRewardRef.current, {
@@ -431,16 +426,12 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
             visitedStatesRef.current.push(cube.getStateHash());
             if (visitedStatesRef.current.length > 24) visitedStatesRef.current.shift();
 
-            const currRaw = cube.getRawAlignedCount();
-            const isNewPeak = currRaw > peakRawRef.current;
-            let stepReward = -0.02;
-            if (isNewPeak) {
-              const deltaPeak = currRaw - peakRawRef.current;
-              peakRawRef.current = currRaw;
-              stepReward = (deltaPeak / 48.0) * 10.0 + 1.0;
-            }
+            const curScore = cube.getScore();
+            const deltaScore = curScore - prevScoreRef.current;
+            prevScoreRef.current = curScore;
+            let stepReward = deltaScore * 5.0 - 0.02;
             if (cube.isSolved()) {
-              stepReward += 15.0;
+              stepReward += 10.0;
             }
             lastRewardRef.current = stepReward;
 
@@ -616,6 +607,14 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
 
   const startEvaluation = () => {
     if (!agentRef.current || isLoading) return;
+    if (isRubiksDemo(activeDemo) && simRef.current) {
+      const cube = simRef.current as RubiksCubeSim;
+      visitedStatesRef.current = [cube.getStateHash()];
+      actionHistoryRef.current = [];
+      lastRewardRef.current = 0.0;
+      prevScoreRef.current = cube.getScore();
+      if (agentRef.current) agentRef.current.resetMemory();
+    }
     setIsRunning(true);
     isRunningRef.current = true;
     animRef.current = requestAnimationFrame(stepLoop);
@@ -643,6 +642,8 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
       });
       actionHistoryRef.current = [];
       lastRewardRef.current = 0.0;
+      prevScoreRef.current = cube.getScore();
+      visitedStatesRef.current = [cube.getStateHash()];
       if (agentRef.current) agentRef.current.resetMemory();
       const moveStr =
         moves.length <= 4
