@@ -904,36 +904,29 @@ export const SystemOneHudDemo: React.FC<{ lang?: 'en' | 'pt' }> = ({ lang = 'en'
                       <span>{lang === 'pt' ? 'Embaralhar' : 'Scramble'}</span>
                     </button>
 
-                    <select
-                      value={cubeScrambleDepth}
-                      onChange={(e) => {
-                        const newDepth = Number(e.target.value);
-                        setCubeScrambleDepth(newDepth);
-                        scrambleEnv(newDepth);
-                      }}
-                      disabled={isLoading}
-                      className="bg-zinc-900 text-[11px] font-mono border border-zinc-700 rounded-lg px-2 py-1.5 text-amber-300 focus:outline-none focus:border-amber-500 cursor-pointer transition shadow-sm"
-                      title={lang === 'pt' ? 'Profundidade do embaralhamento' : 'Scramble depth'}
-                    >
-                      {activeDemo === 'rubiks_atomic' ? (
-                        <>
-                          <option value={1}>{lang === 'pt' ? '1 giro (Reflexo)' : '1 move (Reflex)'}</option>
-                          <option value={2}>{lang === 'pt' ? '2 giros (Rápido)' : '2 moves (Quick)'}</option>
-                          <option value={3}>{lang === 'pt' ? '3 giros (Padrão)' : '3 moves (Standard)'}</option>
-                          <option value={4}>{lang === 'pt' ? '4 giros (Avançado)' : '4 moves (Advanced)'}</option>
-                          <option value={5}>{lang === 'pt' ? '5 giros (Desafio)' : '5 moves (Challenge)'}</option>
-                          <option value={6}>{lang === 'pt' ? '6 giros (Expert)' : '6 moves (Expert)'}</option>
-                          <option value={8}>{lang === 'pt' ? '8 giros (Complexo)' : '8 moves (Complex)'}</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value={1}>{lang === 'pt' ? '1 macro (Reflexo)' : '1 macro (Reflex)'}</option>
-                          <option value={2}>{lang === 'pt' ? '2 macros (Padrão)' : '2 macros (Standard)'}</option>
-                          <option value={3}>{lang === 'pt' ? '3 macros (Desafio)' : '3 macros (Challenge)'}</option>
-                          <option value={4}>{lang === 'pt' ? '4 macros (Complexo)' : '4 macros (Complex)'}</option>
-                        </>
-                      )}
-                    </select>
+                    <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1 shadow-sm">
+                      <span className="text-[10px] text-zinc-400 font-mono select-none">
+                        {lang === 'pt' ? 'Passos:' : 'Steps:'}
+                      </span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={cubeScrambleDepth}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          const newDepth = Math.max(1, isNaN(val) ? 1 : val);
+                          setCubeScrambleDepth(newDepth);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            scrambleEnv(cubeScrambleDepth);
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="w-12 bg-transparent text-xs font-mono text-center text-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-500 rounded py-0.5"
+                        title={lang === 'pt' ? 'Número aberto de passos de embaralhamento sem limite' : 'Open scramble step count without upper limit'}
+                      />
+                    </div>
                   </div>
                 )}
 

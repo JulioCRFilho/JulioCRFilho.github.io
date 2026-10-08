@@ -279,8 +279,9 @@ export class RubiksCubeSim {
     const candidates = RubiksCubeSim.SCRAMBLE_MACRO_NAMES;
     const targetDepth = Math.max(1, depth);
     let attempts = 0;
+    const maxAttempts = Math.max(100, targetDepth * 10);
 
-    while ((moves.length < targetDepth || this.isSolved()) && attempts < 60) {
+    while ((moves.length < targetDepth || this.isSolved()) && attempts < maxAttempts) {
       attempts++;
       const filtered = candidates.filter(
         (m) => m !== RubiksCubeSim.INVERSE_MACROS[lastMove || ''] && m !== lastMove
