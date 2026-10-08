@@ -38,7 +38,7 @@ interface InteractiveToolDemosProps {
 }
 
 export const InteractiveToolDemos: React.FC<InteractiveToolDemosProps> = ({ lang = 'en' }) => {
-  const [activeTab, setActiveTab] = useState<'flutter_scene' | 'gittrack' | 'mad' | 'mddd' | 'system_one'>('flutter_scene');
+  const [activeTab, setActiveTab] = useState<'system_one' | 'flutter_scene' | 'gittrack' | 'mad' | 'mddd'>('system_one');
 
   return (
     <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-6 lg:p-8 backdrop-blur-xl shadow-2xl">
@@ -51,13 +51,23 @@ export const InteractiveToolDemos: React.FC<InteractiveToolDemosProps> = ({ lang
           </h3>
           <p className="text-xs text-zinc-400 mt-1">
             {lang === 'pt'
-              ? 'Interaja diretamente com o renderizador 3D do Flutter Scene, o GitTrack (Rastreamento & IA VIP), o MAD-cli (Doc Viva), o mddd-cli (Spec-Driven Dev) e a avaliação neural em tempo real do system_one (ONNX Runtime Web / Wasm SIMD).'
-              : 'Directly test Flutter Scene 3D Shaders, GitTrack (Commit Tracking & VIP AI), MAD-cli (Auto-Doccing), mddd-cli (Spec-Driven Dev), and real-time neural evaluation of system_one (ONNX Runtime Web / Wasm SIMD).'}
+              ? 'Interaja diretamente com a avaliação neural em tempo real do system_one (ONNX Runtime Web / Wasm SIMD), o renderizador 3D do Flutter Scene, o GitTrack (Rastreamento & IA VIP), o MAD-cli (Doc Viva) e o mddd-cli (Spec-Driven Dev).'
+              : 'Directly test real-time neural evaluation of system_one (ONNX Runtime Web / Wasm SIMD), Flutter Scene 3D Shaders, GitTrack (Commit Tracking & VIP AI), MAD-cli (Auto-Doccing), and mddd-cli (Spec-Driven Dev).'}
           </p>
         </div>
 
-        {/* Tab Switcher - Ordered: Flutter_scene, GitTrack, MAD-cli, mddd-cli, system_one */}
+        {/* Tab Switcher - Ordered: system_one, Flutter_scene, GitTrack, MAD-cli, mddd-cli */}
         <div className="flex flex-wrap items-center gap-1 p-1 bg-zinc-900 border border-zinc-800 rounded-lg">
+          <button
+            type="button"
+            onClick={() => setActiveTab('system_one')}
+            className={`px-3 py-1.5 text-xs font-mono rounded-md transition-colors cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'system_one' ? 'bg-zinc-800 text-amber-400 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <Activity className="w-3.5 h-3.5 text-amber-400" />
+            <span>system_one (HUD)</span>
+          </button>
           <button
             type="button"
             onClick={() => setActiveTab('flutter_scene')}
@@ -94,33 +104,23 @@ export const InteractiveToolDemos: React.FC<InteractiveToolDemosProps> = ({ lang
           >
             {lang === 'pt' ? 'mddd-cli (Spec-Driven Dev)' : 'mddd-cli (Spec-Driven Dev)'}
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('system_one')}
-            className={`px-3 py-1.5 text-xs font-mono rounded-md transition-colors cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'system_one' ? 'bg-zinc-800 text-amber-400 font-bold shadow-sm' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5 text-amber-400" />
-            <span>system_one (HUD)</span>
-          </button>
         </div>
       </div>
 
-      {/* Tab 1: flutter_scene 3D Canvas */}
+      {/* Tab 1: system_one High-Definition HUD & Real Telemetry */}
+      {activeTab === 'system_one' && <SystemOneHudDemo lang={lang} />}
+
+      {/* Tab 2: flutter_scene 3D Canvas */}
       {activeTab === 'flutter_scene' && <FlutterSceneDemo lang={lang} />}
 
-      {/* Tab 2: GitTrack Telemetry */}
+      {/* Tab 3: GitTrack Telemetry */}
       {activeTab === 'gittrack' && <GitTrackDemo lang={lang} />}
 
-      {/* Tab 3: MAD-cli Mermaid Auto-Doccing with MAD Tags */}
+      {/* Tab 4: MAD-cli Mermaid Auto-Doccing with MAD Tags */}
       {activeTab === 'mad' && <MadCliDemo lang={lang} />}
 
-      {/* Tab 4: mddd-cli Spec-Driven Development (Diagram + Decision Matrix) */}
+      {/* Tab 5: mddd-cli Spec-Driven Development (Diagram + Decision Matrix) */}
       {activeTab === 'mddd' && <MdddCliDemo lang={lang} />}
-
-      {/* Tab 5: system_one High-Definition HUD & Real Telemetry */}
-      {activeTab === 'system_one' && <SystemOneHudDemo lang={lang} />}
     </div>
   );
 };
